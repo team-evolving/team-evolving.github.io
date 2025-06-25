@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD AI 编辑器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Custom styles and animations */
+        :root { 
+            --primary: #FF6B35; 
+            --secondary: #4FC3F7; 
+            --highlight: #FFF9C4; 
+        }
+        .ai-card { 
+            transition: all 0.3s ease; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+        }
+        .ai-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+        }
+        .prose h1, .prose h2, .prose h3 { 
+            scroll-margin-top: 5rem; 
+        }
+        @keyframes pulse { 
+            0% { background-color: transparent; } 
+            50% { background-color: var(--highlight); } 
+            100% { background-color: transparent; } 
+        }
+        .highlight-pulse { 
+            animation: pulse 1.2s ease-in-out 2; 
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+        // --- ICONS (lucide-react) ---
+        // A simple component to render SVG icons based on a name prop.
+        const Icon = ({ name, className }) => {
+            const icons = {
+                fileText: <><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></>,
+                sparkles: <path d="m12 3-1.9 4.8-4.8 1.9 4.8 1.9 1.9 4.8 1.9-4.8 4.8-1.9-4.8-1.9Z" />,
+                book: <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />,
+                history: <><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></>,
+                edit: <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />,
+                view: <><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>,
+                check: <polyline points="20 6 9 17 4 12" />,
+                x: <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>,
+                messageSquare: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
+                chevronsUpDown: <><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></>,
+                send: <><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></>,
+                bot: <><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></>,
+                user: <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>,
+                activity: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
+                'map-pin': <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></>,
+                'chevron-down': <path d="m6 9 6 6 6-6" />,
+                'chevron-up': <path d="m18 15-6-6-6 6" />,
+                'save': <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />,
+                'arrow-left-right': <><path d="M8 3 4 7l4 4" /><path d="M4 7h16" /><path d="m16 21 4-4-4-4" /><path d="M20 17H4" /></>,
+                'download': <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></>,
+                'scan-text': <><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><path d="M7 12h10" /></>,
+                'lightbulb': <><path d="M15 14c.2-1 .7-1.7 1.5-2.5C17.7 10.2 18 9 18 7a6 6 0 0 0-12 0c0 2 1.3 3.2 2.5 4.5.8.8 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></>,
+                'pen-tool': <><path d="m12 19 7-7 3 3-7 7-3-3z" /><path d="m18 13-1.5-7.5-7.5-1.5L2 12l5.5 5.5Z" /></>,
+                'copy': <><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></>,
+                'search': <><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></>
+            };
+            return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{icons[name] || null}</svg>;
+        };
+
+        // Initial markdown content for the editor.
+        const initialContent = `# 1. 产品概述
+## 1.1 项目背景
+随着共享经济的发展，城市停车难问题日益突出。为了缓解这一问题，我们计划开发一款名为“共享停车”的App，旨在盘活闲置停车位资源，为车主提供便捷、经济的停车解决方案。
+
+## 1.2 用户画像
+- **车主用户**：年龄25-45岁，有稳定工作，居住在城市核心区或频繁出入商圈，对停车效率和成本敏感。
+- **车位主用户**：拥有产权或长期使用权的闲置车位，希望通过共享获得额外收入。
+
+# 2. 核心功能
+## 2.1 临时停车功能
+用户可以根据目的地搜索附近的共享车位，并按时预订。系统需要支持地图找车位、导航、在线支付等功能。
+
+### 2.1.1 地图找车位
+通过地图可视化展示附近可用车位。
+
+## 2.2 长租车位
+提供按月或按季度的长租服务，满足通勤用户的稳定停车需求。
+
+## 2.3 功能优先级
+| 功能模块 | 优先级 | 复杂度 | 备注 |
+| :--- | :---: | :---: | :--- |
+| 用户注册/登录 | P0 | 低 | 支持手机号、微信登录 |
+| 地图找车位 | P0 | 中 | 需集成第三方地图SDK |
+| 在线支付 | P0 | 高 | 涉及支付安全与合规 |
+| 车位长租 | P1 | 中 | 流程较长，可二期实现 |
+
+# 3. 非功能性需求
+## 3.1 性能
+系统响应时间应小于200ms，支持1000人同时在线。
+- 支付成功率需达到99.99%。
+- 地图加载时间小于2秒。
+
+## 3.2 安全性
+支付流程必须符合PCI DSS标准，用户信息需加密存储。
+
+# 4. 风险与对策
+- **市场风险**
+  - 风险点：用户增长不及预期，无法形成网络效应。
+  - 对策：初期通过地推、线上活动吸引首批种子用户。
+- **技术风险**
+  - 风险点：地图定位不准，支付流程存在漏洞。
+  - 对策：
+    - 选用成熟的地图服务商。
+    - 进行充分的压力测试和安全审计。
+- **运营风险**
+  - 风险点：出现车位纠纷（如超时停车、车位被占）。
+  - 对策：建立用户信用体系和纠纷处理机制。
+
+# 5. 迭代计划
+我们计划采用敏捷开发模式，分阶段迭代产品。第一阶段（V1）将专注于核心功能的实现，以快速验证市场需求。
+
+## 5.1 版本规划
+| 版本号 | 核心目标 | 主要功能 | 预计发布日期 |
+| :--- | :--- | :--- | :--- |
+| V1.0 (MVP) | 核心闭环验证 | 用户注册、地图找车位、在线预订与支付 | 2025-08-01 |
+| V1.1 | 体验优化 | 优化UI/UX、增加筛选功能、长租车位 | 2025-09-15 |
+| V1.2 | 生态扩展 | 车位主评价体系、优惠券系统 | 2025-11-01 |
+
+## 5.2 V1.0 任务分解
+- **设计阶段 (2周)**
+  - 完成产品原型和UI设计。
+  - 输出技术架构设计文档。
+- **开发阶段 (4周)**
+  - **前端开发**
+    - 页面布局与组件开发。
+    - 地图SDK集成与调试。
+  - **后端开发**
+    - 数据库设计与实现。
+    - API接口开发与联调。
+- **测试与上线 (1周)**
+  - 进行功能测试、性能测试和安全测试。
+  - 应用商店上架。
+# 6. 竞品分析
+当前市场上的主要竞品有ETCP停车、PP停车等。它们各有优劣，为我们提供了宝贵的市场参考。
+- **ETCP停车**: 覆盖面广，但价格较高，且多为商业停车场，缺少C2C共享模式。
+- **PP停车**: 主打P2P共享车位，但车位供给不稳定，用户体验参差不齐。
+
+| 竞品名称 | 优势 | 劣势 | 我们的机会点 |
+| :--- | :--- | :--- | :--- |
+| ETCP停车 | 覆盖广、品牌知名度高 | 价格贵、无C2C共享 | 切入C2C细分市场，提供价格更优的方案 |
+| PP停车 | C2C模式、价格灵活 | 车位供给不稳定、审核机制弱 | 加强车位主审核，提供保险保障，建立信用体系 |
+
+综上所述，我们的核心突破口在于提供一个**既有价格优势，又有服务保障**的C2C共享停车平台。
+`;
+
+        // Mock function to simulate calling an AI assistant.
+        const callAIAssistant = (promptType, context) => {
+          const responses = {
+            evaluate: `对“${context}”的评估：\n1. **市场价值**: 需求明确，但竞争激烈，需找到差异化优势。\n2. **技术可行性**: 核心功能均有成熟方案，风险可控。\n3. **用户体验**: 流程应尽可能简化，支付体验是关键。`,
+            inspire: `关于“${context}”的灵感：\n- **游戏化**: 引入签到、积分兑换停车券等玩法。\n- **社交化**: 建立车主社区，分享停车攻略。\n- **增值服务**: 结合洗车、充电、保养等服务。`,
+            knowledge: `关于“${context}”的相关知识：\n- **行业标准**: 需遵守《智能停车数据接口标准》。\n- **法律法规**: 注意《个人信息保护法》中关于用户隐私的规定。`,
+            similar: `与“${context}”相似的案例分析：\n1. **ETCP停车**: 覆盖面广，但价格较高。\n2. **PP停车**: 主打P2P共享车位，但车位供给不稳定。\n3. **小强停车**: 专注于机场、高铁站等枢纽场景。`,
+            conversation: `好的，我们来讨论“${context}”。您想从哪个方面开始？`,
+          };
+          const responseText = responses[promptType] || `这是关于“${context}”的讨论。`
+          return new Promise(resolve => setTimeout(() => resolve(responseText), 800));
+        };
+
+        // Generates a nested outline from markdown headings.
+        const generateOutline = (text) => {
+            const lines = text.split('\n');
+            const root = { level: 0, children: [] };
+            const stack = [root];
+            lines.forEach((line, index) => {
+                const match = line.match(/^(#+)\s+(.*)/);
+                if (match) {
+                    const level = match[1].length;
+                    const text = match[2];
+                    const id = `el-${index}`;
+                    const item = { id, level, text, children: [] };
+                    while (stack[stack.length - 1].level >= level) {
+                        stack.pop();
+                    }
+                    stack[stack.length - 1].children.push(item);
+                    stack.push(item);
+                }
+            });
+            return root.children;
+        };
+        
+        // Formats a date object into a user-friendly string.
+        const formatDate = (date) => new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+        
+        // Component for displaying document metadata.
+        const DocMeta = ({ onShowVersions, currentVersion }) => (
+            <div className="p-4 border-b border-slate-200">
+                <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-orange-100 rounded-lg"><Icon name="fileText" className="w-6 h-6 text-orange-500" /></div>
+                    <div>
+                        <h1 className="font-bold text-slate-800 text-lg">AI PRD 编辑器</h1>
+                        <p className="text-sm text-slate-500">共享停车 App</p>
+                    </div>
+                </div>
+                <button onClick={onShowVersions} className="mt-4 w-full flex justify-between items-center text-left bg-slate-50 hover:bg-slate-100 p-2 rounded-lg text-sm text-slate-600">
+                    <span>版本: {currentVersion}</span><Icon name="history" className="w-4 h-4 text-slate-400" />
+                </button>
+            </div>
+        );
+        
+        // Component for displaying the document's health score.
+        const HealthScore = ({ score }) => {
+            const circumference = 2 * Math.PI * 20;
+            const strokeDashoffset = circumference - (score / 100) * circumference;
+            const scoreColor = score > 80 ? 'text-green-500' : score > 60 ? 'text-yellow-500' : 'text-red-500';
+            return (
+                <div className="p-4 border-b border-slate-200">
+                    <h3 className="text-sm font-semibold text-slate-600 mb-3">文档健康度</h3>
+                    <div className="flex items-center space-x-4 mb-3">
+                        <div className="relative w-12 h-12">
+                            <svg className="w-full h-full" viewBox="0 0 50 50">
+                                <circle className="text-slate-200" strokeWidth="5" stroke="currentColor" fill="transparent" r="20" cx="25" cy="25" />
+                                <circle className={`${scoreColor} transition-all duration-500 ease-in-out`} strokeWidth="5" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" stroke="currentColor" fill="transparent" r="20" cx="25" cy="25" transform="rotate(-90 25 25)" />
+                            </svg>
+                            <span className={`absolute inset-0 flex items-center justify-center text-base font-bold ${scoreColor}`}>{score}</span>
+                        </div>
+                        <div>
+                            <p className="font-semibold text-slate-800">状态良好</p>
+                            <p className="text-xs text-slate-500">AI分析：结构清晰，要素完整。</p>
+                        </div>
+                    </div>
+                    <button className="w-full px-3 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center space-x-2">
+                        <Icon name="scan-text" className="w-4 h-4" />
+                        <span>全文分析</span>
+                    </button>
+                </div>
+            );
+        }
+        
+        // Renders the document outline tree.
+        const OutlineTree = ({ outline, onSelect, activeSectionId }) => {
+            const renderBranch = (items) => (
+                <ul className="space-y-1">
+                    {items.map(item => (
+                        <li key={item.id}>
+                            <a href={`#${item.id}`} onClick={(e) => { e.preventDefault(); onSelect(item.id); }}
+                                className={`flex items-center py-1.5 px-2 rounded-md text-sm transition-colors duration-150 ${activeSectionId === item.id ? 'bg-orange-100 text-orange-600 font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}
+                                style={{ paddingLeft: `${item.level * 1}rem` }}>
+                                <span className="truncate">{item.text}</span>
+                            </a>
+                            {item.children.length > 0 && <div className="mt-1">{renderBranch(item.children)}</div>}
+                        </li>
+                    ))}
+                </ul>
+            );
+            return <div className="p-4">{renderBranch(outline)}</div>;
+        };
+        
+        // Renders the markdown content into styled HTML for preview.
+        const PreviewRenderer = ({ content, onElementAnalyze, onSectionAnalyze }) => {
+            const renderableContent = useMemo(() => {
+                const blocks = [];
+                const lines = content.split('\n');
+                let i = 0;
+                while (i < lines.length) {
+                    const line = lines[i];
+                    if (/^#+/.test(line)) {
+                        const match = line.match(/^(#+)\s+(.*)/);
+                        blocks.push({ type: 'heading', level: match[1].length, text: match[2], id: `el-${i}` });
+                        i++;
+                    } else if (/^\s*-\s/.test(line)) {
+                        const listBlock = { type: 'ul', items: [], id: `el-${i}` };
+                        while (i < lines.length && /^\s*-\s/.test(lines[i])) {
+                            const itemMatch = lines[i].match(/^(\s*)-\s+(.*)/);
+                            listBlock.items.push({ id: `el-${i}`, text: itemMatch[2], indent: itemMatch[1].length });
+                            i++;
+                        }
+                        blocks.push(listBlock);
+                    } else if (/^\|.*\|$/.test(line)) {
+                        const tableBlock = { type: 'table', headers: [], rows: [], id: `el-${i}` };
+                        tableBlock.headers = line.trim().slice(1, -1).split('|').map(h => h.trim());
+                        i++; // Move to separator line
+                        if (i < lines.length && /^\|:?--+/.test(lines[i])) {
+                            i++; // Skip separator line
+                        }
+                        while (i < lines.length && /^\|.*\|$/.test(lines[i])) {
+                            tableBlock.rows.push({ id: `el-${i}`, cells: lines[i].trim().slice(1, -1).split('|').map(c => c.trim()) });
+                            i++;
+                        }
+                        blocks.push(tableBlock);
+                    } else {
+                        if (line.trim()) {
+                           blocks.push({ type: 'p', text: line, id: `el-${i}` });
+                        } else {
+                           blocks.push({ type: 'br', id: `el-${i}` });
+                        }
+                        i++;
+                    }
+                }
+                return blocks;
+            }, [content]);
+
+            return (
+                <div className="prose max-w-none p-8 focus:outline-none overflow-y-auto">
+                    {renderableContent.map(block => {
+                        const id = block.id;
+                        const discussionButton = (elementId, text) => <button onClick={(e) => { e.stopPropagation(); onElementAnalyze(elementId, text); }} className="absolute top-1/2 -translate-y-1/2 -left-8 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-blue-100 text-blue-400 hover:text-blue-500" title="引用讨论"><Icon name="messageSquare" className="w-4 h-4" /></button>;
+                        switch (block.type) {
+                            case 'heading':
+                                const Tag = `h${block.level}`;
+                                return React.createElement(Tag, { key: id, id, className: `group relative scroll-mt-24 font-bold text-slate-800 mt-8 mb-4 pb-2 ${block.level <= 2 ? `text-${4 - block.level}xl border-b` : 'text-lg'}` },
+                                    block.text,
+                                    <button onClick={(e) => { e.stopPropagation(); onSectionAnalyze(id); }} className="absolute top-1/2 -translate-y-1/2 -left-10 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-orange-100 text-orange-400 hover:text-orange-500"><Icon name="sparkles" className="w-5 h-5" /></button>
+                                );
+                            case 'ul':
+                                const baseIndent = block.items.length > 0 ? block.items[0].indent : 0;
+                                return (
+                                    <ul key={id} className="list-disc pl-5 my-4 space-y-1">
+                                        {block.items.map(item => (
+                                            <li key={item.id} id={item.id} className="group relative" style={{ marginLeft: `${(item.indent - baseIndent) * 1.5}rem` }}>
+                                                {item.text}
+                                                {item.indent === baseIndent && discussionButton(item.id, item.text)}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                );
+                            case 'table':
+                                return (
+                                    <div key={id} id={id} className="my-6 not-prose">
+                                        <table className="w-full text-sm border-collapse border border-slate-300">
+                                            <thead>
+                                                <tr className="bg-slate-50 group">
+                                                    {block.headers.map((header, index) => (
+                                                        <th key={index} className={`border border-slate-300 font-semibold p-3 text-slate-900 text-left ${index === 0 ? 'relative' : ''}`}>
+                                                            {header}
+                                                            {index === 0 && discussionButton(id, '整个表格')}
+                                                        </th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {block.rows.map(row => (
+                                                    <tr key={row.id} id={row.id} className="group">
+                                                        {row.cells.map((cell, index) => (
+                                                            <td key={index} className={`border border-slate-300 p-3 text-slate-600 bg-white group-hover:bg-slate-50/50 ${index === 0 ? 'relative' : ''}`}>
+                                                                {cell}
+                                                                {index === 0 && discussionButton(row.id, row.cells.join(', '))}
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                );
+                            case 'p': return <p key={id} id={id} className="group relative text-slate-700 leading-relaxed my-2">{block.text}{discussionButton(id, block.text)}</p>;
+                            case 'br': return <div key={id} className="h-4" />;
+                            default: return null;
+                        }
+                    })}
+                </div>
+            );
+        };
+        
+        // A floating toolbar that appears on text selection in edit mode.
+        const FloatingToolbar = ({ position, onAction }) => {
+            if (!position) return null;
+            return (
+                <div className="absolute z-10 bg-white rounded-lg shadow-lg border border-slate-200 flex items-center p-1" style={{ top: position.top, left: position.left }}>
+                    {[{ key: 'evaluate', label: '评估' }, { key: 'inspire', label: '启发' }, { key: 'knowledge', label: '知识' }].map(action => (
+                        <button key={action.key} onClick={() => onAction(action.key)} className="px-3 py-1 text-sm text-slate-700 hover:bg-slate-100 rounded-md">{action.label}</button>
+                    ))}
+                </div>
+            );
+        };
+        
+        // A floating toolbar that appears on text selection in preview mode.
+        const PreviewToolbar = ({ position, onAction }) => {
+            if (!position) return null;
+            const actions = [
+                { key: 'conversation', label: '对话', icon: 'messageSquare' },
+                { key: 'inspire', label: '找灵感', icon: 'lightbulb' },
+                { key: 'knowledge', label: '找知识', icon: 'book' },
+                { key: 'similar', label: '找相似', icon: 'search' },
+                { key: 'evaluate', label: '寻反馈', icon: 'scan-text' },
+            ];
+            return (
+                <div className="absolute z-10 bg-white rounded-lg shadow-lg border border-slate-200 flex items-center p-1" style={{ top: position.top, left: position.left }}>
+                    {actions.map(action => (
+                        <button key={action.key} onClick={() => onAction(action.key)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-md" title={action.label}>
+                            <Icon name={action.icon} className="w-5 h-5" />
+                        </button>
+                    ))}
+                </div>
+            );
+        };
+        
+        // Renders an individual AI suggestion card.
+        const AICardComponent = ({ card, onAction, onConverse, onLocate, isHistoryView, onTabAction, loadingState }) => {
+            const aiFunctionTabs = {
+                '对话': 'conversation',
+                '找灵感': 'inspire',
+                '找知识': 'knowledge',
+                '找相似': 'similar',
+                '寻建议': 'evaluate',
+            };
+            const [activeTab, setActiveTab] = useState(card.defaultTab || '对话');
+            const [conversationInput, setConversationInput] = useState('');
+            const [isExpanded, setIsExpanded] = useState(!isHistoryView);
+            
+            const handleTabClick = (tabName) => {
+                setActiveTab(tabName);
+                const actionType = aiFunctionTabs[tabName];
+                if (actionType && actionType !== 'conversation') {
+                    onTabAction(card.id, actionType);
+                }
+            };
+
+            const handleSubmit = (e) => { e.preventDefault(); if(conversationInput.trim()){ onConverse(card.id, conversationInput.trim()); setConversationInput(''); } }
+            
+            if (isHistoryView && !isExpanded) {
+                return (
+                    <div className="ai-card bg-white border-l-4 rounded-r-lg p-3 mb-3 transition-all duration-300 ease-in-out border-slate-300">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center space-x-2 overflow-hidden">
+                                {card.status === 'accepted' ? <Icon name="check" className="w-5 h-5 text-green-500 flex-shrink-0"/> : <Icon name="x" className="w-5 h-5 text-red-500 flex-shrink-0"/>}
+                                <p className="text-sm text-slate-600 truncate">{card.title}</p>
+                            </div>
+                            <div className="flex items-center space-x-1 flex-shrink-0">
+                                 <button onClick={() => onLocate(card.position)} className="p-1.5 text-slate-500 hover:bg-slate-200 rounded-full" title="定位"><Icon name="map-pin" className="w-4 h-4"/></button>
+                                 <button onClick={() => setIsExpanded(true)} className="p-1.5 text-slate-500 hover:bg-slate-200 rounded-full" title="展开"><Icon name="chevron-down" className="w-4 h-4"/></button>
+                            </div>
+                        </div>
+                         <p className="text-xs text-slate-400 mt-2 ml-7">{formatDate(card.createdAt)}</p>
+                    </div>
+                )
+            }
+            
+            const cardStatusStyles = { pending: 'border-blue-400 bg-blue-50', accepted: 'border-green-400 bg-green-50', ignored: 'border-red-400 bg-red-50' };
+            const isContentLoading = loadingState.cardId === card.id && loadingState.area === 'content';
+            const isConversationLoading = loadingState.cardId === card.id && loadingState.area === 'conversation';
+
+            return (
+                <div className={`ai-card border-l-4 rounded-r-lg p-4 mb-4 transition-all duration-300 ease-in-out ${cardStatusStyles[card.status]}`}>
+                    <div className="flex justify-between items-start gap-2">
+                        <h3 className="font-semibold text-slate-800 text-base flex-1">{card.title}</h3>
+                        <div className="flex items-center space-x-1 flex-shrink-0">
+                            {!isHistoryView && (
+                                <button onClick={() => onLocate(card.position)} className="p-1.5 text-slate-500 hover:bg-slate-200 rounded-full" title="定位引用">
+                                    <Icon name="map-pin" className="w-4 h-4" />
+                                </button>
+                            )}
+                             {isHistoryView && (
+                                <button onClick={() => setIsExpanded(false)} className="p-1.5 text-slate-500 hover:bg-slate-200 rounded-full" title="收起">
+                                    <Icon name="chevron-up" className="w-4 h-4"/>
+                                </button>
+                             )}
+                        </div>
+                    </div>
+                    
+                    {card.originalContext && (
+                        <blockquote className="mt-2 mb-4 p-3 bg-slate-100 border-l-4 border-slate-300 text-slate-600 text-sm italic">
+                            "{card.originalContext}"
+                        </blockquote>
+                    )}
+                    
+                    <div className="my-4 p-1 bg-slate-200/70 rounded-lg flex flex-nowrap justify-between gap-1">
+                        {Object.keys(aiFunctionTabs).map(tab => (
+                             <button key={tab} onClick={() => handleTabClick(tab)} className={`flex-grow basis-0 px-2 py-1.5 text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${activeTab === tab ? 'bg-white shadow text-orange-600' : 'text-slate-600 hover:bg-white/80'}`}>
+                                {tab}
+                             </button>
+                        ))}
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 relative">
+                        {isContentLoading && (
+                             <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                                <p className="text-orange-500 font-semibold text-sm">AI 正在思考...</p>
+                            </div>
+                        )}
+                        <div className="flex items-start space-x-3">
+                            <Icon name="bot" className="w-8 h-8 text-orange-500 flex-shrink-0 mt-1" />
+                            <div className="flex-1">
+                                <h4 className="font-bold text-slate-800">AI 助手</h4>
+                                <p className="text-slate-600 mt-1 text-sm leading-relaxed whitespace-pre-line">{card.content}</p>
+                            </div>
+                        </div>
+
+                         {activeTab === '对话' && (
+                            <div className="mt-4 pt-3 border-t border-slate-200/80">
+                                {card.conversations && card.conversations.map((msg, index) => (
+                                    <div key={index} className={`flex items-start space-x-3 mb-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                                         {msg.role === 'ai' && <Icon name="bot" className="w-8 h-8 text-orange-500 flex-shrink-0 mt-1" />}
+                                         <div className="flex-1 max-w-[85%]">
+                                            {msg.role === 'ai' && <h4 className="font-bold text-slate-800">AI 助手</h4>}
+                                            <div className={`text-sm p-3 rounded-lg mt-1 ${msg.role === 'ai' ? 'bg-orange-50' : 'bg-blue-500 text-white'}`}>{msg.text}</div>
+                                         </div>
+                                         {msg.role === 'user' && <Icon name="user" className="w-8 h-8 text-blue-500 flex-shrink-0 mt-1" />}
+                                    </div>
+                                ))}
+                                {isConversationLoading && (
+                                    <div className="flex items-center justify-start p-2 space-x-2">
+                                        <Icon name="bot" className="w-8 h-8 text-orange-500 flex-shrink-0" />
+                                        <p className="text-orange-500 font-semibold text-sm">AI 正在输入...</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                   
+                    {card.status === 'pending' && (
+                        <div className="mt-4 pt-4 border-t border-slate-200/80">
+                             <form onSubmit={handleSubmit} className="flex items-center space-x-2 mb-3">
+                                 <input type="text" value={conversationInput} onChange={(e) => setConversationInput(e.target.value)} placeholder="继续提问或提供更多细节..." className="w-full text-sm p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-orange-300 focus:border-orange-300"/>
+                                 <button type="submit" className="p-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:bg-slate-300" disabled={!conversationInput.trim()}><Icon name="send" className="w-4 h-4"/></button>
+                            </form>
+                            <div className="flex justify-end items-center space-x-2">
+                                <button onClick={() => onAction(card.id, 'ignored')} className="flex items-center space-x-1.5 px-3 py-1 text-sm text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50"><Icon name="x" className="w-4 h-4" /><span>忽略</span></button>
+                                <button onClick={() => onAction(card.id, 'accepted')} className="flex items-center space-x-1.5 px-3 py-1 text-sm text-white bg-green-500 rounded-md hover:bg-green-600"><Icon name="check" className="w-4 h-4" /><span>采纳</span></button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        // Modal for showing version history.
+        const VersionHistoryModal = ({ versions, onSelect, onClose, onSave }) => (
+            <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
+                    <div className="p-4 border-b flex justify-between items-center">
+                        <h3 className="text-lg font-semibold">版本历史</h3>
+                        <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-full"><Icon name="x" className="w-5 h-5"/></button>
+                    </div>
+                    <div className="p-4 max-h-96 overflow-y-auto">
+                        {versions.map(v => (
+                            <div key={v.version} className="p-3 rounded-lg hover:bg-slate-50 flex justify-between items-center">
+                                <div>
+                                    <p className="font-semibold text-slate-800">版本 {v.version}</p>
+                                    <p className="text-sm text-slate-500">{formatDate(v.date)}</p>
+                                </div>
+                                <button onClick={() => onSelect(v.content)} className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600">加载此版本</button>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="p-4 border-t text-right">
+                        <button onClick={onSave} className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 flex items-center gap-2 ml-auto">
+                            <Icon name="save" className="w-4 h-4"/>
+                            保存当前内容为新版本
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // Main App component.
+        function App() {
+            const [mode, setMode] = useState('preview'); // 'edit' or 'preview'
+            const [content, setContent] = useState(initialContent);
+            const [outline, setOutline] = useState([]);
+            const [activeSectionId, setActiveSectionId] = useState(null);
+            const [aiCards, setAiCards] = useState([]); // Stores AI suggestion cards
+            const [aiTab, setAiTab] = useState('cards'); // 'cards' or 'history'
+            const [isLoadingAI, setIsLoadingAI] = useState(false);
+            const [localLoadingState, setLocalLoadingState] = useState({ cardId: null, area: null }); // For per-card loading
+            
+            const [floatingToolbarPos, setFloatingToolbarPos] = useState(null);
+            const [currentSelection, setCurrentSelection] = useState(null);
+            
+            const [previewToolbarPos, setPreviewToolbarPos] = useState(null);
+            const [previewSelection, setPreviewSelection] = useState(null);
+
+            const [isToolboxOpen, setIsToolboxOpen] = useState(false);
+
+            const editorRef = useRef(null);
+            const previewContainerRef = useRef(null);
+            
+            const [versions, setVersions] = useState([{ version: '1.2', date: new Date(), content: initialContent }]);
+            const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+
+            const { pendingCardsCount, historyCardsCount } = useMemo(() => {
+                const pending = aiCards.filter(c => c.status === 'pending').length;
+                return {
+                    pendingCardsCount: pending,
+                    historyCardsCount: aiCards.length - pending,
+                };
+            }, [aiCards]);
+
+            const healthScore = useMemo(() => {
+                const score = 50 + Math.min(20, (content.match(/#/g) || []).length * 2.5) + Math.min(30, content.split(/\s+/).length / 20) - pendingCardsCount * 5;
+                return Math.max(0, Math.min(100, Math.round(score)));
+            }, [content, pendingCardsCount]);
+            
+            const actionToTabMap = { 
+                conversation: '对话',
+                evaluate: '寻建议', 
+                inspire: '找灵感', 
+                knowledge: '找知识',
+                similar: '找相似',
+            };
+            
+            // Regenerate outline when content changes.
+            useEffect(() => { setOutline(generateOutline(content)); }, [content]);
+            
+            // Handles text selection to show the appropriate toolbar.
+            const handleMouseUp = useCallback(() => {
+                const selection = window.getSelection();
+                const selectedText = selection ? selection.toString().trim() : '';
+
+                setFloatingToolbarPos(null);
+                setPreviewToolbarPos(null);
+
+                if (!selection || selection.rangeCount === 0 || selectedText.length < 5) {
+                    setCurrentSelection(null);
+                    setPreviewSelection(null);
+                    return;
+                }
+                
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                if (mode === 'preview' && previewContainerRef.current && previewContainerRef.current.contains(selection.anchorNode)) {
+                    const containerRect = previewContainerRef.current.getBoundingClientRect();
+                    setPreviewSelection({ text: selectedText });
+                    setPreviewToolbarPos({
+                        top: rect.top - containerRect.top + previewContainerRef.current.scrollTop - 45,
+                        left: (rect.left - containerRect.left) + (rect.width / 2) - 110,
+                    });
+                } 
+                else if (mode === 'edit' && editorRef.current && editorRef.current.contains(selection.anchorNode)) {
+                    const editorRect = editorRef.current.getBoundingClientRect();
+                    setCurrentSelection({ text: selectedText, start: editorRef.current.selectionStart, end: editorRef.current.selectionEnd });
+                    setFloatingToolbarPos({ 
+                        top: rect.top - editorRect.top - 45, 
+                        left: (rect.left - editorRect.left) + rect.width / 2 - 60 
+                    });
+                }
+            }, [mode]);
+            
+            // Triggers an AI action and creates a new card.
+            const handleAITrigger = async (actionType, context, title, type, position) => {
+                setIsLoadingAI(true);
+                setFloatingToolbarPos(null);
+                setPreviewToolbarPos(null);
+                const aiResponse = await callAIAssistant(actionType, context);
+                const newCard = {
+                    id: `card-${Date.now()}`,
+                    type: type,
+                    title: title,
+                    status: 'pending',
+                    content: aiResponse,
+                    originalContext: context,
+                    position: position,
+                    conversations: [],
+                    createdAt: new Date(),
+                    defaultTab: actionToTabMap[actionType] || '对话',
+                };
+                setAiCards(prev => [newCard, ...prev]);
+                setIsLoadingAI(false);
+                setAiTab('cards');
+            };
+
+            // Handles actions within an AI card, like switching tabs.
+            const handleCardTabAction = async (cardId, actionType) => {
+                const card = aiCards.find(c => c.id === cardId);
+                if (!card || !card.originalContext) return;
+                
+                setLocalLoadingState({ cardId: cardId, area: 'content' });
+                const newContent = await callAIAssistant(actionType, card.originalContext);
+                setAiCards(prevCards => prevCards.map(c => 
+                    c.id === cardId ? { ...c, content: newContent } : c
+                ));
+                setLocalLoadingState({ cardId: null, area: null });
+            };
+
+            // Handles actions from the floating toolbar in edit mode.
+            const handleFloatingToolbarAction = (actionType) => {
+                if (!currentSelection) return;
+                handleAITrigger(actionType, currentSelection.text, `AI建议: '${currentSelection.text.substring(0, 20)}...'`, 'selection', { start: currentSelection.start, end: currentSelection.end });
+            };
+            
+            // Handles actions from the preview toolbar in preview mode.
+            const handlePreviewToolbarAction = (actionType) => {
+                if (!previewSelection) return;
+                const context = previewSelection.text;
+                let position = { source: 'previewSelection' }; 
+                const title = `基于“${context.substring(0, 20)}...”的AI分析`;
+
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    try {
+                        const highlightId = `highlight-${Date.now()}`;
+                        const span = document.createElement('span');
+                        span.id = highlightId;
+                        range.surroundContents(span);
+                        position.highlightId = highlightId;
+                    } catch (error) {
+                        let parentElement = range.startContainer;
+                        if (parentElement.nodeType !== Node.ELEMENT_NODE) {
+                             parentElement = parentElement.parentElement;
+                        }
+                        
+                        while(parentElement) {
+                            if (parentElement.id && parentElement.id.startsWith('el-')) {
+                                position.elementId = parentElement.id; // Fallback to the ID of the starting block
+                                break;
+                            }
+                            parentElement = parentElement.parentElement;
+                        }
+                    } finally {
+                        selection.removeAllRanges();
+                    }
+                }
+
+                handleAITrigger(actionType, context, title, 'selection', position);
+                setPreviewToolbarPos(null);
+                setPreviewSelection(null);
+            };
+
+            const handleElementAnalyze = (elementId, text) => handleAITrigger('conversation', text, `引用讨论: '${text.substring(0, 20)}...'`, 'selection', { elementId });
+            
+            const handleSectionAnalyze = (sectionId) => {
+                const sectionEl = document.getElementById(sectionId);
+                if (!sectionEl) return;
+                let context = [sectionEl.textContent];
+                let nextEl = sectionEl.nextElementSibling;
+                while (nextEl && !nextEl.tagName.startsWith('H')) {
+                    context.push(nextEl.textContent);
+                    nextEl = nextEl.nextElementSibling;
+                }
+                handleAITrigger('evaluate', context.join('\n'), `章节分析: '${sectionEl.textContent}'`, 'section', { sectionId });
+            };
+
+            // Handles 'accept' or 'ignore' actions on an AI card.
+            const handleCardAction = (cardId, action) => {
+                const card = aiCards.find(c => c.id === cardId);
+                if (!card) return;
+                if (action === 'accepted') {
+                    const suggestion = `\n\n---\n**AI采纳建议 (${card.title}):**\n${card.content}\n---\n`;
+                    if (card.position.start !== undefined) {
+                         setContent(c => c.substring(0, card.position.start) + `**${c.substring(card.position.start, card.position.end)}**` + suggestion + c.substring(card.position.end));
+                    } else { setContent(prev => prev + suggestion); }
+                }
+                setAiCards(cards => cards.map(c => c.id === cardId ? { ...c, status: action } : c));
+            };
+            
+            // Handles conversations within an AI card.
+            const handleCardConverse = async (cardId, userText) => {
+                const currentCard = aiCards.find(c => c.id === cardId);
+                if (!currentCard) return;
+
+                setAiCards(cards => cards.map(c => {
+                    if (c.id === cardId) {
+                        return { ...c, conversations: [...(c.conversations || []), {role: 'user', text: userText}] };
+                    }
+                    return c;
+                }));
+                
+                setLocalLoadingState({ cardId: cardId, area: 'conversation' });
+                const aiResponse = await callAIAssistant('conversation', userText);
+                setAiCards(cards => cards.map(c => {
+                    if (c.id === cardId) {
+                        return { ...c, conversations: [...(c.conversations || []), {role: 'ai', text: aiResponse}] };
+                    }
+                    return c;
+                }));
+                setLocalLoadingState({ cardId: null, area: null });
+            };
+            
+            // Locates and highlights the source of an AI card in the preview.
+            const handleLocate = (position) => {
+                setMode('preview');
+                setTimeout(() => {
+                    const targetId = typeof position === 'string' 
+                        ? position 
+                        : (position.sectionId || position.elementId || position.highlightId);
+
+                    if (targetId) {
+                        const element = document.getElementById(targetId);
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            element.classList.add('highlight-pulse');
+
+                            setTimeout(() => {
+                                element.classList.remove('highlight-pulse');
+                                
+                                if (targetId.startsWith('highlight-')) {
+                                    const parent = element.parentNode;
+                                    if (parent) {
+                                         while (element.firstChild) {
+                                            parent.insertBefore(element.firstChild, element);
+                                        }
+                                        parent.removeChild(element);
+                                    }
+                                }
+                            }, 5000); 
+                        }
+                    }
+                }, 100);
+            };
+            
+            // Saves the current content as a new version.
+            const handleSaveVersion = () => {
+                const lastVersion = parseFloat(versions[0].version);
+                const newVersion = (lastVersion + 0.1).toFixed(1);
+                setVersions(prev => [{version: newVersion, date: new Date(), content }, ...prev]);
+            }
+            // Loads content from a previous version.
+            const handleLoadVersion = (newContent) => {
+                setContent(newContent);
+                setIsVersionModalOpen(false);
+            }
+
+            return (
+                <div className="w-full h-screen flex flex-col font-sans text-slate-800 antialiased">
+                    {isVersionModalOpen && <VersionHistoryModal versions={versions} onClose={()=>setIsVersionModalOpen(false)} onSelect={handleLoadVersion} onSave={handleSaveVersion} />}
+
+                    <div className="flex-grow flex min-h-0">
+                        {/* Left Sidebar */}
+                        <aside className="w-1/4 max-w-xs bg-white border-r border-slate-200 flex-shrink-0 flex flex-col">
+                            <DocMeta onShowVersions={() => setIsVersionModalOpen(true)} currentVersion={versions[0]?.version || '1.0'}/>
+                            <HealthScore score={healthScore} />
+                            <div className="flex-grow overflow-y-auto"><OutlineTree outline={outline} onSelect={handleLocate} activeSectionId={activeSectionId}/></div>
+                        </aside>
+
+                        {/* Main Content Area */}
+                        <main className="flex-1 flex flex-col bg-white shadow-inner">
+                            {/* UPDATE: Added mode status display */}
+                            <div className="flex-shrink-0 h-16 border-b border-slate-200 flex justify-between items-center px-6">
+                                <div>
+                                    <h2 className="text-lg font-semibold text-slate-700">内容编辑区</h2>
+                                    <p className="text-xs text-slate-500 mt-1">当前模式: {mode === 'edit' ? '编辑' : '预览'}</p>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <div className="relative">
+                                        {/* UPDATE: Button text is now static */}
+                                        <button onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')} className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                                           <Icon name="arrow-left-right" className="w-4 h-4 text-slate-600"/>
+                                           <span>切换模式</span>
+                                        </button>
+                                    </div>
+                                    <button onClick={() => console.log("Save clicked!")} className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors">
+                                       <Icon name="save" className="w-4 h-4"/>
+                                       <span>保存</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex-grow relative overflow-y-auto" ref={previewContainerRef} onMouseUp={handleMouseUp}>
+                                {mode === 'edit' ? (
+                                    <div className="flex h-full">
+                                        <div className="p-8 text-right bg-slate-50 text-slate-400 font-mono text-sm select-none" style={{ lineHeight: '1.625rem' }}>
+                                            {content.split('\n').map((_, i) => <div key={i}>{i + 1}</div>)}
+                                        </div>
+                                        <textarea 
+                                            ref={editorRef} 
+                                            value={content} 
+                                            onChange={(e) => setContent(e.target.value)} 
+                                            className="flex-1 p-8 resize-none focus:outline-none leading-relaxed font-mono text-sm bg-transparent" 
+                                            spellCheck="false"
+                                        />
+                                        <FloatingToolbar position={floatingToolbarPos} onAction={handleFloatingToolbarAction} />
+                                    </div>
+                                ) : (
+                                    <>
+                                      <PreviewRenderer content={content} onElementAnalyze={handleElementAnalyze} onSectionAnalyze={handleSectionAnalyze} />
+                                      <PreviewToolbar position={previewToolbarPos} onAction={handlePreviewToolbarAction} />
+                                    </>
+                                )}
+                            </div>
+                        </main>
+                        
+                        {/* Right AI Sidebar */}
+                        <aside className="w-1/3 max-w-md bg-slate-50 border-l border-slate-200 flex flex-col">
+                            <div className="flex-shrink-0 h-14 border-b border-slate-200 flex justify-between items-center px-4">
+                                <div className="flex items-center space-x-2">
+                                    <Icon name="sparkles" className="w-6 h-6 text-orange-500" />
+                                    <h2 className="text-lg font-semibold text-slate-700">AI 助手</h2>
+                                </div>
+                                <button
+                                    onClick={() => setIsToolboxOpen(!isToolboxOpen)}
+                                    className={`flex items-center space-x-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${isToolboxOpen ? 'bg-slate-200 text-slate-800 font-semibold' : 'text-slate-500 hover:bg-slate-200'}`}
+                                    title="全局AI工具箱"
+                                >
+                                    <Icon name="lightbulb" className="w-4 h-4" />
+                                    <span>工具箱</span>
+                                    <Icon name={isToolboxOpen ? 'chevron-up' : 'chevron-down'} className="w-4 h-4" />
+                                </button>
+                            </div>
+                            
+                            <div className="flex-grow overflow-y-auto p-4 relative">
+                                {isLoadingAI && !localLoadingState.cardId && <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10"><p className="text-orange-500 font-semibold">AI 正在思考...</p></div>}
+                                
+                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isToolboxOpen ? 'max-h-40 mb-4' : 'max-h-0'}`}>
+                                     <div className="p-4 border border-slate-200 bg-slate-100 rounded-lg">
+                                        <div className="grid grid-cols-2 gap-2">
+                                           <button className="flex items-center justify-center space-x-2 p-2 text-sm bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                               <Icon name="lightbulb" className="w-4 h-4 text-yellow-500" />
+                                               <span>头脑风暴</span>
+                                           </button>
+                                           <button className="flex items-center justify-center space-x-2 p-2 text-sm bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                               <Icon name="pen-tool" className="w-4 h-4 text-blue-500" />
+                                               <span>UI提示词设计</span>
+                                           </button>
+                                       </div>
+                                     </div>
+                                </div>
+
+                                {aiTab === 'cards' && (
+                                   <div>
+                                       {aiCards.filter(c => c.status === 'pending').map(card => <AICardComponent key={card.id} card={card} onAction={handleCardAction} onConverse={handleCardConverse} onLocate={handleLocate} isHistoryView={false} onTabAction={handleCardTabAction} loadingState={localLoadingState} />)}
+                                       {pendingCardsCount === 0 && <div className="text-center text-slate-500 pt-10"><Icon name="fileText" className="w-12 h-12 mx-auto text-slate-300"/><p className="mt-2 font-semibold">没有待处理的建议</p><p className="text-sm">在预览区悬浮于段落上，或在编辑区选择文本，来获取AI建议。</p></div>}
+                                   </div>
+                                )}
+                                {aiTab === 'history' && (
+                                     <div>
+                                        {aiCards.filter(c => c.status !== 'pending').sort((a,b) => b.createdAt - a.createdAt).map(card => <AICardComponent key={card.id} card={card} onAction={()=>{}} onConverse={()=>{}} onLocate={handleLocate} isHistoryView={true} onTabAction={handleCardTabAction} loadingState={localLoadingState}/>)}
+                                        {historyCardsCount === 0 && <div className="text-center text-slate-500 pt-10"><Icon name="history" className="w-12 h-12 mx-auto text-slate-300"/><p className="mt-2 font-semibold">尚无历史记录</p><p className="text-sm">被采纳或忽略的卡片会在此处显示。</p></div>}
+                                     </div>
+                                )}
+                            </div>
+                            
+                            <div className="flex-shrink-0 p-2 border-t border-slate-200 bg-slate-50">
+                                <div className="flex space-x-1">
+                                    <button onClick={() => setAiTab('cards')} className={`w-full flex items-center justify-center text-center py-2 text-sm font-semibold rounded-md ${aiTab === 'cards' ? 'bg-white text-orange-600 shadow' : 'text-slate-500 hover:bg-white/50'}`}>
+                                        <span>智能卡片</span>
+                                        {pendingCardsCount > 0 && <span className="ml-2 bg-orange-200 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full">{pendingCardsCount}</span>}
+                                    </button>
+                                    <button onClick={() => setAiTab('history')} className={`w-full flex items-center justify-center text-center py-2 text-sm font-semibold rounded-md ${aiTab === 'history' ? 'bg-white text-orange-600 shadow' : 'text-slate-500 hover:bg-white/50'}`}>
+                                        <span>历史记录</span>
+                                         {historyCardsCount > 0 && <span className="ml-2 bg-slate-200 text-slate-700 text-xs font-bold px-2 py-0.5 rounded-full">{historyCardsCount}</span>}
+                                    </button>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+</body>
+</html>
