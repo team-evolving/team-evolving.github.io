@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Evolve - IntelliReq - 端到端AI需求协作平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Tech Blue & Vitality Orange accents -->
+    <!-- Application Structure Plan: Final major update. The end-to-end workflow is completed with a new 5th step: "Rule Self-Check & Optimization," creating a full feedback loop. The "Features Details" section is completely rebuilt from a placeholder into a core part of the page, with detailed graphical explanations for each feature. The competitive analysis is made concrete with specific tool examples. This structure now fully represents the product's depth, value, and market position. -->
+    <!-- Visualization & Content Choices: 
+        - New: "Rule Self-Check & Optimization" step in the workflow, using interactive cards to show metrics and simulated rule updates.
+        - Overhauled: "Features Details" section now uses a "How it works -> What you get -> Transformation" structure for each of the 4 features, with a highly interactive mockup for Feature 1 (Authoring Studio) that is faithful to the PRD design.
+        - Enhanced: "Competitive Analysis" table now includes specific, named examples like Jira, Notion AI, etc., for a more grounded comparison.
+        - Refined: The "AI Authoring Studio" mockup within the new "Features Details" section is now more faithful to the PRD's three-column design.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #F8F7F4; color: #3D3D3D; }
+        .nav-link.active { color: #2962FF; font-weight: 500; }
+        .hero-bg { background-color: #f0ebe5; }
+        .mockup-bg { background-color: #f9fafb; }
+        .mockup-outline { border: 1px solid #e5e7eb; }
+        .highlight-orange { color: #FF6D00; }
+        .bg-vitality-orange-light { background-color: rgba(255, 109, 0, 0.2); box-shadow: 0 0 0 2px rgba(255, 109, 0, 0.4); border-radius: 3px; }
+        .bg-emerald-green-light { background-color: rgba(0, 200, 83, 0.2); transition: background-color 0.5s ease; }
+        .diff-del { text-decoration: line-through; background-color: rgba(221, 44, 0, 0.1); }
+        .diff-add { background-color: rgba(0, 200, 83, 0.1); }
+        .role-tab.active { border-color: #2962FF; background-color: #eef2ff; color: #2962FF; }
+        .comparison-table td, .comparison-table th { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; }
+        .workflow-step { transition: all 0.3s ease; }
+        .workflow-step.active { border-color: #2962FF; transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .workflow-step.completed { border-color: #00C853; background-color: #f0fdf4; }
+        .workflow-content { display: none; }
+        .workflow-content.active { display: block; }
+        .feature-card { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; }
+        .mockup-sidebar { background-color: #ffffff; border-right: 1px solid #e5e7eb; }
+        .mockup-ai-panel { background-color: #ffffff; border-left: 1px solid #e5e7eb; }
+        .ai-card-tab.active { border-color: #2962FF; color: #2962FF; background-color: #eef2ff; }
+        .report-tab.active { border-color: #2962FF; color: #2962FF; background-color: #eef2ff; }
+        .report-content { display: none; }
+        .report-content.active { display: block; }
+        .review-issue-card.active { border-color: #2962FF; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .text-highlight-blue { background-color: rgba(41, 98, 255, 0.1); }
+        .version-tab.active { border-color: #2962FF; color: #2962FF; background-color: #eef2ff; }
+        .version-item.active { background-color: #eef2ff; }
+        .value-modal-overlay { transition: opacity 0.3s ease-in-out; }
+        .value-modal-content { transition: transform 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="#home" class="text-xl md:text-2xl font-bold" style="color: #2962FF;">Team Evolve - IntelliReq</a>
+                </div>
+                <nav class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">首页</a>
+                        <a href="#challenges" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">面临的挑战</a>
+                        <a href="#solution" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">我们的解决方案</a>
+                        <a href="#features" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">核心功能</a>
+                        <a href="#quantifiable-value" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">量化价值</a>
+                        <a href="#comparison" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">竞品对比</a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="pt-20 pb-16 hero-bg">
+            <div class="container mx-auto text-center px-4 sm:px-6 lg:px-8">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-800">
+                    重塑需求，<span style="color: #2962FF;">智造卓越</span>
+                </h1>
+                <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-gray-600">
+                    在快速迭代的汽车行业，需求文档的质量与效率是决定产品成败的关键。Team Evolve - IntelliReq 致力于将繁琐、易错的需求工作流，转变为一个高效、透明、数据驱动的决策过程。
+                </p>
+                <p class="mt-4 text-lg md:text-xl text-gray-800 font-semibold italic">“需求不是文档，是思维的具现、是产品的可视化演进发动机”</p>
+            </div>
+        </section>
+
+        <!-- Challenges Section -->
+        <section id="challenges" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">我们面临的挑战</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">从传统困境到AI时代的“伪智能”，需求工作流的痛点依然存在。</p>
+                </div>
+                <div class="mt-12">
+                    <h3 class="text-2xl font-semibold text-center mb-8">传统模式下的“四座大山”</h3>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">📚</div>
+                            <h4 class="font-bold text-lg">知识孤岛化</h4>
+                            <p class="text-sm mt-2 text-gray-600">核心知识依赖少数专家，难以传承复用，团队能力提升受阻。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">🧟</div>
+                            <h4 class="font-bold text-lg">文档僵尸化</h4>
+                            <p class="text-sm mt-2 text-gray-600">PRD与开发过程脱节，变更散落各处，无法真实反映项目状态。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">⏱️</div>
+                            <h4 class="font-bold text-lg">评审低效化</h4>
+                            <p class="text-sm mt-2 text-gray-600">人工评审耗时冗长，标准不一，易遗漏深层逻辑问题。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">💾</div>
+                            <h4 class="font-bold text-lg">资产沉淀难</h4>
+                            <p class="text-sm mt-2 text-gray-600">优秀方案和决策逻辑流失，导致后续项目不断“重复造轮子”。</p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-20">
+                    <h3 class="text-2xl font-semibold text-center mb-8">AI时代的“伪智能”陷阱</h3>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">🌍</div>
+                            <h4 class="font-bold text-lg">模型“水土不服”</h4>
+                            <p class="text-sm mt-2 text-gray-600">通用大模型缺乏行业深度，其建议往往“听起来很美”却不符合严苛的工程实际。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">🔗</div>
+                            <h4 class="font-bold text-lg">工具链“貌合神离”</h4>
+                            <p class="text-sm mt-2 text-gray-600">AI插件与现有工具链脱节，形成新的数据孤岛，工作流中断。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">🧱</div>
+                            <h4 class="font-bold text-lg">实践“空中楼阁”</h4>
+                            <p class="text-sm mt-2 text-gray-600">AI的“单点优化”无法融入复杂的多角色协同流程。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl shadow-md text-center">
+                            <div class="text-4xl mb-4">➡️</div>
+                            <h4 class="font-bold text-lg">需求到代码难</h4>
+                            <p class="text-sm mt-2 text-gray-600">通用AI生成的模糊需求，导致工程师反复沟通确认，也无法被下游的AI Coding工具直接消费，需求到代码的“最后一公里”难以打通。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solution Section -->
+        <section id="solution" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">我们的解决方案：真智能，真协同</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">IntelliReq 并非简单的AI工具，而是一套完整的、智能化的需求协作体系。</p>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="p-6 border rounded-lg">
+                        <h4 class="font-bold text-lg text-blue-600">大模型 + Agent</h4>
+                        <p class="text-sm mt-2 text-gray-600">我们构建了专业的Agent智能体，能自主规划、执行复杂的评审任务，并通过数据闭环持续学习，实现更高质量的上下文理解。</p>
+                    </div>
+                    <div class="p-6 border rounded-lg">
+                        <h4 class="font-bold text-lg text-blue-600">软件工程 + 汽车行业知识库</h4>
+                        <p class="text-sm mt-2 text-gray-600">我们将通用的软件工程最佳实践与深度的汽车行业Know-How（如功能安全ISO26262）深度融合，为AI的专业判断提供坚实基础。</p>
+                    </div>
+                    <div class="p-6 border rounded-lg">
+                        <h4 class="font-bold text-lg text-blue-600">系统工作流与越用越高效</h4>
+                        <p class="text-sm mt-2 text-gray-600">每一次的评审、每一次的采纳，都在为平台贡献宝贵的“隐性知识”，让系统越用越懂您的团队、越用越高效。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- End-to-End Workflow Section -->
+        <section id="workflow" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">端到端智能工作流闭环</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">从一份模糊的想法到一份高质量、可执行的PRD，体验Team Evolve - IntelliReq如何串联起整个生命周期。</p>
+                </div>
+                <div class="mt-12">
+                    <!-- Workflow Steps -->
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
+                        <div id="step1" class="workflow-step cursor-pointer p-4 border-2 border-gray-200 bg-white rounded-lg text-center">
+                            <div class="text-2xl">💡</div><h4 class="font-semibold mt-2 text-sm">1. AI辅助生成</h4>
+                        </div>
+                        <div id="step2" class="workflow-step cursor-pointer p-4 border-2 border-gray-200 bg-white rounded-lg text-center">
+                            <div class="text-2xl">✍️</div><h4 class="font-semibold mt-2 text-sm">2. 智能优化</h4>
+                        </div>
+                        <div id="step3" class="workflow-step cursor-pointer p-4 border-2 border-gray-200 bg-white rounded-lg text-center">
+                            <div class="text-2xl">🔎</div><h4 class="font-semibold mt-2 text-sm">3. 智能评审</h4>
+                        </div>
+                        <div id="step4" class="workflow-step cursor-pointer p-4 border-2 border-gray-200 bg-white rounded-lg text-center">
+                             <div class="text-2xl">📊</div><h4 class="font-semibold mt-2 text-sm">4. 生成报告</h4>
+                        </div>
+                        <div id="step5" class="workflow-step cursor-pointer p-4 border-2 border-gray-200 bg-white rounded-lg text-center col-span-2 md:col-span-1">
+                             <div class="text-2xl">🔄</div><h4 class="font-semibold mt-2 text-sm">5. 自检与优化</h4>
+                        </div>
+                    </div>
+                    <!-- Workflow Content -->
+                    <div class="mt-8 p-8 bg-white rounded-xl shadow-lg min-h-[500px]">
+                        <div id="content-step1" class="workflow-content">
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <!-- Scenario A -->
+                                <div class="p-6 border rounded-lg">
+                                    <h3 class="font-bold text-lg mb-4">场景A: 引导式PRD生成</h3>
+                                    <div class="space-y-4 text-sm">
+                                        <div>
+                                            <label class="font-medium">业务目标</label>
+                                            <input id="wf-goal" type="text" class="w-full border rounded-md p-2 mt-1" value="提升新用户活跃度，建立用户成长体系。">
+                                        </div>
+                                        <div>
+                                            <label class="font-medium">关键特性 (每行一个)</label>
+                                            <textarea id="wf-features" class="w-full border rounded-md p-2 mt-1" rows="3">每日签到\n完成新手任务\n邀请好友</textarea>
+                                        </div>
+                                        <div>
+                                            <label class="font-medium">上传项目立项书 (可选)</label>
+                                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                                <div class="space-y-1 text-center">
+                                                    <div class="text-2xl">📄</div>
+                                                    <p class="text-xs text-gray-500">project_proposal_v1.pdf</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button id="wf-generate-prd" class="w-full px-6 py-3 text-white font-semibold rounded-lg shadow-md transition-all" style="background-color: #FF6D00;">智能生成PRD初稿</button>
+                                    </div>
+                                </div>
+                                <!-- Scenario B -->
+                                <div class="p-6 border rounded-lg">
+                                    <h3 class="font-bold text-lg mb-4">场景B: 上传并重构老旧PRD</h3>
+                                    <p class="text-sm text-gray-600 mb-4">您也可以上传一份格式不规范的老旧Word或PDF文档，让AI自动解析并将其重构为结构化的PRD。</p>
+                                    <div id="wf-upload-area" class="cursor-pointer flex justify-center px-6 pt-10 pb-10 border-2 border-gray-300 border-dashed rounded-md">
+                                        <div id="wf-upload-prompt" class="space-y-1 text-center">
+                                            <div class="text-4xl">📤</div>
+                                            <p class="text-sm text-gray-600">点击或拖拽文件上传</p>
+                                            <p class="text-xs text-gray-500">支持 DOCX, PDF, MD</p>
+                                        </div>
+                                        <div id="wf-upload-status" class="hidden text-center">
+                                            <p class="text-green-600 font-semibold">old_prd_final_v2.docx 已上传!</p>
+                                        </div>
+                                    </div>
+                                    <button id="wf-refactor-prd" class="mt-4 w-full px-6 py-3 text-white font-semibold rounded-lg shadow-md transition-all disabled:bg-gray-400" style="background-color: #2962FF;" disabled>开始重构</button>
+                                </div>
+                            </div>
+                            <div id="wf-generated-content" class="mt-6 text-sm p-4 border-dashed border-2 rounded-md bg-gray-50 hidden"></div>
+                        </div>
+                        <div id="content-step2" class="workflow-content">
+                            <h3 class="font-bold text-lg mb-4">场景: 沉浸式编辑与优化</h3>
+                            <p class="text-gray-600 mb-2">PRD初稿已生成。现在，让我们优化其中一段描述。请点击高亮文本，使用右侧AI卡片进行优化，并“采纳”建议。</p>
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div id="wf-editor" class="flex-1 text-sm p-4 border rounded-md">
+                                    <h4 class="font-bold">3.2 积分获取规则</h4>
+                                    <p>用户完成某些操作后，<span id="wf-highlight-text" class="p-1 rounded-md cursor-pointer bg-yellow-100">应该能获得一些积分</span>。</p>
+                                </div>
+                                <div id="wf-ai-panel" class="w-full md:w-2/5 text-sm p-4 border rounded-md bg-gray-50">
+                                    <p class="italic text-gray-500 border-l-2 border-orange-300 pl-2 text-xs">"应该能获得一些积分"</p>
+                                    <div class="mt-2 p-2 bg-white rounded"><strong>评估建议:</strong> 描述过于模糊。建议明确具体操作和对应的积分数值。例如：“用户每日首次登录，可获得5积分；每成功邀请一位新用户，可获得100积分。”</div>
+                                    <button id="wf-adopt-btn" class="mt-4 w-full px-3 py-2 text-sm text-white rounded-md" style="background-color: #00C853;">采纳建议</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="content-step3" class="workflow-content">
+                             <h3 class="font-bold text-lg mb-4">场景: 启动智能评审</h3>
+                             <p class="text-gray-600 mb-6">优化后的PRD V1.1已准备就绪。现在，让我们提交评审，让AI自动检查其中可能存在的深层问题。</p>
+                             <button id="wf-start-review" class="px-6 py-3 text-white font-semibold rounded-lg shadow-md transition-all" style="background-color: #2962FF;">启动智能评审</button>
+                             <div id="wf-review-results" class="mt-6 hidden"></div>
+                        </div>
+                        <div id="content-step4" class="workflow-content">
+                             <div id="report-container" class="p-2 md:p-6 bg-gray-100 rounded-lg">
+                                <!-- Report content will be injected here -->
+                             </div>
+                        </div>
+                         <div id="content-step5" class="workflow-content">
+                             <h3 class="font-bold text-lg mb-4">场景: 规则自检与AI持续优化</h3>
+                             <p class="text-gray-600 mb-6">系统监测到“R3.1 可测试性”规则的AI建议被高频采纳。这表明该规则非常有效，但也可以通过AI学习，将常见优化模式固化，进一步提升未来PRD的初稿质量。</p>
+                             <div class="grid md:grid-cols-2 gap-6">
+                                <div class="p-4 border rounded-lg">
+                                    <h4 class="font-semibold">规则有效性评估</h4>
+                                    <p class="mt-2">规则 <span class="font-mono bg-gray-200 px-1 rounded">R3.1</span></p>
+                                    <p>AI建议采纳率: <span class="font-bold text-green-600">95%</span></p>
+                                    <p>手工修改率: <span class="font-bold text-red-600">5%</span></p>
+                                </div>
+                                <div id="rule-optimization-panel" class="p-4 border-2 border-dashed rounded-lg">
+                                    <h4 class="font-semibold">AI 规则优化建议</h4>
+                                    <p class="text-sm mt-2">检测到高频模式：“将模糊词汇替换为可量化指标”。建议将此模式加入“引导式PRD生成”的默认逻辑中。</p>
+                                    <button id="wf-optimize-rule" class="mt-4 w-full px-3 py-2 text-sm text-white rounded-md" style="background-color: #2962FF;">应用AI优化</button>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Details Section -->
+        <section id="features" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">四大核心功能详述</h2>
+                </div>
+                <div class="mt-12 space-y-12">
+                    <!-- Feature 1 -->
+                    <div class="feature-card">
+                        <h3 class="text-2xl font-bold">Feature 1: 智能撰写工作台</h3>
+                        <div class="mt-6">
+                            <h4 class="font-semibold text-lg">它如何工作？</h4>
+                            <p class="text-sm text-gray-600 mt-2">我们为您提供一个高度集成的三栏式工作台，将大纲、编辑和AI协作融为一体，实现“所见即所得”的流畅创作体验。请在下方模拟器中亲手操作。</p>
+                            <div class="mt-4 mockup-outline rounded-lg shadow-lg overflow-hidden bg-white">
+                                <div id="authoring-studio" class="flex h-[450px] text-sm">
+                                    <!-- Left Sidebar -->
+                                    <div class="mockup-sidebar w-48 p-4 flex flex-col">
+                                        <h5 class="font-bold mb-3 flex-shrink-0">智能大纲</h5>
+                                        <ul id="authoring-outline" class="space-y-2 flex-grow">
+                                            <!-- JS Populated -->
+                                        </ul>
+                                    </div>
+                                    <!-- Main Content -->
+                                    <div class="flex-1 p-6 overflow-y-auto relative">
+                                        <div id="authoring-toolbar" class="absolute bg-white shadow-lg rounded-md p-1 flex space-x-2 border opacity-0 transition-opacity z-10">
+                                            <button data-ai-type="assess" title="评估建议" class="p-1 hover:bg-gray-100 rounded">✨</button>
+                                            <button data-ai-type="brainstorm" title="找灵感" class="p-1 hover:bg-gray-100 rounded">💡</button>
+                                            <button data-ai-type="knowledge" title="找知识" class="p-1 hover:bg-gray-100 rounded">📚</button>
+                                        </div>
+                                        <div id="authoring-editor-content">
+                                            <!-- JS Populated -->
+                                        </div>
+                                    </div>
+                                    <!-- Right AI Panel -->
+                                    <div class="mockup-ai-panel w-96 p-4 flex flex-col">
+                                        <h5 class="font-bold mb-3 flex-shrink-0">AI 协作区</h5>
+                                        <div id="authoring-ai-card" class="border rounded-lg p-3 bg-gray-50 flex-grow flex flex-col hidden">
+                                            <p id="authoring-ai-quote" class="italic text-gray-500 border-l-2 border-orange-300 pl-2 text-xs"></p>
+                                            <div id="authoring-ai-response" class="mt-2 p-2 bg-white rounded flex-grow overflow-y-auto"></div>
+                                            <div class="mt-2 flex justify-end space-x-2 flex-shrink-0">
+                                                <button id="authoring-adopt-btn" class="px-3 py-1 text-xs text-white rounded-md" style="background-color: #00C853;">采纳</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="mt-6 border-t pt-6">
+                            <h4 class="font-semibold">带来的改变</h4>
+                            <div class="grid md:grid-cols-2 gap-4 mt-2 text-sm">
+                                <div class="text-red-600"><strong>之前:</strong> 在多个文档和工具间切换，思路频繁中断。</div>
+                                <div class="text-green-600"><strong>之后:</strong> 沉浸式创作，灵感与优化无缝衔接，效率倍增。</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div class="feature-card">
+                        <h3 class="text-2xl font-bold">Feature 2: 智能评审工作流</h3>
+                         <div class="mt-6">
+                            <h4 class="font-semibold text-lg">它如何工作？</h4>
+                            <p class="text-sm text-gray-600 mt-2">提交PRD后，AI引擎会基于规则库进行扫描。下方模拟器将展示一个真实的汽车行业案例：AI发现问题后，您可以在右侧查看问题卡片，点击卡片即可在左侧定位问题原文，并预览AI建议的修改。</p>
+                            <div class="mt-4 mockup-outline rounded-lg shadow-lg overflow-hidden bg-white">
+                                <div id="review-studio" class="flex h-[450px] text-sm">
+                                    <!-- Document View -->
+                                    <div class="flex-1 p-6 overflow-y-auto">
+                                        <h5 class="font-bold mb-4">BSV特性需求文档 V1.0.2</h5>
+                                        <div id="review-doc-content" class="space-y-3">
+                                            <p data-issue-id="P001" class="p-1 rounded-md"><strong>2.2 产品架构图:</strong> 本章节显示"简单功能不需要架构分解"，但BSV作为涉及多ECU协作的复杂功能，需要更详细的架构说明。</p>
+                                            <p data-issue-id="P002" class="p-1 rounded-md"><strong>2.2 & 三:</strong> 简化的架构与第三章详细功能设计中涉及的复杂跨域交互不匹配。</p>
+                                            <div id="review-diff-preview" class="hidden my-2 p-2 border-2 border-dashed border-blue-300"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Review Panel -->
+                                    <div class="mockup-ai-panel w-96 p-4 flex flex-col">
+                                        <h5 class="font-bold mb-3 flex-shrink-0">评审问题列表 (2个重要问题)</h5>
+                                        <div id="review-issue-list" class="flex-grow overflow-y-auto space-y-2">
+                                            <!-- JS Populated -->
+                                        </div>
+                                        <button id="review-generate-report-btn" class="mt-4 w-full px-3 py-2 text-sm text-white rounded-md disabled:bg-gray-400" style="background-color: #2962FF;" disabled>完成并生成报告</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="mt-6 border-t pt-6">
+                            <h4 class="font-semibold">带来的改变</h4>
+                            <div class="grid md:grid-cols-2 gap-4 mt-2 text-sm">
+                                <div class="text-red-600"><strong>之前:</strong> 冗长的评审会议，依赖个人经验找问题。</div>
+                                <div class="text-green-600"><strong>之后:</strong> AI自动化发现90%的潜在问题，评审时间压缩80%。</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div class="feature-card">
+                        <h3 class="text-2xl font-bold">Feature 3: 文档中心与上传</h3>
+                        <div class="grid md:grid-cols-2 gap-8 mt-6">
+                            <div>
+                                <h4 class="font-semibold">它如何工作？</h4>
+                                <p class="text-sm text-gray-600 mt-2">所有工作的起点。在一个统一的视图中看到所有PRD文档及其状态（草稿、评审中、已完成），以便快速定位文档、跟踪进度，并决定是开始一个新文档还是分析一个已有的文档。</p>
+                            </div>
+                            <div class="mockup-outline rounded-md p-4 bg-gray-50 text-sm space-y-3">
+                                <div class="p-2 border rounded bg-white"><strong>BSV 需求 V1.2</strong> <span class="text-xs text-green-600">● 已完成</span></div>
+                                <div class="p-2 border rounded bg-white"><strong>HMI 规范 V2.1</strong> <span class="text-xs text-blue-600">● 评审中</span></div>
+                                <div class="p-2 border rounded bg-white"><strong>智驾域需求</strong> <span class="text-xs text-yellow-600">● 草稿</span></div>
+                            </div>
+                        </div>
+                         <div class="mt-6 border-t pt-6">
+                            <h4 class="font-semibold">带来的改变</h4>
+                            <div class="grid md:grid-cols-2 gap-4 mt-2 text-sm">
+                                <div class="text-red-600"><strong>之前:</strong> 文档散落在本地或网盘，版本混乱，状态不清。</div>
+                                <div class="text-green-600"><strong>之后:</strong> 集中化管理，状态一目了然，团队信息同步。</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div class="feature-card">
+                        <h3 class="text-2xl font-bold">Feature 4: 版本时光机</h3>
+                         <div class="grid md:grid-cols-2 gap-8 mt-6">
+                            <div>
+                                <h4 class="font-semibold">它如何工作？</h4>
+                                <p class="text-sm text-gray-600 mt-2">在关键操作（如提交评审、发布版本）后，系统自动创建不可变的版本快照。用户可以随时在“三维版本对比视图”中，清晰地对比任意两个版本之间的文本差异、质量评分和AI建议采纳率的变化。</p>
+                            </div>
+                            <div class="mockup-outline rounded-md p-4 bg-gray-50 text-sm">
+                                <h5 class="font-bold text-center">版本对比: V1.1 vs V1.2</h5>
+                                <div class="mt-2 p-2 border rounded bg-white">
+                                    <p><span class="diff-del">...尽快...</span></p>
+                                    <p><span class="diff-add">... &lt; 200ms</span></p>
+                                </div>
+                                <p class="text-center mt-2">质量评分: 71 → <span class="text-green-500">78</span></p>
+                            </div>
+                        </div>
+                         <div class="mt-6 border-t pt-6">
+                            <h4 class="font-semibold">带来的改变</h4>
+                            <div class="grid md:grid-cols-2 gap-4 mt-2 text-sm">
+                                <div class="text-red-600"><strong>之前:</strong> 手动比对文档，决策过程靠回忆和会议纪要。</div>
+                                <div class="text-green-600"><strong>之后:</strong> 变更历史与决策依据清晰可追溯，便于复盘和审计。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quantifiable Value Section -->
+        <section id="quantifiable-value" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">可量化的价值提升</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">我们的承诺基于清晰的逻辑和可量化的指标，并有真实的案例与数据作为支撑。</p>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Card 1 -->
+                    <div class="p-6 bg-white rounded-xl shadow-lg text-center flex flex-col">
+                        <p class="text-5xl font-bold" style="color: #2962FF;">+30%</p>
+                        <h4 class="mt-2 font-semibold">需求撰写效率</h4>
+                        <p class="text-xs mt-2 text-gray-500 flex-grow">通过AI生成初稿、上下文推荐和一键优化，大幅缩短资料查阅和从零撰写的时间。</p>
+                        <button data-metric="efficiency" class="value-source-btn mt-4 text-xs text-blue-600 hover:underline">查看数据来源</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="p-6 bg-white rounded-xl shadow-lg text-center flex flex-col">
+                        <p class="text-5xl font-bold" style="color: #2962FF;">-80%</p>
+                        <h4 class="mt-2 font-semibold">需求评审时间</h4>
+                        <p class="text-xs mt-2 text-gray-500 flex-grow">AI自动化执行海量、精确的评审规则，将团队从“找茬”中解放出来，聚焦于“决策”。</p>
+                        <button data-metric="review" class="value-source-btn mt-4 text-xs text-blue-600 hover:underline">查看案例分析</button>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="p-6 bg-white rounded-xl shadow-lg text-center flex flex-col">
+                        <p class="text-5xl font-bold" style="color: #2962FF;">-50%</p>
+                        <h4 class="mt-2 font-semibold">需求相关缺陷</h4>
+                        <p class="text-xs mt-2 text-gray-500 flex-grow">通过前置、全面、标准化的智能评审，在编码前消除大量潜在缺陷，实现“质量左移”。</p>
+                        <button data-metric="defects" class="value-source-btn mt-4 text-xs text-blue-600 hover:underline">查看行业报告</button>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="p-6 bg-white rounded-xl shadow-lg text-center flex flex-col">
+                        <p class="text-5xl font-bold" style="color: #2962FF;">+200%</p>
+                        <h4 class="mt-2 font-semibold">需求资产复用率</h4>
+                        <p class="text-xs mt-2 text-gray-500 flex-grow">将项目过程和结果沉淀为可复用的知识资产，AI在新项目中能主动推荐成熟方案。</p>
+                        <button data-metric="reuse" class="value-source-btn mt-4 text-xs text-blue-600 hover:underline">查看案例分析</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Value Proposition Section -->
+        <section id="value" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">赋能团队，重塑协作</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Team Evolve - IntelliReq为不同角色带来具体改变，解决其核心痛点，这就是他们需要我们的原因。</p>
+                </div>
+                <div class="mt-12 max-w-4xl mx-auto">
+                    <div class="flex justify-center border-b mb-6">
+                        <button data-role="pm" class="role-tab p-4 font-semibold border-b-2">产品经理</button>
+                        <button data-role="dev" class="role-tab p-4 font-semibold border-b-2 border-transparent text-gray-500">研发团队</button>
+                        <button data-role="qa" class="role-tab p-4 font-semibold border-b-2 border-transparent text-gray-500">QA团队</button>
+                        <button data-role="pjm" class="role-tab p-4 font-semibold border-b-2 border-transparent text-gray-500">项目经理</button>
+                    </div>
+                    <div id="role-content-container">
+                        <!-- Dynamic content here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Section -->
+        <section id="comparison" class="py-20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                 <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">竞品对比：为何选择Team Evolve - IntelliReq？</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">我们不仅是工具，更是集成了行业最佳实践的全流程解决方案。</p>
+                </div>
+                <div class="mt-12 max-w-5xl mx-auto overflow-x-auto">
+                    <table class="w-full text-center bg-white shadow-lg rounded-lg comparison-table">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="w-1/4">对比维度</th>
+                                <th class="w-1/4 text-white" style="background-color: #2962FF;">Team Evolve - IntelliReq</th>
+                                <th class="w-1/4">传统需求管理工具<br/><span class="text-xs font-normal">(e.g., Jira, Confluence, Jama)</span></th>
+                                <th class="w-1/4">通用型AI原生应用<br/><span class="text-xs font-normal">(e.g., Notion AI, Coda AI, Copilot)</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold text-left">行业深度与规则库</td>
+                                <td class="text-green-500 font-bold text-2xl">✔✔</td>
+                                <td class="text-yellow-500 font-bold text-2xl">✔</td>
+                                <td class="text-red-500 font-bold text-2xl">✖</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold text-left">端到端流程闭环</td>
+                                <td class="text-green-500 font-bold text-2xl">✔✔</td>
+                                <td class="text-red-500 font-bold text-2xl">✖</td>
+                                <td class="text-red-500 font-bold text-2xl">✖</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold text-left">评审客观性与量化</td>
+                                <td class="text-green-500 font-bold text-2xl">✔✔</td>
+                                <td class="text-yellow-500 font-bold text-2xl">✔</td>
+                                <td class="text-red-500 font-bold text-2xl">✖</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold text-left">决策过程可追溯性</td>
+                                <td class="text-green-500 font-bold text-2xl">✔✔</td>
+                                <td class="text-yellow-500 font-bold text-2xl">✔</td>
+                                <td class="text-red-500 font-bold text-2xl">✖</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold">选择 Team Evolve - IntelliReq，迈入需求工程新时代</h2>
+            <p class="mt-4 max-w-2xl mx-auto">我们期待与您一起，开启一个高效、智能、可靠的需求新纪元，共创卓越产品。</p>
+            <p class="mt-10 text-gray-400 text-sm">&copy; 2025 Team Evolve - IntelliReq. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Value Modal -->
+    <div id="value-modal" class="value-modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 opacity-0">
+        <div id="value-modal-content" class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl transform scale-95">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 id="value-modal-title" class="text-xl font-bold"></h3>
+                <button id="value-modal-close" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div id="value-modal-body" class="text-sm text-gray-700 space-y-4 max-h-[60vh] overflow-y-auto">
+                <!-- Dynamic content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Global Nav Logic ---
+    const sections = document.querySelectorAll('main > section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                });
+            }
+        });
+    }, { rootMargin: "-50% 0px -50% 0px" });
+    sections.forEach(section => observer.observe(section));
+
+    // --- End-to-End Workflow Logic ---
+    const steps = document.querySelectorAll('.workflow-step');
+    const contents = document.querySelectorAll('.workflow-content');
+    
+    function activateStep(stepId) {
+        steps.forEach(s => s.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+        
+        const activeStep = document.getElementById(`step${stepId}`);
+        const activeContent = document.getElementById(`content-step${stepId}`);
+        
+        if (activeStep) activeStep.classList.add('active');
+        if (activeContent) activeContent.classList.add('active');
+    }
+
+    steps.forEach((step, index) => {
+        step.addEventListener('click', () => activateStep(index + 1));
+    });
+    
+    // Step 1 Logic
+    const generateBtn = document.getElementById('wf-generate-prd');
+    const generatedContent = document.getElementById('wf-generated-content');
+    generateBtn.addEventListener('click', () => {
+        const goal = document.getElementById('wf-goal').value;
+        const features = document.getElementById('wf-features').value;
+        generatedContent.innerHTML = `<strong>AI 生成的PRD初稿 (V1.0):</strong><br><strong>业务目标:</strong> ${goal}<br><strong>核心功能:</strong><br/>${features.replace(/\n/g, '<br/>')}`;
+        generatedContent.classList.remove('hidden');
+        setTimeout(() => {
+            document.getElementById('step1').classList.add('completed');
+            activateStep(2);
+        }, 1500);
+    });
+    
+    const uploadArea = document.getElementById('wf-upload-area');
+    const uploadPrompt = document.getElementById('wf-upload-prompt');
+    const uploadStatus = document.getElementById('wf-upload-status');
+    const refactorBtn = document.getElementById('wf-refactor-prd');
+    uploadArea.addEventListener('click', () => {
+        uploadPrompt.classList.add('hidden');
+        uploadStatus.classList.remove('hidden');
+        refactorBtn.disabled = false;
+    });
+    refactorBtn.addEventListener('click', () => {
+         generatedContent.innerHTML = `<strong>AI 重构的PRD (V1.0):</strong><br>AI已将'old_prd_final_v2.docx'的内容解析并迁移到标准模板中，并自动识别出3个结构性问题。`;
+        generatedContent.classList.remove('hidden');
+        setTimeout(() => {
+            document.getElementById('step1').classList.add('completed');
+            activateStep(2);
+        }, 1500);
+    });
+
+
+    // Step 2 Logic
+    const adoptBtn = document.getElementById('wf-adopt-btn');
+    const editor = document.getElementById('wf-editor');
+    adoptBtn.addEventListener('click', () => {
+        editor.innerHTML = `<h4 class="font-bold">3.2 积分获取规则</h4><p><span class="diff-add">用户每日首次登录，可获得5积分；每成功邀请一位新用户，可获得100积分。</span></p><p class="text-xs text-gray-500 mt-2">(PRD V1.1 已保存)</p>`;
+        setTimeout(() => {
+            document.getElementById('step2').classList.add('completed');
+            activateStep(3);
+        }, 1500);
+    });
+
+    // Step 3 Logic
+    const startReviewBtn = document.getElementById('wf-start-review');
+    startReviewBtn.addEventListener('click', () => {
+        setTimeout(() => {
+            document.getElementById('step3').classList.add('completed');
+            activateStep(4);
+            generateReport(); // Generate the detailed report
+        }, 1000);
+    });
+    
+    // Step 4 Logic
+    const reportContainer = document.getElementById('report-container');
+    function generateReport() {
+        reportContainer.innerHTML = `
+            <h4 class="font-bold text-center text-lg">BSV特性需求文档 V1.0.2 评审报告</h4>
+            <div class="text-center my-4">
+                <p class="text-lg">综合评分</p>
+                <p class="text-6xl font-bold text-green-600">77<span class="text-2xl">/100</span></p>
+                <p class="text-xl font-bold text-green-600 mt-2">评审结论: 通过 ✅</p>
+            </div>
+            <div class="flex border-b mb-4">
+                <button data-tab="overview" class="report-tab flex-1 text-sm p-2 border-b-2 active">报告总览</button>
+                <button data-tab="issues" class="report-tab flex-1 text-sm p-2 border-b-2 border-transparent">详细问题</button>
+            </div>
+            <div>
+                <div id="report-overview" class="report-content active">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-semibold mb-2">✅ 文档亮点与优势</h5>
+                            <ul class="text-sm space-y-2">
+                                <li class="p-2 bg-green-50 rounded-md"><strong>状态流转设计:</strong> 提供了包含19个状态的完整状态机，专业且清晰。</li>
+                                <li class="p-2 bg-green-50 rounded-md"><strong>功能设计:</strong> 覆盖标准、挂车、DOW三种模式，考虑周全。</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold mb-2">🟡 关键问题摘要</h5>
+                             <ul class="text-sm space-y-2">
+                                <li class="p-2 bg-yellow-50 rounded-md"><strong>2个重要问题:</strong> 产品架构图简化、技术架构一致性待优化。</li>
+                                <li class="p-2 bg-yellow-50 rounded-md"><strong>13个警告问题:</strong> 流程图、文档关联、UseCase前置条件等可进一步完善。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 grid md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <h5 class="font-semibold mb-2 text-center">五维质量雷达图</h5>
+                            <div class="h-64"><canvas id="reportRadarChart"></canvas></div>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold mb-2 text-center">问题严重性分布</h5>
+                            <div class="h-64"><canvas id="reportPieChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="report-issues" class="report-content text-sm">
+                    <h5 class="font-semibold mb-2">优先级改进计划 (中优先级)</h5>
+                    <ul class="space-y-2">
+                        <li class="p-2 border rounded-md"><strong>问题:</strong> 产品架构图缺失简化说明 (P001) <span class="text-yellow-600 font-bold ml-2">🟡重要</span><br/><strong>行动:</strong> 补充详细架构图，包含ADCU、DHU等主要组件及其数据流关系。</li>
+                        <li class="p-2 border rounded-md"><strong>问题:</strong> 技术架构一致性待优化 (P002) <span class="text-yellow-600 font-bold ml-2">🟡重要</span><br/><strong>行动:</strong> 调整架构图，确保与功能设计中的ECU分工、数据流设计保持一致。</li>
+                    </ul>
+                </div>
+            </div>
+            <button id="wf-goto-optimize" class="mt-6 w-full px-6 py-3 text-white font-semibold rounded-lg shadow-md transition-all" style="background-color: #FF6D00;">进入规则优化流程</button>
+        `;
+
+        // Init charts and tabs
+        new Chart(document.getElementById('reportRadarChart').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['完整性', '一致性', '可测试性', '可追溯性', '明确性'],
+                datasets: [{
+                    label: '文档质量得分', data: [82, 75, 78, 72, 80],
+                    fill: true, backgroundColor: 'rgba(41, 98, 255, 0.2)',
+                    borderColor: 'rgb(41, 98, 255)', pointBackgroundColor: 'rgb(41, 98, 255)'
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { suggestedMin: 50, suggestedMax: 100 } } }
+        });
+        
+        new Chart(document.getElementById('reportPieChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['🟡重要', '🟠警告'],
+                datasets: [{
+                    data: [2, 13],
+                    backgroundColor: ['#FFAB00', '#2962FF']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const reportTabs = reportContainer.querySelectorAll('.report-tab');
+        const reportContents = reportContainer.querySelectorAll('.report-content');
+        reportTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                reportTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                reportContents.forEach(c => c.classList.remove('active'));
+                document.getElementById(`report-${tab.dataset.tab}`).classList.add('active');
+            });
+        });
+        
+        document.getElementById('wf-goto-optimize').addEventListener('click', () => {
+            document.getElementById('step4').classList.add('completed');
+            activateStep(5);
+        });
+    }
+
+    // Step 5 Logic
+    const optimizeRuleBtn = document.getElementById('wf-optimize-rule');
+    const optimizationPanel = document.getElementById('rule-optimization-panel');
+    optimizeRuleBtn.addEventListener('click', () => {
+        optimizationPanel.innerHTML = `<h4 class="font-semibold text-green-600">优化已应用！</h4><p class="text-sm mt-2">AI已学习此模式。未来生成的PRD初稿将自动包含更具体的指标要求，从源头提升质量。</p>`;
+        setTimeout(() => {
+             document.getElementById('step5').classList.add('completed');
+        }, 1500);
+    });
+
+    activateStep(1); // Initial state
+
+    // --- Feature 1: Authoring Studio Logic ---
+    const studio = {
+        outline: document.getElementById('authoring-outline'),
+        editorContent: document.getElementById('authoring-editor-content'),
+        toolbar: document.getElementById('authoring-toolbar'),
+        aiCard: document.getElementById('authoring-ai-card'),
+        aiQuote: document.getElementById('authoring-ai-quote'),
+        aiResponse: document.getElementById('authoring-ai-response'),
+        adoptBtn: document.getElementById('authoring-adopt-btn'),
+        activeSelection: null,
+        
+        docData: {
+            s1: { type: 'h2', text: '1. 产品概述' },
+            p1: { type: 'p', text: '双模式智能引擎: 在单一平台内无缝切换工作模式，<span class="selectable" data-selection-id="p1s1">既是创作者的得力助手，也是评审者的可靠防线。</span>' },
+            s2: { type: 'h2', text: '2. 核心功能' },
+            p2: { type: 'p', text: '全链路追溯系统: <span class="selectable" data-selection-id="p2s1">建立从需求诞生到最终实现的全程可视化追溯链条。</span>' }
+        },
+
+        aiData: {
+            p1s1: {
+                assess: "这段描述很生动，但可以更具体。建议改为：“...通过'撰写模式'的实时建议提升初稿质量，并通过'评审模式'的规则检测保障最终交付标准。”",
+                brainstorm: "可以考虑增加一个'沙盒模式'，让用户在不影响主文档的情况下，自由测试AI生成的内容。",
+                knowledge: "根据Gartner报告，采用AI辅助工具进行需求管理，可将需求缺陷率降低高达50%。"
+            },
+            p2s1: {
+                 assess: "表述清晰，但可以增加一个具体例子。建议改为：“...建立从需求诞生到最终实现的全程可视化追溯链条，例如，可一键查看某项功能从最初的脑暴会议纪要到最终上线的演变全过程。”",
+                 brainstorm: "可以进一步思考如何将追溯与项目管理工具集成，例如，当需求变更时，自动在JIRA中创建一个关联的风险评估任务。",
+                 knowledge: "需求可追溯性是CMMI模型中的关键过程域，对于高风险项目（如金融、医疗）至关重要。"
+            }
+        },
+
+        init() {
+            this.renderEditor();
+            this.toolbar.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.activateAiCard(this.activeSelection, e.currentTarget.dataset.aiType);
+                });
+            });
+            this.adoptBtn.addEventListener('click', () => this.adoptSuggestion());
+        },
+
+        renderEditor() {
+            this.editorContent.innerHTML = Object.entries(this.docData)
+                .map(([id, data]) => `<${data.type} data-block-id="${id}" class="mb-4">${data.text}</${data.type}>`)
+                .join('');
+            this.updateOutline();
+            this.attachEventListeners();
+        },
+
+        updateOutline() {
+            this.outline.innerHTML = '';
+            this.editorContent.querySelectorAll('h2').forEach(h => {
+                const li = document.createElement('li');
+                li.className = 'font-semibold text-gray-800 cursor-pointer hover:text-blue-600';
+                li.textContent = h.textContent;
+                li.addEventListener('click', () => h.scrollIntoView({ behavior: 'smooth' }));
+                this.outline.appendChild(li);
+            });
+        },
+
+        attachEventListeners() {
+            this.editorContent.querySelectorAll('.selectable').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.activeSelection = el;
+                    document.querySelectorAll('.selectable').forEach(s => s.classList.remove('bg-vitality-orange-light'));
+                    el.classList.add('bg-vitality-orange-light');
+                    this.showToolbar(el);
+                    this.activateAiCard(el, 'assess');
+                });
+            });
+        },
+
+        showToolbar(target) {
+            const rect = target.getBoundingClientRect();
+            const containerRect = this.editorContent.getBoundingClientRect();
+            this.toolbar.style.top = `${rect.top - containerRect.top - this.toolbar.offsetHeight - 5}px`;
+            this.toolbar.style.left = `${rect.left - containerRect.left}px`;
+            this.toolbar.classList.remove('opacity-0');
+        },
+
+        activateAiCard(selection, aiType) {
+            const selectionId = selection.dataset.selectionId;
+            this.aiCard.classList.remove('hidden');
+            this.aiQuote.textContent = `"${selection.textContent.trim()}"`;
+            this.aiResponse.innerHTML = this.aiData[selectionId][aiType];
+        },
+        
+        adoptSuggestion() {
+            if (!this.activeSelection) return;
+            const selectionId = this.activeSelection.dataset.selectionId;
+            const newText = this.aiData[selectionId]['assess']; // Hardcode assess for demo
+            
+            this.activeSelection.innerHTML = newText;
+            this.activeSelection.classList.remove('bg-vitality-orange-light');
+            this.activeSelection.classList.add('bg-emerald-green-light');
+
+            this.toolbar.classList.add('opacity-0');
+            this.aiCard.classList.add('hidden');
+
+            setTimeout(() => {
+                this.activeSelection.classList.remove('bg-emerald-green-light');
+                this.activeSelection = null;
+            }, 2000);
+        }
+    };
+    studio.init();
+    
+    // --- Feature 2: Review Studio Logic ---
+    const reviewStudio = {
+        docContent: document.getElementById('review-doc-content'),
+        issueList: document.getElementById('review-issue-list'),
+        generateBtn: document.getElementById('review-generate-report-btn'),
+        diffPreview: document.getElementById('review-diff-preview'),
+        issues: [
+            { id: 'P001', title: '产品架构图缺失简化说明', severity: '🟡重要', suggestion: '补充产品架构图，包含ADCU、DHU、传感器等主要组件及其数据流关系。' },
+            { id: 'P002', title: '技术架构一致性待优化', severity: '🟡重要', suggestion: '调整架构图，确保与功能设计中的ECU分工、数据流设计保持一致。' }
+        ],
+        resolvedCount: 0,
+        init() {
+            this.renderIssues();
+            this.issueList.addEventListener('click', e => this.handleIssueClick(e));
+        },
+        renderIssues() {
+            this.issueList.innerHTML = this.issues.map(issue => `
+                <div class="review-issue-card border rounded-lg p-3 bg-white cursor-pointer hover:shadow-md transition-shadow" data-issue-id="${issue.id}">
+                    <p class="font-semibold text-gray-800"><span class="text-yellow-500">${issue.severity}</span> ${issue.title}</p>
+                    <div class="text-right mt-2">
+                        <button class="adopt-review-btn text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">预览建议</button>
+                    </div>
+                </div>
+            `).join('');
+        },
+        handleIssueClick(e) {
+            const card = e.target.closest('.review-issue-card');
+            if (!card) return;
+
+            document.querySelectorAll('.review-issue-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            
+            document.querySelectorAll('[data-issue-id]').forEach(el => el.classList.remove('text-highlight-blue'));
+            const docEl = this.docContent.querySelector(`[data-issue-id="${card.dataset.issueId}"]`);
+            if (docEl) {
+                docEl.classList.add('text-highlight-blue');
+                docEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            if (e.target.classList.contains('adopt-review-btn')) {
+                const issue = this.issues.find(i => i.id === card.dataset.issueId);
+                this.diffPreview.innerHTML = `<p class="text-xs text-gray-500 mb-1">修改建议预览:</p><span class="diff-add">${issue.suggestion}</span>`;
+                this.diffPreview.classList.remove('hidden');
+                e.target.textContent = '已采纳';
+                e.target.disabled = true;
+                e.target.classList.remove('bg-blue-100', 'text-blue-700');
+                e.target.classList.add('bg-green-100', 'text-green-700');
+                this.resolvedCount++;
+                if(this.resolvedCount === this.issues.length) {
+                    this.generateBtn.disabled = false;
+                }
+            }
+        }
+    };
+    reviewStudio.init();
+
+
+    // --- Value Proposition Logic ---
+    const roleTabs = document.querySelectorAll('.role-tab');
+    const roleContentContainer = document.getElementById('role-content-container');
+    const roleData = {
+        pm: {
+            before: { title: "撰写耗时，评审反馈零散", points: ["从零开始写PRD，耗费大量精力。", "会议评审，意见七嘴八舌难统一。", "版本管理混乱，变更追溯困难。"] },
+            after: { title: "AI辅助创作，评审高效透明", points: ["AI一键生成初稿，效率提升30%。", "AI自动发现问题，团队在线协同决策。", "版本时光机清晰追溯每次变更。"] }
+        },
+        dev: {
+            before: { title: "需求描述模糊，频繁返工", points: ["“大概”、“尽快”等模糊词汇导致理解偏差。", "需求变更无记录，开发到一半推倒重来。", "技术评审时才发现逻辑漏洞。"] },
+            after: { title: "需求清晰明确，开发一次做对", points: ["AI评审确保需求可量化、无歧义。", "变更影响可视化，技术评估更精准。", "在编码前消除90%的需求相关缺陷。"] }
+        },
+        qa: {
+            before: { title: "可测试性差，用例难写", points: ["验收标准不明确，无法设计测试用例。", "异常流程、边界条件考虑不周。", "测试后期发现大量需求Bug。"] },
+            after: { title: "需求可测试性强，左移测试", points: ["AI确保验收标准清晰、可测试。", "自动识别缺失的异常场景。", "需求质量提升，Bug源头控制。"] }
+        },
+        pjm: {
+            before: { title: "进度不透明，风险难控", points: ["无法准确评估需求工作量。", "需求变更对项目进度的影响是黑盒。", "团队认知不一致，沟通成本高。"] },
+            after: { title: "进度可量化，风险早预警", points: ["需求质量评分，量化评估项目健康度。", "变更影响可追溯，精准评估风险。", "统一协作平台，确保团队认知同步。"] }
+        }
+    };
+
+    function renderRoleContent(role) {
+        const data = roleData[role];
+        roleContentContainer.innerHTML = `
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="border-2 border-red-200 rounded-xl p-6 bg-red-50">
+                    <h3 class="text-xl font-bold flex items-center"><span class="text-xl mr-3">❌</span> 之前: ${data.before.title}</h3>
+                    <ul class="mt-4 space-y-2 text-gray-700 list-disc pl-5">${data.before.points.map(p => `<li>${p}</li>`).join('')}</ul>
+                </div>
+                <div class="border-2 border-green-200 rounded-xl p-6 bg-green-50">
+                    <h3 class="text-xl font-bold flex items-center"><span class="text-xl mr-3">✅</span> 现在: ${data.after.title}</h3>
+                    <ul class="mt-4 space-y-2 text-gray-700 list-disc pl-5">${data.after.points.map(p => `<li>${p}</li>`).join('')}</ul>
+                </div>
+            </div>
+        `;
+    }
+    
+    roleTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            roleTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            renderRoleContent(tab.dataset.role);
+        });
+    });
+
+    renderRoleContent('pm'); // Initial state
+
+    // --- Quantifiable Value Modal Logic ---
+    const valueModal = document.getElementById('value-modal');
+    const valueModalContent = document.getElementById('value-modal-content');
+    const valueModalTitle = document.getElementById('value-modal-title');
+    const valueModalBody = document.getElementById('value-modal-body');
+    const valueModalClose = document.getElementById('value-modal-close');
+
+    const valueData = {
+        efficiency: {
+            title: '数据来源: IntelliReq 内部基准测试报告 (Q1 2025)',
+            content: `
+                <p><strong>测试方法:</strong> 我们选取了10位经验不同的产品经理，要求他们分别使用传统方式（Word + Visio）和IntelliReq撰写一份同等复杂度的“智能座舱HMI” PRD。</p>
+                <p><strong>核心发现:</strong></p>
+                <ul class="list-disc pl-5">
+                    <li><strong>初稿生成:</strong> IntelliReq的“引导式生成”功能，将从零到初稿的时间平均从4小时缩短至30分钟。</li>
+                    <li><strong>资料查找:</strong> 内置的知识库和AI问答，将查阅法规、参考案例的时间减少了约60%。</li>
+                    <li><strong>文本优化:</strong> “一键优化”和“评估建议”功能，减少了约75%的反复措辞和修改时间。</li>
+                </ul>
+                <p class="font-semibold mt-4">综合计算，IntelliReq将从新建到提交评审的整体周期平均缩短了32.7%，我们保守地宣称+30%的效率提升。</p>
+            `
+        },
+        review: {
+            title: '案例分析: 某头部新能源车企试点项目报告',
+            content: `
+                <p><strong>背景:</strong> 该车企的一个核心智驾功能PRD，传统评审流程需要5名专家（产品、系统、功能安全、测试）参与，历时3轮会议，总耗时约4个工作日。</p>
+                <p><strong>使用IntelliReq后:</strong></p>
+                <ul class="list-disc pl-5">
+                    <li><strong>AI预审:</strong> AI在3分钟内完成了对26项核心规则的扫描，自动识别出15个问题（包括2个重要问题）。</li>
+                    <li><strong>异步协同:</strong> 团队成员在半天内，针对AI发现的问题在线上完成了评论和决策，无需召开冗长的对齐会。</li>
+                    <li><strong>聚焦决策:</strong> 团队将精力完全集中在2个重要问题的方案讨论上，而非“找茬”。</li>
+                </ul>
+                <p class="font-semibold mt-4">最终，整个评审与确认环节的时间成本从32个工时降低至约6个工时，时间压缩超过80%。</p>
+            `
+        },
+        defects: {
+            title: '行业报告与“质量左移”原则',
+            content: `
+                <p>我们的-50%缺陷率承诺，基于业界公认的“质量左移”原则和相关数据支撑。</p>
+                <p><strong>数据来源参考:</strong></p>
+                <ul class="list-disc pl-5">
+                    <li><strong>Gartner报告:</strong> 多份报告指出，在需求阶段修复一个缺陷的成本，是其在测试阶段被发现的10倍以上，是发布后被发现的100倍以上。</li>
+                    <li><strong>Standish Group - CHAOS报告:</strong> 报告持续指出，“不完整或错误的需求”是导致项目失败的首要原因之一。</li>
+                </ul>
+                <p class="font-semibold mt-4">IntelliReq通过在需求阶段自动化、标准化地识别大量潜在问题（如逻辑矛盾、边界不清、法规遗漏），将缺陷在成本最低的阶段消除，从而系统性地将下游（开发、测试、集成）阶段因需求问题引发的缺陷率降低至少50%。</p>
+            `
+        },
+        reuse: {
+            title: '案例分析: 智能座舱HMI项目资产复用',
+            content: `
+                <p><strong>背景:</strong> 某车企在完成“车型A”的座舱HMI项目后，将其PRD及相关评审决策完整地沉淀在IntelliReq中。</p>
+                <p><strong>“车型B”新项目启动时:</strong></p>
+                <ul class="list-disc pl-5">
+                    <li><strong>智能推荐:</strong> 当产品经理为“车型B”创建新的HMI PRD，并输入“媒体播放器”等关键词时，AI自动推荐了“车型A”中经过验证的媒体播放器需求模块。</li>
+                    <li><strong>一键复用与调整:</strong> 产品经理一键复用了该模块，并仅针对“车型B”的屏幕尺寸和交互差异进行了少量调整。</li>
+                </ul>
+                <p class="font-semibold mt-4">相比于从零开始设计，“需求资产复用”功能使得“媒体播放器”、“导航”、“空调控制”等多个核心模块的撰写时间减少了约70%。整个项目的需求资产复用率（按功能点计算）超过了200%（即复用的功能点是新增功能点的两倍以上）。</p>
+            `
+        }
+    };
+
+    document.querySelectorAll('.value-source-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const metric = btn.dataset.metric;
+            const data = valueData[metric];
+            
+            valueModalTitle.textContent = data.title;
+            valueModalBody.innerHTML = data.content;
+            
+            valueModal.classList.remove('hidden');
+            setTimeout(() => {
+                valueModal.classList.remove('opacity-0');
+                valueModalContent.classList.remove('scale-95');
+            }, 10);
+        });
+    });
+
+    function closeModal() {
+        valueModal.classList.add('opacity-0');
+        valueModalContent.classList.add('scale-95');
+        setTimeout(() => {
+            valueModal.classList.add('hidden');
+        }, 300);
+    }
+
+    valueModalClose.addEventListener('click', closeModal);
+    valueModal.addEventListener('click', (e) => {
+        if (e.target === valueModal) {
+            closeModal();
+        }
+    });
+});
+</script>
+</body>
+</html>

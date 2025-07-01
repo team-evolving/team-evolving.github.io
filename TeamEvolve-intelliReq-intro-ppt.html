@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Evolve - IntelliReq - AI驱动的汽车需求协作平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --tech-blue: #2962FF;
+            --vitality-orange: #FF6D00;
+            --emerald-green: #00C853;
+            --dark-bg: #0a0a2a;
+            --light-text: #f0f0f0;
+            --gray-text: #a0a0b0;
+            --card-bg: #1a1a3a;
+            --border-color: #3a3a5a;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 4rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+            transform: scale(0.95);
+        }
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        .tech-blue { color: var(--tech-blue); }
+        .vitality-orange { color: var(--vitality-orange); }
+        .emerald-green { color: var(--emerald-green); }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.2s; } .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; } .delay-4 { animation-delay: 0.8s; }
+        .delay-5 { animation-delay: 1.0s; } .delay-6 { animation-delay: 1.2s; }
+
+        .nav-btn {
+            position: fixed; bottom: 2rem; background-color: rgba(255, 255, 255, 0.1); color: white;
+            padding: 0.75rem 1.5rem; border-radius: 9999px; cursor: pointer; transition: background-color 0.3s;
+            backdrop-filter: blur(5px); z-index: 100;
+        }
+        .nav-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+        #prev-btn { left: 2rem; }
+        #next-btn { right: 2rem; }
+        #progress-bar {
+            position: fixed; bottom: 0; left: 0; height: 4px;
+            background-color: var(--tech-blue); transition: width 0.3s ease-out; z-index: 100;
+        }
+
+        .mock-ui {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .workflow-node {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 1rem 1.5rem; border-radius: 0.75rem; transition: all 0.3s;
+        }
+        .workflow-arrow { font-size: 2rem; color: var(--gray-text); margin: 0 0.5rem; }
+
+        @keyframes scan-line { 0% { top: 0; } 100% { top: 100%; } }
+        .scan-line {
+            position: absolute; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--tech-blue), transparent);
+            animation: scan-line 2s ease-in-out 1s 1; opacity: 0.8;
+        }
+        
+        .ai-card {
+            background-color: #2a2a4a; border-radius: 0.5rem; padding: 0.75rem;
+            opacity: 0; transform: scale(0.95); transition: all 0.5s ease-out;
+        }
+        .ai-card.visible { opacity: 1; transform: scale(1); }
+
+        @keyframes animate-progress { from { width: 0; } to { width: 100%; } }
+        .animate-progress { animation: animate-progress 1s ease-out forwards; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <main id="presentation">
+        <!-- 1. 标题页 -->
+        <section class="slide active">
+            <div class="slide-content text-center">
+                <h1 class="text-5xl md:text-7xl font-black mb-4 tech-blue fade-in-up">Team Evolve - IntelliReq</h1>
+                <p class="text-2xl md:text-4xl font-bold mb-8 fade-in-up delay-1">重塑需求 · 智造卓越</p>
+                <p class="text-xl md:text-2xl text-gray-300 fade-in-up delay-2">为汽车行业注入AI动力，让需求文档第一次就做对</p>
+            </div>
+        </section>
+
+        <!-- 2. 传统痛点 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-12">传统模式下，需求工作流的“四座大山”</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
+                    <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-1">
+                        <div class="text-5xl mb-4">🏝️</div><h3 class="text-2xl font-bold mb-2">知识孤岛化</h3>
+                        <p class="text-gray-400">核心知识和决策依据分散在专家大脑和离线文档中，难以传承和复用，团队整体能力无法有效提升。</p>
+                    </div>
+                    <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-2">
+                        <div class="text-5xl mb-4">🧟</div><h3 class="text-2xl font-bold mb-2">文档僵尸化</h3>
+                        <p class="text-gray-400">PRD在发布瞬间即与现实脱节，后续的变更、讨论和决策无法回溯，成为失去生命力的“僵尸文档”。</p>
+                    </div>
+                    <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-3">
+                        <div class="text-5xl mb-4">🐌</div><h3 class="text-2xl font-bold mb-2">评审低效化</h3>
+                        <p class="text-gray-400">评审依赖人工，标准不一、耗时冗长、反馈零散。大量时间浪费在重复沟通和低级错误上。</p>
+                    </div>
+                    <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-4">
+                        <div class="text-5xl mb-4">🧱</div><h3 class="text-2xl font-bold mb-2">资产沉淀难</h3>
+                        <p class="text-gray-400">宝贵的需求模式、设计方案和决策逻辑无法形成可复用的企业级资产，导致重复“造轮子”。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 3. AI时代的新痛点 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-2">AI时代，我们是否陷入了<span class="vitality-orange">“伪智能”</span>的陷阱？</h2>
+                <p class="text-xl text-gray-400 mb-12">简单的AI辅助，带来了新的困境</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
+                     <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-1">
+                        <div class="text-5xl mb-4">🌍</div><h3 class="text-2xl font-bold mb-2">模型“水土不服”</h3>
+                        <p class="text-gray-400">通用大模型缺乏深度行业知识（如汽车法规），建议“听起来很美”，却不符合工程实际，无法直接采纳。</p>
+                    </div>
+                     <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-2">
+                        <div class="text-5xl mb-4">🔌</div><h3 class="text-2xl font-bold mb-2">工具链“貌合神离”</h3>
+                        <p class="text-gray-400">AI助手常以插件形式存在，与企业现有工具链脱节，导致数据割裂，工作流中断。</p>
+                    </div>
+                     <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-3">
+                        <div class="text-5xl mb-4">🏰</div><h3 class="text-2xl font-bold mb-2">实践“空中楼阁”</h3>
+                        <p class="text-gray-400">AI的“单点优化”无法融入复杂的团队协同评审、决策流程，形成新的信息孤岛。</p>
+                    </div>
+                     <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-4">
+                        <div class="text-5xl mb-4">❓</div><h3 class="text-2xl font-bold mb-2">信任“黑盒”难建</h3>
+                        <p class="text-gray-400">AI的评审和建议过程不透明，无法解释“为什么这么判”，导致工程师难以建立信任，无法放心依赖。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 解决方案 -->
+        <section class="slide">
+            <div class="slide-content text-center">
+                <h2 class="text-5xl md:text-6xl font-black mb-4 fade-in-up">Team Evolve - IntelliReq: <span class="tech-blue">真智能</span>，真协同</h2>
+                <p class="text-2xl md:text-3xl font-bold mb-12 fade-in-up delay-1">我们不仅提供AI，更提供一套<span class="vitality-orange">智能化的需求协作体系</span></p>
+                <div class="flex justify-center">
+                    <div class="w-full md:w-3/4 p-8 bg-gray-800 rounded-2xl fade-in-up delay-2">
+                        <h3 class="text-3xl font-bold vitality-orange mb-4">核心价值</h3>
+                        <ul class="text-left text-xl space-y-4">
+                            <li><span class="emerald-green">✓</span> <b class="text-white">端到端整合:</b> 打破撰写与评审壁垒，实现从构思到发布的无缝工作流。</li>
+                            <li><span class="emerald-green">✓</span> <b class="text-white">专家级洞察:</b> 将汽车行业知识与规则融入AI，提供专业、可信的决策支持。</li>
+                            <li><span class="emerald-green">✓</span> <b class="text-white">激活需求资产:</b> 将过程和结果沉淀为可复用的企业知识，让智慧持续生长。</li>
+                            <li><span class="emerald-green">✓</span> <b class="text-white">无缝快速集成:</b> 无论企业工具链成熟度高低，都能平滑接入，快速上手。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 端到端流程 -->
+        <section class="slide">
+             <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-12">智能驱动的端到端工作流</h2>
+                <div class="flex flex-col md:flex-row justify-center items-center w-full">
+                    <div class="workflow-node fade-in-up" style="animation-delay: 0.2s;"><div class="text-2xl">📄</div><div>文档中心</div></div>
+                    <div class="workflow-arrow fade-in-up" style="animation-delay: 0.4s;">→</div>
+                    <div class="workflow-node fade-in-up border-tech-blue" style="animation-delay: 0.6s;"><div class="text-2xl">✍️</div><div class="font-bold">智能撰写</div><div class="text-sm text-gray-400">AI辅助创作与优化</div></div>
+                    <div class="workflow-arrow fade-in-up" style="animation-delay: 0.8s;">→</div>
+                    <div class="workflow-node fade-in-up border-vitality-orange" style="animation-delay: 1.0s;"><div class="text-2xl">🛡️</div><div class="font-bold">智能评审</div><div class="text-sm text-gray-400">专家规则自动检测</div></div>
+                    <div class="workflow-arrow fade-in-up" style="animation-delay: 1.2s;">→</div>
+                    <div class="workflow-node fade-in-up" style="animation-delay: 1.4s;"><div class="text-2xl">🤝</div><div class="font-bold">协同确认</div><div class="text-sm text-gray-400">团队共识与决策</div></div>
+                    <div class="workflow-arrow fade-in-up" style="animation-delay: 1.6s;">→</div>
+                    <div class="workflow-node fade-in-up border-emerald-green" style="animation-delay: 1.8s;"><div class="text-2xl">🧠</div><div class="font-bold">自检修正</div><div class="text-sm text-gray-400">规则自学习与演进</div></div>
+                    <div class="workflow-arrow fade-in-up" style="animation-delay: 2.0s;">→</div>
+                    <div class="workflow-node fade-in-up" style="animation-delay: 2.2s;"><div class="text-2xl">📊</div><div class="font-bold">报告归档</div><div class="text-sm text-gray-400">生成可追溯报告</div></div>
+                </div>
+                <p class="mt-8 text-lg text-gray-400 fade-in-up" style="animation-delay: 2.4s;">从“单点优化”到“全局智能”，实现真正的高效闭环。</p>
+            </div>
+        </section>
+
+        <!-- 6. 核心创新 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-12">核心创新：让智能“看得全、记得牢、懂协作”</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-1">
+                        <div class="text-5xl mb-4">🌐</div><h3 class="text-3xl font-bold mb-4">全链路追溯系统</h3>
+                        <p class="text-lg text-gray-300">建立从需求诞生到最终实现的全程可视化追溯链条，每一次变更、每一次AI建议的影响都清晰可见。</p>
+                    </div>
+                    <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-2">
+                        <div class="text-5xl mb-4">⚙️</div><h3 class="text-3xl font-bold mb-4">动态规则引擎</h3>
+                        <p class="text-lg text-gray-300">将汽车行业最佳实践和企业标准固化为可执行的规则库，让评审从“模糊经验”变为“精确工程”。</p>
+                    </div>
+                    <div class="bg-gray-800 p-8 rounded-2xl fade-in-up delay-3">
+                        <div class="text-5xl mb-4">🤝</div><h3 class="text-3xl font-bold mb-4">协同决策工作流</h3>
+                        <p class="text-lg text-gray-300">将评审过程从“单点反馈”升级为“多方共识”，提供定制化看板与智能仲裁，加速决策闭环。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 7. 场景一：智能撰写 Part 1 -> 引导式生成与沉浸式编辑 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8">场景演绎 ①: 智能撰写 (从0到1)</h2>
+                <p class="text-xl text-gray-300 mb-8">第一步：AI生成初稿，提供坚实起点</p>
+                <div class="mock-ui rounded-2xl p-4 w-full h-[450px] flex gap-4">
+                    <div id="modal" class="absolute inset-0 bg-black/70 flex justify-center items-center z-10 fade-in-up">
+                        <div class="bg-gray-800 p-8 rounded-2xl w-1/2 text-left">
+                            <h3 class="text-2xl font-bold mb-4">新建PRD: 自动驻车(Auto Hold)</h3>
+                            <label class="font-bold">业务目标</label>
+                            <textarea class="w-full bg-gray-700 rounded p-2 mt-2 h-20">提升用户在城市拥堵路况及坡道场景下的驾驶便利性与安全性。</textarea>
+                            <label class="font-bold mt-4 block">核心功能点</label>
+                            <textarea class="w-full bg-gray-700 rounded p-2 mt-2 h-24">- 拥堵路段自动驻车
+- 坡道起步防溜车
+- 驾驶员意图识别（如踩油门解除）</textarea>
+                            <button id="generate-btn" class="mt-6 bg-tech-blue text-white font-bold py-2 px-6 rounded-full">✨ AI 生成PRD初稿</button>
+                        </div>
+                    </div>
+                    <div class="w-1/4 bg-gray-900/50 rounded-lg p-4 text-left"><h4 class="font-bold mb-2">文档大纲</h4><ul id="outline" class="text-sm space-y-1 text-gray-400"><li>(等待生成...)</li></ul></div>
+                    <div class="w-3/4 bg-gray-900/50 rounded-lg p-4 text-left relative"><h4 class="font-bold mb-2">内容编辑区</h4><div id="editor-content" class="text-gray-500">...</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. 场景一：智能撰写 Part 2 -> AI卡片协同创作 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8">场景演绎 ①: 智能撰写 (从1到100)</h2>
+                <p class="text-xl text-gray-300 mb-8">第二步：AI卡片协同，将粗糙想法精炼为专业需求</p>
+                <div class="mock-ui rounded-2xl p-4 w-full h-[450px] flex gap-4 text-left">
+                    <div class="w-1/2 bg-gray-900/50 rounded-lg p-4 relative">
+                        <h4 class="font-bold mb-2">内容编辑区</h4>
+                        <p>...在坡道停车时，Auto Hold功能应被激活。</p>
+                        <p id="target-text" class="text-gray-300 bg-transparent transition-colors duration-500">驾驶员踩下油门时，系统应<span class="font-bold">尽快</span>解除制动。</p>
+                        <p>...</p>
+                    </div>
+                    <div class="w-1/2 bg-gray-900/50 rounded-lg p-4 space-y-3">
+                        <h4 class="font-bold mb-2 text-vitality-orange">AI 协作区</h4>
+                        <div id="card1" class="ai-card"><p class="font-bold">💡 找灵感: "坡道停车"</p><p class="text-sm text-gray-300 mt-1">可以考虑不同坡度的防溜车策略，例如在>15°的陡坡上，延长制动保持时间或增加提示音。</p></div>
+                        <div id="card2" class="ai-card"><p class="font-bold">📚 找知识: "Auto Hold"</p><p class="text-sm text-gray-300 mt-1">根据ECE R13-H法规，Auto Hold的解除过程需确保平顺，避免车辆闯动。相关测试标准为...</p></div>
+                        <div id="card3" class="ai-card"><p class="font-bold">📈 评估建议: "尽快解除制动"</p><p class="text-sm text-gray-300 mt-1">"尽快"是模糊表述，无法测试。建议量化为：<span class="text-emerald-green font-bold">“在接收到油门踏板位移信号后的200ms内，平顺地完全解除制动”</span>。</p><button id="adopt-btn" class="mt-2 bg-emerald-green text-white text-xs py-1 px-3 rounded-full">采纳此建议</button></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. 场景演绎 ②: 智能评审 (启动与全局扫描) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8">场景演绎 ②: 智能评审 (第1步：全局扫描)</h2>
+                <p class="text-xl text-gray-300 mb-8">一键启动，AI化身专家团队，从5大维度进行地毯式扫描</p>
+                <div class="mock-ui rounded-2xl p-6 w-full h-[450px] flex gap-6">
+                    <div class="w-1/3 bg-gray-900/50 rounded-lg p-6 text-left flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-2xl font-bold mb-4">BSV特性需求文档 V1.0.2</h4>
+                            <button id="start-review-btn" class="w-full bg-vitality-orange text-white font-bold py-3 px-6 rounded-full text-lg">🚀 启动智能评审</button>
+                        </div>
+                        <div id="review-progress" class="space-y-3 opacity-0"></div>
+                    </div>
+                    <div id="summary-report" class="w-2/3 bg-gray-900/50 rounded-lg p-6 text-left opacity-0">
+                        <h4 class="text-2xl font-bold mb-4">评审概要报告</h4>
+                        <div class="text-center mb-6">
+                            <p class="text-gray-400">综合质量评分</p>
+                            <p class="text-7xl font-black tech-blue">77<span class="text-3xl">/100</span></p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. 场景演绎 ②: 智能评审 (深度分析：架构与流程) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8">评审深度分析 (第2步：架构与流程完整性)</h2>
+                <p class="text-xl text-gray-300 mb-8">AI精准定位架构、流程中的逻辑缺陷，并提供专业改进建议</p>
+                <div class="mock-ui rounded-2xl p-4 w-full h-[450px] flex gap-4">
+                    <div class="w-2/3 bg-gray-900/50 rounded-lg p-4 text-left relative overflow-y-auto">
+                        <h4 class="font-bold mb-2">2.2 产品架构</h4>
+                        <div class="p-4 rounded-lg bg-gray-800 relative">
+                            <p class="text-gray-400">BSV功能涉及ADCU、DHU、摄像头等多个ECU的协同工作。</p>
+                            <p class="text-red-400 italic mt-2">"简单功能不需要架构分解"</p>
+                            <div class="absolute inset-0 border-4 border-dashed border-yellow-500 rounded-lg fade-in-up delay-2" title="P001 & P002"></div>
+                        </div>
+                        <h4 class="font-bold mb-2 mt-4">2.4 功能流程图</h4>
+                        <div class="p-4 rounded-lg bg-gray-800 relative">
+                            <p class="text-gray-400">激活流程：用户打转向灯 → 系统判断车速 → ... → 显示BSV视图。</p>
+                            <p class="text-gray-500 italic mt-2">[流程图未包含设置、异常处理等环节...]</p>
+                            <div class="absolute inset-0 border-4 border-dashed border-orange-500 rounded-lg fade-in-up delay-4" title="P003"></div>
+                        </div>
+                    </div>
+                    <div class="w-1/3 bg-gray-900/50 rounded-lg p-4 text-left space-y-3 overflow-y-auto">
+                        <h4 class="font-bold mb-2 text-vitality-orange">发现的问题</h4>
+                        <div class="bg-yellow-900/50 p-3 rounded-lg fade-in-up delay-3">
+                            <p class="font-bold text-yellow-400">🟡 重要: 架构图缺失 (P001)</p>
+                            <p class="text-sm text-gray-300">章节2.2中架构图过于简化，对于涉及多ECU协作的BSV功能，需要更详细的架构说明以指导开发。</p>
+                        </div>
+                        <div class="bg-yellow-900/50 p-3 rounded-lg fade-in-up delay-4">
+                            <p class="font-bold text-yellow-400">🟡 重要: 架构一致性待优化 (P002)</p>
+                            <p class="text-sm text-gray-300">简化架构与第三章的复杂跨域交互不匹配，影响ECU分工和数据流设计。</p>
+                        </div>
+                        <div class="bg-orange-900/50 p-3 rounded-lg fade-in-up delay-5">
+                            <p class="font-bold text-orange-400">🟠 警告: 流程图可完善 (P003)</p>
+                            <p class="text-sm text-gray-300">流程图可补充用户设置、异常处理等环节，以覆盖完整的用户旅程。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 11. 场景演绎 ②: 智能评审 (深度分析：UseCase与报告) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8">评审深度分析 (第3步：专业报告与行动项)</h2>
+                <p class="text-xl text-gray-300 mb-8">生成清晰、专业、可行动的评审报告，让优化有据可依</p>
+                <div class="mock-ui rounded-2xl p-4 w-full h-[450px] flex gap-4 text-left">
+                    <div class="w-1/3 bg-gray-900/50 rounded-lg p-4 overflow-y-auto">
+                        <h4 class="font-bold mb-2">优先级改进计划</h4>
+                        <table class="w-full text-sm">
+                            <thead class="text-gray-400"><tr><th class="py-1 text-left">问题</th><th class="py-1">优先级</th></tr></thead>
+                            <tbody>
+                                <tr class="border-t border-gray-700"><td class="py-1">产品架构图缺失...</td><td class="py-1 text-center"><span class="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-full">中</span></td></tr>
+                                <tr class="border-t border-gray-700"><td class="py-1">技术架构一致性...</td><td class="py-1 text-center"><span class="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded-full">中</span></td></tr>
+                                <tr class="border-t border-gray-700"><td class="py-1">功能流程图可...</td><td class="py-1 text-center"><span class="bg-orange-500 text-black text-xs font-bold px-2 py-0.5 rounded-full">低</span></td></tr>
+                                <tr class="border-t border-gray-700"><td class="py-1">跨域文档关联...</td><td class="py-1 text-center"><span class="bg-orange-500 text-black text-xs font-bold px-2 py-0.5 rounded-full">低</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="w-2/3 bg-gray-900/50 rounded-lg p-4 space-y-3 overflow-y-auto">
+                        <h4 class="font-bold mb-2 text-vitality-orange">详细问题明细 (P001)</h4>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <p class="font-bold text-lg text-yellow-400">产品架构图缺失简化说明</p>
+                            <p class="text-sm mt-2"><b class="text-gray-400">问题规则:</b> R1.6 产品架构图内容检查</p>
+                            <p class="text-sm mt-1"><b class="text-gray-400">具体问题:</b> 在章节2.2中显示"简单功能不需要架构分解"，但BSV作为涉及多ECU协作的复杂功能，需要更详细的架构说明。</p>
+                            <p class="text-sm mt-1"><b class="text-gray-400">影响分析:</b> 缺乏架构细节可能导致开发团队对系统结构理解不一致，影响跨域协作。</p>
+                            <p class="text-sm mt-1"><b class="text-gray-400">改进建议:</b> 补充产品架构图，包含ADCU、DHU、传感器等主要组件及其数据流关系，参考模板中的BSV架构图案例。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 12. 场景三：版本时光机 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8">场景演绎 ③: 全链路追溯 (版本时光机)</h2>
+                <p class="text-xl text-gray-300 mb-8">让每一次变更都有迹可循，每一次决策都清晰透明</p>
+                <div class="mock-ui rounded-2xl p-6 w-full h-[450px] text-left flex flex-col">
+                    <h3 class="text-2xl font-bold mb-4">版本对比：BSV特性需求文档</h3>
+                    <div class="flex justify-center items-center mb-4">
+                        <span class="font-bold">V1.0.1</span>
+                        <input type="range" class="w-1/3 mx-4" value="0" min="0" max="1">
+                        <span class="font-bold text-emerald-green">V1.0.2 (已采纳AI建议)</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
+                        <!-- Left Panel: Change History -->
+                        <div class="bg-gray-900/50 p-4 rounded-lg fade-in-up delay-1 overflow-y-auto">
+                            <h4 class="font-bold text-lg mb-2">变更历史 (V1.0.1 → V1.0.2)</h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="p-2 rounded-lg bg-blue-900/50 border border-blue-500 cursor-pointer">
+                                    <p class="font-bold">P001: 补充产品架构图</p>
+                                    <p class="text-xs text-gray-400">状态: 已采纳AI建议</p>
+                                </li>
+                                <li class="p-2 rounded-lg hover:bg-gray-700/50 cursor-pointer">
+                                    <p class="font-bold">P002: 调整架构一致性</p>
+                                    <p class="text-xs text-gray-400">状态: 已采纳AI建议</p>
+                                </li>
+                                <li class="p-2 rounded-lg hover:bg-gray-700/50 cursor-pointer">
+                                    <p class="font-bold">P003: 完善功能流程图</p>
+                                    <p class="text-xs text-gray-400">状态: 已采纳AI建议</p>
+                                </li>
+                                 <li class="p-2 rounded-lg hover:bg-gray-700/50 cursor-pointer">
+                                    <p class="font-bold">用户反馈: 优化挂车模式</p>
+                                    <p class="text-xs text-gray-400">状态: 讨论中</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Center Panel: Content Diff -->
+                        <div class="bg-gray-900/50 p-4 rounded-lg fade-in-up delay-2">
+                            <h4 class="font-bold text-lg mb-2">关联文本差异 (P001)</h4>
+                            <div class="bg-gray-800 p-3 rounded">
+                                <p class="text-gray-400">章节 2.2 产品架构</p>
+                                <p class="text-red-400 line-through mt-2">- "简单功能不需要架构分解"</p>
+                                <p class="text-emerald-green mt-1">+ </p>
+                                <p class="text-emerald-green mt-1">+ "BSV功能涉及ADCU、DHU..."</p>
+                            </div>
+                        </div>
+                        <!-- Right Panel: Impact Analysis -->
+                        <div class="bg-gray-900/50 p-4 rounded-lg fade-in-up delay-3">
+                            <h4 class="font-bold text-lg mb-2">质量与决策影响</h4>
+                            <div>
+                                <p>综合评分: <span class="text-red-400">70分</span> → <span class="text-emerald-green">77分</span></p>
+                                <div class="w-full bg-gray-700 rounded-full h-2.5 mt-1">
+                                    <div class="bg-emerald-green h-2.5 rounded-full" style="width: 77%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <p>AI建议采纳率: <span class="text-gray-400">N/A</span> → <span class="text-emerald-green">90%</span></p>
+                                <div class="w-full bg-gray-700 rounded-full h-2.5 mt-1">
+                                    <div class="bg-tech-blue h-2.5 rounded-full" style="width: 90%"></div>
+                                </div>
+                            </div>
+                             <div class="mt-4">
+                                <p class="font-bold text-gray-300">决策追溯</p>
+                                <p class="text-sm text-gray-400">采纳了AI关于“补充架构图”的<span class="text-yellow-400">重要</span>等级建议，提升了<span class="text-emerald-green">完整性</span>和<span class="text-emerald-green">一致性</span>得分。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 13. 为什么能做到 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-12">Team Evolve - IntelliReq的“真智能”源自深度融合</h2>
+                <div class="flex flex-col md:flex-row justify-center items-stretch gap-8 text-left">
+                    <div class="w-full md:w-1/3 bg-gray-800 p-8 rounded-2xl flex flex-col items-center fade-in-up delay-1">
+                        <div class="text-5xl mb-4">🤖</div>
+                        <h3 class="text-2xl font-bold mb-2">大模型 + Agent</h3>
+                        <p class="text-gray-400">我们不仅调用大模型，更构建了专业的Agent智能体。它能自主规划、执行复杂的评审任务，并通过与用户交互的<b class="text-white">数据闭环</b>持续学习，实现更高质量的上下文理解和更智能的流程自动化。</p>
+                    </div>
+                    <div class="text-5xl font-bold self-center fade-in-up delay-2">+</div>
+                    <div class="w-full md:w-1/3 bg-gray-800 p-8 rounded-2xl flex flex-col items-center fade-in-up delay-3">
+                        <div class="text-5xl mb-4">📚</div>
+                        <h3 class="text-2xl font-bold mb-2">软件工程+汽车行业 知识库</h3>
+                        <p class="text-gray-400">我们将通用的软件工程最佳实践与深度的汽车行业Know-How（如功能安全ISO26262）深度融合，形成独有的<b class="text-white">结构化知识库</b>，为AI的专业判断提供坚实基础。</p>
+                    </div>
+                    <div class="text-5xl font-bold self-center fade-in-up delay-4">+</div>
+                    <div class="w-full md:w-1/3 bg-gray-800 p-8 rounded-2xl flex flex-col items-center fade-in-up delay-5">
+                        <div class="text-5xl mb-4">🚀</div>
+                        <h3 class="text-2xl font-bold mb-2">系统工作流与越用越高效</h3>
+                        <p class="text-gray-400">智能不仅体现在单点功能，更在于融入您的日常工作流。每一次的评审、每一次的采纳，都在为平台贡献宝贵的<b class="text-white">“隐性知识”</b>，让系统越用越懂您的团队、越用越高效。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 14. 量化效果 -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="text-4xl md:text-5xl font-bold mb-12">可量化的价值提升：承诺与逻辑</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                    <div class="bg-gray-800 p-6 rounded-2xl fade-in-up delay-1">
+                        <p class="text-5xl font-black tech-blue">+30%</p>
+                        <p class="text-2xl font-bold mt-2">需求撰写效率</p>
+                        <p class="text-sm text-gray-400 mt-3"><b class="text-white">达成逻辑:</b> 通过引导式生成初稿、上下文感知的内容推荐及一键采纳优化建议，大幅缩短从零到一的撰写及资料查阅时间。</p>
+                        <p class="text-xs text-gray-500 mt-2"><b>指标速览:</b> 公式: (T_manual - T_IntelliReq) / T_manual。参考: 对标行业报告(如McKinsey)中关于AI辅助内容创作的效率提升数据。</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-2xl fade-in-up delay-2">
+                        <p class="text-5xl font-black vitality-orange">-80%</p>
+                        <p class="text-2xl font-bold mt-2">需求评审时间</p>
+                        <p class="text-sm text-gray-400 mt-3"><b class="text-white">达成逻辑:</b> AI自动化执行海量、精确的评审规则，在数分钟内完成过去需要数小时甚至数天的人工检查，将团队精力从“找茬”聚焦到“决策”。</p>
+                        <p class="text-xs text-gray-500 mt-2"><b>指标速览:</b> 公式: (T_review_manual - T_review_AI) / T_review_manual。参考: 内部测试，单份百万字级PRD的AI评审时间&lt;5分钟。</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-2xl fade-in-up delay-3">
+                        <p class="text-5xl font-black emerald-green">-50%</p>
+                        <p class="text-2xl font-bold mt-2">需求相关缺陷</p>
+                        <p class="text-sm text-gray-400 mt-3"><b class="text-white">达成逻辑:</b> 通过前置的、全面的、标准化的智能评审，在编码前消除大量因需求不明确、不一致而导致的潜在缺陷，实现“质量左移”。</p>
+                        <p class="text-xs text-gray-500 mt-2"><b>指标速览:</b> 公式: (Defects_before - Defects_after) / Defects_before。参考: 根据软件工程研究(Capers Jones)，在源头消除缺陷能指数级降低总体成本。</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-2xl fade-in-up delay-4">
+                        <p class="text-5xl font-black text-yellow-400">+200%</p>
+                        <p class="text-2xl font-bold mt-2">需求资产复用率</p>
+                        <p class="text-sm text-gray-400 mt-3"><b class="text-white">达成逻辑:</b> 将每个项目的PRD及其评审决策过程结构化地沉淀为可检索、可复用的知识资产。在新项目中，AI能主动推荐相似需求和成熟方案。</p>
+                        <p class="text-xs text-gray-500 mt-2"><b>指标速览:</b> 公式: (Reused_reqs_new / Total_reqs_new)。参考: 知识管理领域的实践表明，有效的资产复用能极大提升组织效率。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 15. 结尾 -->
+        <section class="slide">
+            <div class="slide-content text-center">
+                <h2 class="text-5xl md:text-6xl font-black mb-8 fade-in-up">开启高效、智能、可靠的需求新纪元</h2>
+                <p class="text-2xl text-gray-300 mb-12 fade-in-up delay-1">Team Evolve - IntelliReq · 期待与您共创卓越</p>
+                <button class="bg-tech-blue text-white font-bold py-4 px-10 rounded-full text-2xl hover:bg-blue-500 transition-all transform hover:scale-105 fade-in-up delay-2">
+                    申请产品演示
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <button id="prev-btn" class="nav-btn">&lt; 上一页</button>
+    <button id="next-btn" class="nav-btn">下一页 &gt;</button>
+    <div id="progress-bar"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.remove('active');
+                    if (i === index) {
+                        slide.classList.add('active');
+                        const animatedElements = slide.querySelectorAll('.fade-in-up');
+                        animatedElements.forEach(el => {
+                            el.style.animation = 'none';
+                            el.offsetHeight;
+                            el.style.animation = null; 
+                        });
+                        if(slide.querySelector('#generate-btn')) setupSlide7Animations(slide);
+                        if(slide.querySelector('#adopt-btn')) setupSlide8Animations(slide);
+                        if(slide.querySelector('#start-review-btn')) setupSlide9Animations(slide);
+                    }
+                });
+                updateNav();
+                updateProgressBar();
+            }
+
+            function updateNav() {
+                document.getElementById('prev-btn').style.display = currentSlide === 0 ? 'none' : 'block';
+                document.getElementById('next-btn').style.display = currentSlide === slides.length - 1 ? 'none' : 'block';
+            }
+            
+            function updateProgressBar() {
+                document.getElementById('progress-bar').style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+            }
+
+            function setupSlide7Animations(slide) {
+                const btn = slide.querySelector('#generate-btn');
+                const modal = slide.querySelector('#modal');
+                const outline = slide.querySelector('#outline');
+                const editor = slide.querySelector('#editor-content');
+                btn.onclick = () => {
+                    btn.innerText = "生成中...";
+                    setTimeout(() => {
+                        modal.style.opacity = '0';
+                        modal.style.visibility = 'hidden';
+                        outline.innerHTML = `<li class="fade-in-up">1. 文档综述</li><li class="pl-4 fade-in-up delay-1">1.1 背景</li><li class="pl-4 fade-in-up delay-2">1.2 范围</li><li class="fade-in-up delay-3">2. 产品概述</li>`;
+                        editor.innerText = "PRD初稿已生成...";
+                        editor.classList.remove('text-gray-500');
+                    }, 1500);
+                };
+            }
+
+            function setupSlide8Animations(slide) {
+                const cards = slide.querySelectorAll('.ai-card');
+                const adoptBtn = slide.querySelector('#adopt-btn');
+                const targetText = slide.querySelector('#target-text');
+                let delay = 500;
+                cards.forEach(card => { setTimeout(() => card.classList.add('visible'), delay); delay += 500; });
+                adoptBtn.onclick = () => {
+                    targetText.style.backgroundColor = 'rgba(0, 200, 83, 0.3)';
+                    setTimeout(() => {
+                         targetText.innerHTML = `驾驶员踩下油门时，系统应<span class="font-bold text-emerald-green">在接收到油门踏板位移信号后的200ms内，平顺地完全解除制动</span>。`;
+                         targetText.style.backgroundColor = 'transparent';
+                    }, 500);
+                }
+            }
+
+            function setupSlide9Animations(slide) {
+                const btn = slide.querySelector('#start-review-btn');
+                const progressContainer = slide.querySelector('#review-progress');
+                const reportContainer = slide.querySelector('#summary-report');
+                const summaryGrid = reportContainer.querySelector('.grid');
+
+                btn.innerText = "🚀 启动智能评审";
+                btn.disabled = false;
+                progressContainer.innerHTML = '';
+                progressContainer.style.opacity = '0';
+                reportContainer.style.opacity = '0';
+                summaryGrid.innerHTML = '';
+
+                btn.onclick = () => {
+                    btn.innerText = "评审中...";
+                    btn.disabled = true;
+                    progressContainer.style.opacity = '1';
+
+                    const dimensions = [
+                        { name: '完整性', delay: 0 }, { name: '一致性', delay: 1000 },
+                        { name: '可测试性', delay: 2000 }, { name: '可追溯性', delay: 3000 },
+                        { name: '明确性', delay: 4000 }
+                    ];
+
+                    dimensions.forEach(dim => {
+                        setTimeout(() => {
+                            const progressEl = document.createElement('div');
+                            progressEl.innerHTML = `<p class="text-sm font-bold text-gray-300">${dim.name}</p><div class="w-full bg-gray-700 rounded-full h-2.5 mt-1"><div class="bg-tech-blue h-2.5 rounded-full animate-progress" style="width: 100%;"></div></div>`;
+                            progressEl.classList.add('fade-in-up');
+                            progressContainer.appendChild(progressEl);
+                        }, dim.delay);
+                    });
+                    
+                    setTimeout(() => {
+                        reportContainer.style.opacity = '1';
+                        reportContainer.classList.add('fade-in-up');
+                        
+                        const summaryData = [
+                            { name: '完整性', score: 82, color: 'blue' }, 
+                            { name: '一致性', score: 75, color: 'yellow' },
+                            { name: '可测试性', score: 78, color: 'yellow' }, 
+                            { name: '可追溯性', score: 72, color: 'yellow' },
+                            { name: '明确性', score: 80, color: 'blue' }, 
+                            { name: '总问题数', score: 15, color: 'gray' }
+                        ];
+
+                        summaryData.forEach((data, i) => {
+                            const cardEl = document.createElement('div');
+                            cardEl.className = `bg-gray-800 p-3 rounded-lg fade-in-up`;
+                            cardEl.style.animationDelay = `${i * 0.2}s`;
+                            if (data.name === '总问题数') {
+                                cardEl.innerHTML = `<p class="font-bold">${data.name}</p><p class="text-2xl font-bold text-gray-400">${data.score} <span class="text-sm font-normal text-gray-400">个</span></p>`;
+                            } else {
+                                cardEl.innerHTML = `<p class="font-bold">${data.name}</p><p class="text-2xl font-bold text-${data.color}-400">${data.score} <span class="text-sm font-normal text-gray-400">分</span></p>`;
+                            }
+                            summaryGrid.appendChild(cardEl);
+                        });
+
+                    }, 5500);
+                };
+            }
+
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                if (currentSlide > 0) { currentSlide--; showSlide(currentSlide); }
+            });
+            document.getElementById('next-btn').addEventListener('click', () => {
+                if (currentSlide < slides.length - 1) { currentSlide++; showSlide(currentSlide); }
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    if (currentSlide < slides.length - 1) { currentSlide++; showSlide(currentSlide); }
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    if (currentSlide > 0) { currentSlide--; showSlide(currentSlide); }
+                }
+            });
+
+            showSlide(currentSlide);
+        });
+    </script>
+</body>
+</html>
