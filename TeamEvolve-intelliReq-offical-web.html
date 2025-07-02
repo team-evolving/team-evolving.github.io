@@ -68,10 +68,11 @@
                     </a>
                 </div>
                 <nav class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
+                    <div class="ml-10 flex items-baseline space-x-2">
                         <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">首页</a>
                         <a href="#challenges" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">面临的挑战</a>
                         <a href="#solution" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">我们的解决方案</a>
+                        <a href="#core-advantages" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">核心优势</a>
                         <a href="#features" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">核心功能</a>
                         <a href="#quantifiable-value" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">量化价值</a>
                         <a href="#comparison" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700">竞品对比</a>
@@ -300,8 +301,38 @@
             </div>
         </section>
 
+        <!-- Core Advantages Section -->
+        <section id="core-advantages" class="py-20 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">核心优势：为复杂领域打造的创新引擎</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">我们通过三大创新引擎，提供超越通用AI工具的深度与可靠性，从容应对汽车、金融等高标准行业挑战。</p>
+                </div>
+                <div class="mt-12 grid md:grid-cols-3 gap-8 text-center">
+                    <div class="p-8">
+                        <div class="text-5xl mb-4">🤝</div>
+                        <h3 class="text-xl font-bold">双模式智能引擎</h3>
+                        <p class="mt-2 text-gray-600">AI驱动的智能分析与人工审查完美结合，兼顾效率与精准，为决策提供双重保障。</p>
+                        <p class="mt-4 text-sm text-left p-4 bg-gray-50 rounded-lg">在汽车研发等领域，AI的效率必须与人类专家的严谨判断相结合。我们的双模式引擎确保每一条需求都经过AI的高效初审和专家的最终确认，杜绝“伪智能”带来的工程风险。</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="text-5xl mb-4">🛡️</div>
+                        <h3 class="text-xl font-bold">动态规则引擎</h3>
+                        <p class="mt-2 text-gray-600">灵活配置的业务规则，实现精准合规控制，快速响应多变的监管与业务需求。</p>
+                        <p class="mt-4 text-sm text-left p-4 bg-gray-50 rounded-lg">面对ISO 26262（功能安全）等复杂行业标准，通用AI束手无策。我们的动态规则引擎可将这些标准转化为可执行的、自动化的评审规则，确保每一项需求都符合最严苛的合规要求。</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="text-5xl mb-4">🔗</div>
+                        <h3 class="text-xl font-bold">全生命周期追溯</h3>
+                        <p class="mt-2 text-gray-600">从需求到交付的完整可视化管理，确保每一环节都有据可查，风险可控。</p>
+                        <p class="mt-4 text-sm text-left p-4 bg-gray-50 rounded-lg">在复杂的系统中，任何一个需求的微小变更都可能引发“蝴蝶效应”。我们的全链路追溯系统能清晰地展示每一次变更的完整上下文和影响范围，为高风险领域的决策提供坚实的数据支撑。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Features Details Section -->
-        <section id="features" class="py-20 bg-white">
+        <section id="features" class="py-20">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
                     <h2 class="text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl">四大核心功能详述</h2>
@@ -1037,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p><strong>背景:</strong> 某车企在完成“车型A”的座舱HMI项目后，将其PRD及相关评审决策完整地沉淀在IntelliReq中。</p>
                 <p><strong>“车型B”新项目启动时:</strong></p>
                 <ul class="list-disc pl-5">
-                    <li><strong>智能推荐:</strong> 当产品经理为“车型B”创建新的HMI PRD，并输入“媒体播放器”等关键词时，AI自动推荐了“车型A”中经过验证的媒体播放器需求模块。</li>
+                    <li><strong>智能推荐:</strong> 当产品经理为“车型B”创建新的HMI PRD，并输入“媒体播放器”等关键词时，AI自动推荐了“车型A”中经过验证的需求模块。</li>
                     <li><strong>一键复用与调整:</strong> 产品经理一键复用了该模块，并仅针对“车型B”的屏幕尺寸和交互差异进行了少量调整。</li>
                 </ul>
                 <p class="font-semibold mt-4">相比于从零开始设计，“需求资产复用”功能使得“媒体播放器”、“导航”、“空调控制”等多个核心模块的撰写时间减少了约70%。整个项目的需求资产复用率（按功能点计算）超过了200%（即复用的功能点是新增功能点的两倍以上）。</p>
