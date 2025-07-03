@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Custom styles for the report page */
         body {
             font-family: 'Inter', 'Noto Sans SC', sans-serif;
             background-color: #f8f9fa;
@@ -38,12 +39,14 @@
             background-color: #f9fafb;
             cursor: pointer;
         }
+        /* Severity color styles */
         .severity-red { color: #dc2626; background-color: #fee2e2; border: 1px solid #f87171; }
         .severity-yellow { color: #d97706; background-color: #fef3c7; border: 1px solid #fbbF74; }
         .severity-orange { color: #f97316; background-color: #ffedd5; border: 1px solid #fdba74; }
         .severity-blue { color: #2563eb; background-color: #dbeafe; border: 1px solid #93c5fd; }
         .severity-green { color: #16a34a; background-color: #dcfce7; border: 1px solid #86efac; }
 
+        /* Status pill styles */
         .status-pass {
             color: #15803d;
             background-color: #f0fdf4;
@@ -64,6 +67,7 @@
             align-items: center;
             gap: 0.25rem;
         }
+        /* Floating print button */
         .print-button {
             position: fixed;
             bottom: 2rem;
@@ -81,6 +85,7 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
         
+        /* Toggle button for expanding/collapsing table rows */
         .toggle-button {
             color: #2563eb;
             cursor: pointer;
@@ -96,6 +101,7 @@
             transform: rotate(180deg);
         }
 
+        /* Print-specific styles */
         @media print {
             body {
                 background-color: white;
@@ -111,13 +117,14 @@
                 page-break-before: always;
             }
             .hidden-on-print-expand {
-                display: revert;
+                display: table-row !important; /* Ensure hidden items are visible on print */
             }
         }
     </style>
 </head>
 <body class="text-gray-800">
 
+    <!-- Print Button -->
     <button onclick="window.print()" class="print-button">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" />
@@ -139,15 +146,17 @@
                 <div class="card p-6">
                     <h3 class="font-semibold text-lg mb-3">文档信息</h3>
                     <div class="space-y-2 text-gray-700">
-                        <p><strong>文档名称:</strong> BSV 特性需求文档</p>
-                        <p><strong>版本:</strong> V1.0.2</p>
+                        <p><strong>文档名称:</strong> Auto Hold自动驻车特性需求文档</p>
+                        <p><strong>版本:</strong> V1.0.0</p>
+                        <p><strong>本次属于:</strong> 新增</p>
+                        <p><strong>需求概述:</strong> 设计车辆自动驻车功能，提升驾驶便利性。</p>
                     </div>
                 </div>
                 <div class="card p-6">
                     <h3 class="font-semibold text-lg mb-3">评审范围</h3>
                     <div class="space-y-2 text-gray-700">
                         <p><strong>评审维度:</strong> 5大维度专项评审（完整性、一致性、可测试性、可追溯性、明确性）</p>
-                        <p><strong>评审重点:</strong> PRD的整体质量、对于产品设计的价值和易于被其他角色及AI Coding理解</p>
+                        <p><strong>评审重点:</strong> PRD的整体质量、对于产品设计的价值和易于被其他角色（包括AI代码生成）理解的程度。</p>
                     </div>
                 </div>
                 <div class="card p-6 col-span-1 md:col-span-2">
@@ -183,27 +192,27 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="card p-6 border-t-4 border-green-500">
                     <div class="flex items-center mb-3">
-                        <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+5分</span>
-                        <h3 class="font-semibold text-lg">状态机定义清晰</h3>
+                        <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+4分</span>
+                        <h3 class="font-semibold text-lg">架构设计清晰，层次分明</h3>
                     </div>
-                    <p class="text-gray-600 text-sm mb-2">文档在2.5章节中，通过状态图和详细的转换条件清晰定义了功能的关键状态。</p>
-                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 为开发提供了无歧义的逻辑框架，降低实现风险。</p>
+                    <p class="text-gray-600 text-sm mb-2">文档在2.2章节中同时提供了产品架构图和系统架构图。产品架构图清晰地划分了AH APP和BSW的内部模块及职责，系统架构图则详细展示了Auto Hold功能与ZCU、SRS、BCM、ECM、ADCU、DHU等多个ECU的交互关系，展现了良好的系统性思维。</p>
+                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 清晰的架构图是连接需求与实现的桥梁，为开发团队提供了明确的技术蓝图，有助于评估技术可行性、划分开发任务，并为后续的系统集成和问题排查提供了坚实基础。</p>
                 </div>
                 <div class="card p-6 border-t-4 border-green-500">
                     <div class="flex items-center mb-3">
-                        <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+5分</span>
-                        <h3 class="font-semibold text-lg">非功能性指标量化明确</h3>
+                        <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+4分</span>
+                        <h3 class="font-semibold text-lg">关键状态流转定义完整</h3>
                     </div>
-                    <p class="text-gray-600 text-sm mb-2">文档在4.1和4.2章节明确量化了性能指标和数据埋点需求。</p>
-                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 确保了产品性能可被客观衡量，为运营优化提供数据支持。</p>
+                    <p class="text-gray-600 text-sm mb-2">文档在2.5章节中使用状态流转图定义了功能的关键状态（如Standby, Active, Handover to EPB等），并对关键的状态转换条件（T1, T2）进行了详细的文本描述。这覆盖了从待机、激活到移交EPB的完整闭环。</p>
+                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 严谨的状态机定义是确保功能逻辑无漏洞的关键。它能保证功能在任何已知情况下都有明确、可预期的行为，极大降低了开发过程中出现逻辑错误和遗漏的风险。</p>
                 </div>
                 <div class="card p-6 border-t-4 border-green-500">
                     <div class="flex items-center mb-3">
                         <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+3分</span>
-                        <h3 class="font-semibold text-lg">Use Case结构化程度高</h3>
+                        <h3 class="font-semibold text-lg">UseCase设计与功能列表对应良好</h3>
                     </div>
-                    <p class="text-gray-600 text-sm mb-2">第3章的Use Case均采用“前置条件-触发事件-主流程”的结构化方式描述。</p>
-                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 有助于各方对需求达成共识，易于分解任务和设计测试。</p>
+                    <p class="text-gray-600 text-sm mb-2">文档2.7章节的功能列表与第3章节的功能场景设计形成了一一对应的关系。功能列表中的“刹停驻车”、“溜坡自动驻车”、“移交 EPB 驻车” 等核心功能，都在第3章中作为独立的UseCase进行了详细设计。</p>
+                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 这种良好的对应关系确保了所有在目录中承诺的功能都得到了详细的设计，避免了需求遗漏，保证了需求的完整性，使得文档结构清晰，易于导航和理解。</p>
                 </div>
             </div>
         </section>
@@ -217,10 +226,10 @@
                         <div class="relative w-48 h-48">
                             <svg class="w-full h-full" viewBox="0 0 36 36">
                                 <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e6e6e6" stroke-width="3"></path>
-                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="69, 100" stroke-linecap="round"></path>
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="49, 100" stroke-linecap="round"></path>
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="text-4xl font-bold text-red-600">69</span>
+                                <span class="text-4xl font-bold text-red-600">49</span>
                                 <span class="text-sm text-gray-500">/ 100</span>
                             </div>
                         </div>
@@ -239,41 +248,41 @@
                             <div class="w-full">
                                 <div class="flex justify-between mb-1">
                                     <span class="text-base font-medium text-gray-700">完整性</span>
-                                    <span class="text-sm font-medium text-red-700">62 / 100</span>
+                                    <span class="text-sm font-medium text-red-700">54 / 100</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-red-600 h-2.5 rounded-full" style="width: 62%"></div></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-red-600 h-2.5 rounded-full" style="width: 54%"></div></div>
                             </div>
                              <!-- Consistency -->
                             <div class="w-full">
                                 <div class="flex justify-between mb-1">
                                     <span class="text-base font-medium text-gray-700">一致性</span>
-                                    <span class="text-sm font-medium text-amber-700">76 / 100</span>
+                                    <span class="text-sm font-medium text-red-700">66 / 100</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-amber-500 h-2.5 rounded-full" style="width: 76%"></div></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-red-600 h-2.5 rounded-full" style="width: 66%"></div></div>
                             </div>
                              <!-- Testability -->
                             <div class="w-full">
                                 <div class="flex justify-between mb-1">
                                     <span class="text-base font-medium text-gray-700">可测试性</span>
-                                    <span class="text-sm font-medium text-green-700">90 / 100</span>
+                                    <span class="text-sm font-medium text-red-700">66 / 100</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-green-600 h-2.5 rounded-full" style="width: 90%"></div></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-red-600 h-2.5 rounded-full" style="width: 66%"></div></div>
                             </div>
                              <!-- Traceability -->
                             <div class="w-full">
                                 <div class="flex justify-between mb-1">
                                     <span class="text-base font-medium text-gray-700">可追溯性</span>
-                                    <span class="text-sm font-medium text-blue-700">70 / 100</span>
+                                    <span class="text-sm font-medium text-red-700">62 / 100</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-blue-600 h-2.5 rounded-full" style="width: 70%"></div></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-red-600 h-2.5 rounded-full" style="width: 62%"></div></div>
                             </div>
                              <!-- Clarity -->
                             <div class="w-full">
                                 <div class="flex justify-between mb-1">
                                     <span class="text-base font-medium text-gray-700">明确性</span>
-                                    <span class="text-sm font-medium text-blue-700">73 / 100</span>
+                                    <span class="text-sm font-medium text-red-700">65 / 100</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-blue-600 h-2.5 rounded-full" style="width: 73%"></div></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-red-600 h-2.5 rounded-full" style="width: 65%"></div></div>
                             </div>
                         </div>
                     </div>
@@ -281,73 +290,10 @@
                 <div class="mt-8 border-t pt-6">
                     <h3 class="font-semibold text-lg mb-3">主要不通过原因</h3>
                     <ul class="space-y-2 list-disc list-inside text-gray-700">
-                        <li><span class="font-bold text-red-600">[🔴严重]</span> 产品架构和系统架构完全缺失（P001），阻塞开发。</li>
-                        <li><span class="font-bold text-yellow-600">[🟡重要]</span> 存在3个重要问题，涉及功能列表混乱（P003）、法规遵从性不足（P005）和文档关系描述不规范（P002）。</li>
-                        <li><span class="font-bold text-gray-600">[规范性]</span> 未遵循公司标准PRD模板，多处核心章节缺失或格式不匹配。</li>
+                        <li><span class="font-bold text-red-600">[�严重]</span> 存在1个🔴严重问题：【R1.10 法规标准完整性检查】文档明确声明“暂无相关政策法规”，这对于制动系统相关的安全功能是重大合规风险。</li>
+                        <li><span class="font-bold text-yellow-600">[🟡重要]</span> 存在4个🟡重要问题，超过了5个重要问题的阈值上限。</li>
+                        <li><span class="font-bold text-gray-600">[评分]</span> 综合评分49分，远低于70分的及格线。</li>
                     </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- NEW Section: Problem Overview -->
-        <section id="problem-overview" class="mb-12 page-break">
-            <h2 class="section-title">问题数量与分布概览</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Problem Counts -->
-                <div class="card p-6">
-                    <h3 class="font-semibold text-lg mb-4">问题数量统计</h3>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-base font-medium text-gray-800">问题总数</span>
-                            <span class="font-bold text-3xl text-gray-900">10</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-base text-red-600 flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>严重问题</span>
-                            <span class="font-semibold text-xl text-red-600">1</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-base text-yellow-600 flex items-center"><span class="w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>重要问题</span>
-                            <span class="font-semibold text-xl text-yellow-600">4</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-base text-orange-600 flex items-center"><span class="w-3 h-3 rounded-full bg-orange-500 mr-2"></span>警告问题</span>
-                            <span class="font-semibold text-xl text-orange-600">3</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-base text-blue-600 flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>建议问题</span>
-                            <span class="font-semibold text-xl text-blue-600">2</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Problem Distribution -->
-                <div class="card p-6">
-                    <h3 class="font-semibold text-lg mb-4">评审维度问题分布</h3>
-                    <div class="flex items-center gap-6">
-                         <div class="relative w-40 h-40 flex-shrink-0">
-                            <svg class="w-full h-full" viewBox="0 0 36 36">
-                                <circle cx="18" cy="18" r="15.9155" fill="#fff"/>
-                                <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e6e6e6" stroke-width="4"/>
-                                <!-- Segments -->
-                                <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#6366f1" stroke-width="4" stroke-dasharray="20 100" stroke-dashoffset="-80" transform="rotate(-90 18 18)"/>
-                                <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#10b981" stroke-width="4" stroke-dasharray="20 100" stroke-dashoffset="-60" transform="rotate(-90 18 18)"/>
-                                <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f59e0b" stroke-width="4" stroke-dasharray="20 100" stroke-dashoffset="-40" transform="rotate(-90 18 18)"/>
-                                <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="40 100" stroke-dashoffset="0" transform="rotate(-90 18 18)"/>
-                            </svg>
-                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="text-3xl font-bold text-gray-800">10</span>
-                                <span class="text-sm text-gray-500">总问题</span>
-                            </div>
-                        </div>
-                        <div class="w-full">
-                           <ul class="space-y-2 text-sm">
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-3 h-3 rounded-full bg-sky-500 mr-2"></span>完整性</span><span class="font-semibold">4个 (40%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-3 h-3 rounded-full bg-amber-500 mr-2"></span>一致性</span><span class="font-semibold">2个 (20%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>可追溯性</span><span class="font-semibold">2个 (20%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-3 h-3 rounded-full bg-indigo-500 mr-2"></span>明确性</span><span class="font-semibold">2个 (20%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-3 h-3 rounded-full bg-gray-400 mr-2"></span>可测试性</span><span class="font-semibold">0个 (0%)</span></li>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -368,38 +314,36 @@
                         </tr>
                     </thead>
                     <tbody id="rules-table-body">
-                        <tr class="border-b"><td class="px-6 py-4">R1.1</td><td class="px-6 py-4">PRD文档结构完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4"><span class="font-bold text-red-600">🔴x1</span></td><td class="px-6 py-4 font-bold text-red-600">50/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R1.2</td><td class="px-6 py-4">跨域文档关联完整性检查</td><td class="px-6 py-4">可追溯性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡x1</span></td><td class="px-6 py-4 font-bold text-yellow-600">70/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R1.3</td><td class="px-6 py-4">政策法规引用完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡x1</span></td><td class="px-6 py-4 font-bold text-red-600">65/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R1.4</td><td class="px-6 py-4">行业规范引用完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R1.5</td><td class="px-6 py-4">产品梯度配置完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4"><span class="font-bold text-orange-600">🟠x1</span></td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.6</td><td class="px-6 py-4">硬件/软件配置完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R1.7</td><td class="px-6 py-4">功能列表完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡x1</span></td><td class="px-6 py-4 font-bold text-yellow-600">70/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.8</td><td class="px-6 py-4">Use Case前置条件完整性检查</td><td class="px-6 py-4">可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.9</td><td class="px-6 py-4">Use Case触发事件完整性检查</td><td class="px-6 py-4">可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.10</td><td class="px-6 py-4">Use Case业务流程完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.11</td><td class="px-6 py-4">非功能性指标完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.12</td><td class="px-6 py-4">数据指标需求完整性检查</td><td class="px-6 py-4">完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R2.1</td><td class="px-6 py-4">术语定义一致性检查</td><td class="px-6 py-4">一致性</td><td class="px-6 py-4"><span class="font-bold text-orange-600">🟠x1</span></td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R2.2</td><td class="px-6 py-4">流程图与文字描述一致性检查</td><td class="px-6 py-4">一致性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R2.3</td><td class="px-6 py-4">功能列表与Use Case一致性检查</td><td class="px-6 py-4">一致性</td><td class="px-6 py-4"><span class="font-bold text-orange-600">🟠x1</span></td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R2.4</td><td class="px-6 py-4">各章节间逻辑一致性检查</td><td class="px-6 py-4">一致性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R3.1</td><td class="px-6 py-4">Use Case可测试性检查</td><td class="px-6 py-4">可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R3.2</td><td class="px-6 py-4">指标可量化与可验证性检查</td><td class="px-6 py-4">可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R3.3</td><td class="px-6 py-4">异常与边界条件可测性检查</td><td class="px-6 py-4">可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R4.1</td><td class="px-6 py-4">变更日志可追溯性检查</td><td class="px-6 py-4">可追溯性</td><td class="px-6 py-4"><span class="font-bold text-blue-600">🔵x1</span></td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R4.2</td><td class="px-6 py-4">需求来源可追溯性检查</td><td class="px-6 py-4">可追溯性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R5.1</td><td class="px-6 py-4">需求描述明确性检查</td><td class="px-6 py-4">明确性</td><td class="px-6 py-4"><span class="font-bold text-orange-600">🟠x1</span>, <span class="font-bold text-blue-600">🔵x2</span></td><td class="px-6 py-4 font-bold text-yellow-600">75/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R5.2</td><td class="px-6 py-4">图表与模型清晰度检查</td><td class="px-6 py-4">明确性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R5.3</td><td class="px-6 py-4">需求无歧义性检查</td><td class="px-6 py-4">明确性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R5.4</td><td class="px-6 py-4">HMI文言描述明确性检查</td><td class="px-6 py-4">明确性</td><td class="px-6 py-4"><span class="font-bold text-blue-600">🔵x1</span></td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R5.5</td><td class="px-6 py-4">CCP/EBOC配置描述明确性检查</td><td class="px-6 py-4">明确性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R5.6</td><td class="px-6 py-4">读者友好性与可理解性检查</td><td class="px-6 py-4">明确性</td><td class="px-6 py-4"><span class="font-bold text-blue-600">🔵x1</span></td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4">R5.7</td><td class="px-6 py-4">待办项与批注明确性检查</td><td class="px-6 py-4">明确性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡x1</span></td><td class="px-6 py-4 font-bold text-yellow-600">70/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R1.1</td><td class="px-6 py-4">PRD文档结构完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4"><span class="font-bold text-blue-600">🔵建议×1</span></td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R1.2</td><td class="px-6 py-4">跨域文档关联完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡重要×1</span></td><td class="px-6 py-4 font-bold text-red-600">40/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.3</td><td class="px-6 py-4">变更日志完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">90/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R1.4</td><td class="px-6 py-4">功能流程图完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4"><span class="font-bold text-blue-600">🔵建议×1</span></td><td class="px-6 py-4 font-bold text-yellow-600">75/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.5</td><td class="px-6 py-4">状态流转设计完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">95/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.6</td><td class="px-6 py-4">产品架构图内容检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">95/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.7</td><td class="px-6 py-4">功能列表与UseCase对应关系检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">95/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.8</td><td class="px-6 py-4">功能UseCase完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R1.9</td><td class="px-6 py-4">指标要求完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡重要×1</span></td><td class="px-6 py-4 font-bold text-red-600">30/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R1.10</td><td class="px-6 py-4">法规标准完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4"><span class="font-bold text-red-600">🔴严重×1</span></td><td class="px-6 py-4 font-bold text-red-600">0/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R1.11</td><td class="px-6 py-4">配置定义完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4"><span class="font-bold text-orange-600">🟠警告×1</span></td><td class="px-6 py-4 font-bold text-red-600">60/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R1.12</td><td class="px-6 py-4">智能座舱功能完整性检查</td><td class="px-6 py-4">需求完整性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R2.1</td><td class="px-6 py-4">术语使用一致性检查</td><td class="px-6 py-4">需求一致性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡重要×1</span></td><td class="px-6 py-4 font-bold text-red-600">50/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R2.2</td><td class="px-6 py-4">功能描述一致性检查</td><td class="px-6 py-4">需求一致性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R2.3</td><td class="px-6 py-4">技术架构一致性检查</td><td class="px-6 py-4">需求一致性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-green-600">90/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R2.4</td><td class="px-6 py-4">功能优先级一致性检查</td><td class="px-6 py-4">需求一致性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-yellow-600">70/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R3.1</td><td class="px-6 py-4">验收标准可测试性检查</td><td class="px-6 py-4">需求可测试性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡重要×1</span></td><td class="px-6 py-4 font-bold text-red-600">55/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R3.2</td><td class="px-6 py-4">异常场景可测试性检查</td><td class="px-6 py-4">需求可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R3.3</td><td class="px-6 py-4">性能指标可测试性检查</td><td class="px-6 py-4">需求可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R3.4</td><td class="px-6 py-4">功能生命周期可测试性检查</td><td class="px-6 py-4">需求可测试性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R4.1</td><td class="px-6 py-4">需求来源可追溯性检查</td><td class="px-6 py-4">需求可追溯性</td><td class="px-6 py-4"><span class="font-bold text-orange-600">🟠警告×1</span></td><td class="px-6 py-4 font-bold text-red-600">60/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R4.2</td><td class="px-6 py-4">需求变更可追溯性检查</td><td class="px-6 py-4">需求可追溯性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R4.3</td><td class="px-6 py-4">跨文档关联可追溯性检查</td><td class="px-6 py-4">需求可追溯性</td><td class="px-6 py-4"><span class="font-bold text-yellow-600">🟡重要×1</span></td><td class="px-6 py-4 font-bold text-red-600">40/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R5.1</td><td class="px-6 py-4">需求表述明确性检查</td><td class="px-6 py-4">需求明确性</td><td class="px-6 py-4"><span class="font-bold text-blue-600">🔵建议×1</span></td><td class="px-6 py-4 font-bold text-red-600">65/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4">R5.2</td><td class="px-6 py-4">功能边界明确性检查</td><td class="px-6 py-4">需求明确性</td><td class="px-6 py-4"><span class="font-bold text-orange-600">🟠警告×1</span></td><td class="px-6 py-4 font-bold text-red-600">60/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden rule-row"><td class="px-6 py-4">R5.3</td><td class="px-6 py-4">用户交互明确性检查</td><td class="px-6 py-4">需求明确性</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
                         <tr class="bg-gray-50 toggle-row">
                             <td colspan="6" class="px-6 py-4 text-center">
-                                <button id="toggle-rules-btn" class="toggle-button">
-                                    <span>显示其余14项已通过规则</span>
+                                <button id="toggle-rules-btn" class="toggle-button" aria-expanded="false">
+                                    <span>显示其余16项已通过规则</span>
                                     <svg class="w-4 h-4 arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
                             </td>
@@ -425,33 +369,33 @@
                         </tr>
                     </thead>
                     <tbody id="chapters-table-body">
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">2.2 产品架构/系统架构</td><td class="px-6 py-4">架构图完全缺失，是文档最严重的缺陷</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-red">🔴严重</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-red-600">0/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.4.1 当前功能相关文档</td><td class="px-6 py-4">文档关联未使用标准表格，缺乏版本和ID</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">可追溯性</td><td class="px-6 py-4 font-bold text-yellow-600">70/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.4.2 政策法规文件</td><td class="px-6 py-4">法规引用未明确到具体章节，关联性不足</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-red-600">65/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">2.5 关键状态流转</td><td class="px-6 py-4">存在待确认的批注，需求不确定</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">明确性</td><td class="px-6 py-4 font-bold text-yellow-600">70/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">2.7 功能列表</td><td class="px-6 py-4">功能列表层级混乱，与标准模板差异大</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-yellow-600">70/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.3 术语解释</td><td class="px-6 py-4">CSD术语定义与标准模板不一致</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-orange">🟠警告</span></td><td class="px-6 py-4">一致性</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">2.3 产品梯度配置说明</td><td class="px-6 py-4">配置说明过于简化，未体现差异化</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-orange">🟠警告</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">编制/变更日志</td><td class="px-6 py-4">变更内容描述不够清晰</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-blue">🔵建议</span></td><td class="px-6 py-4">可追溯性</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-semibold">4.3.1 文言提示汇总</td><td class="px-6 py-4">章节位置不佳；退出条件描述模糊</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-blue">🔵建议</span></td><td class="px-6 py-4">明确性</td><td class="px-6 py-4 font-bold text-yellow-600">75/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">封面</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">1.1 文档背景</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">1.2 文档范围</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">1.4.3 行业规范文件</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.1 产品场景及概要说明</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.4 功能流程图</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.6 配置</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.1.1, 3.1.2 功能激活</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.2.1 功能退出</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.3.1, 3.3.2 联动逻辑</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.4.1 挂车模式故障</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.5.1, 3.5.2 DOW模式故障</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">4.1 功能指标要求</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
-                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">4.2 数据指标需求</td><td class="px-6 py-4">无问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">100/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.1 文档背景</td><td class="px-6 py-4">未明确需求来源</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-orange">🟠警告</span></td><td class="px-6 py-4">可追溯性</td><td class="px-6 py-4 font-bold text-red-600">60/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.2 文档范围</td><td class="px-6 py-4">边界定义不够清晰</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-orange">🟠警告</span></td><td class="px-6 py-4">明确性</td><td class="px-6 py-4 font-bold text-red-600">60/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.3 术语解释</td><td class="px-6 py-4">术语定义严重缺失</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">一致性</td><td class="px-6 py-4 font-bold text-red-600">50/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.4.1 关联文档</td><td class="px-6 py-4">跨域关联文档缺失</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">完整性, 可追溯性</td><td class="px-6 py-4 font-bold text-red-600">40/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.4.2 政策法规</td><td class="px-6 py-4">法规分析缺失</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-red">🔴严重</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-red-600">0/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">1.4.3 行业规范</td><td class="px-6 py-4">行业规范分析缺失</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-red">🔴严重</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-red-600">0/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">2.4 功能流程图</td><td class="px-6 py-4">流程图过于简化</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-blue">🔵建议</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-yellow-600">75/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">2.6 配置</td><td class="px-6 py-4">配置定义过于简化</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-orange">🟠警告</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-red-600">60/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">3.1.1 刹停驻车</td><td class="px-6 py-4">存在模糊/不可测描述</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">可测试性, 明确性</td><td class="px-6 py-4 font-bold text-red-600">60/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">3.1.2 溜坡自动驻车</td><td class="px-6 py-4">存在模糊/不可测描述</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">可测试性</td><td class="px-6 py-4 font-bold text-red-600">65/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">4.1.1 功能指标</td><td class="px-6 py-4">功能指标完全缺失</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-red-600">30/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-semibold">4.2 数据指标需求</td><td class="px-6 py-4">数据指标定义缺失</td><td class="px-6 py-4"><span class="px-2 py-1 text-xs font-medium rounded-full severity-yellow">🟡重要</span></td><td class="px-6 py-4">完整性</td><td class="px-6 py-4 font-bold text-red-600">30/100</td><td class="px-6 py-4"><span class="status-fail">❌不通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.1 产品场景及概要说明</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">90/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.2 产品架构/系统架构</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">95/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.3 产品梯度配置说明</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">90/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.5 关键状态流转</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">95/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">2.7 功能列表</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-green-600">95/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.1.3 移交 EPB 驻车</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.1.4 驶离功能</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.1.5 提示功能</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-orange-600">80/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.1.6 故障恢复</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">3.1.7 诊断功能</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
+                        <tr class="border-b hidden-on-print-expand hidden chapter-row"><td class="px-6 py-4 font-semibold">4.1.2 性能指标</td><td class="px-6 py-4">无明显问题</td><td class="px-6 py-4">-</td><td class="px-6 py-4">-</td><td class="px-6 py-4 font-bold text-blue-600">85/100</td><td class="px-6 py-4"><span class="status-pass">✅通过</span></td></tr>
                         <tr class="bg-gray-50 toggle-row">
                             <td colspan="6" class="px-6 py-4 text-center">
-                                <button id="toggle-chapters-btn" class="toggle-button">
-                                    <span>显示其余14个已通过章节</span>
+                                <button id="toggle-chapters-btn" class="toggle-button" aria-expanded="false">
+                                    <span>显示其余11个已通过章节</span>
                                     <svg class="w-4 h-4 arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                                 </button>
                             </td>
@@ -470,32 +414,32 @@
                     <div class="p-6">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900">P001: 产品架构/系统架构图完全缺失</h3>
-                                <p class="text-sm text-gray-500">发现位置: 2.2 产品架构/系统架构</p>
+                                <h3 class="text-xl font-bold text-gray-900">P001: 法规标准缺失：未识别和分析任何相关法规</h3>
+                                <p class="text-sm text-gray-500">发现位置: 1.4.2 政策法规文件, 1.4.3 行业规范文件</p>
                             </div>
                             <span class="px-3 py-1 text-sm font-semibold rounded-full severity-red">🔴 严重</span>
                         </div>
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                             <div>
                                 <h4 class="font-semibold mb-2">问题详情</h4>
-                                <p class="text-gray-600">该章节内容仅为“简单功能不需要架构分解”，完全没有提供产品架构图和系统架构图，严重违反PRD编写基本要求。</p>
+                                <p class="text-gray-600">文档明确指出“暂无相关政策法规”和 “暂无相关行业规范”。对于Auto Hold（自动驻车）这一涉及车辆制动和驻车安全的核心功能，必须识别并列出所有相关的国家及地区法规（如GB、ECE）和行业标准（如ISO 26262），并分析关键条款对功能设计的要求。</p>
                                 <blockquote class="mt-2 border-l-4 border-gray-300 pl-4 text-gray-500 italic">
-                                    <strong>期望状态:</strong> 应包含详细的产品架构图（展示软件模块、分层、数据流）和系统架构图（展示硬件ECU、传感器、连接关系）。
+                                    <strong>期望状态:</strong> 应分析关于驻车制动、防止意外移动等相关的法规要求。当前状态完全忽略了汽车产品开发的合规性基石。
                                 </blockquote>
                             </div>
                             <div>
                                 <h4 class="font-semibold mb-2">影响分析</h4>
-                                <p class="text-gray-600"><strong class="text-red-600">技术影响:</strong> 无法进行系统设计和跨域开发对齐，阻塞开发流程。</p>
-                                <p class="text-gray-600"><strong class="text-red-600">时间影响:</strong> 此问题是项目推进的阻塞点，将导致项目延期。</p>
+                                <p class="text-gray-600"><strong class="text-red-600">合规影响:</strong> 产品可能无法通过认证，导致无法上市销售。存在巨大的法律和合规风险，一旦发生与该功能相关的事故，企业将面临巨额罚款甚至强制召回。</p>
+                                <p class="text-gray-600"><strong class="text-red-600">时间影响:</strong> 如果在开发后期或测试阶段才发现合规问题，将导致颠覆性的设计变更，造成严重的项目延期。</p>
                             </div>
                         </div>
                     </div>
                     <div class="bg-gray-50 px-6 py-4">
                         <h4 class="font-semibold mb-2">改进方案</h4>
                         <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                            <li><strong>立即行动:</strong> 立即组织PO、SE和TL召开架构设计会议。</li>
-                            <li><strong>具体修改:</strong> 补充产品架构图和系统架构图，明确模块、数据流和硬件连接。</li>
-                            <li><strong>验证方法:</strong> 补充的架构图需通过架构评审会，确保所有相关方达成一致。</li>
+                            <li><strong>立即行动:</strong> 立即成立一个由产品、法务、研发共同参与的专项小组，识别所有与驻车制动系统相关的法规和标准。</li>
+                            <li><strong>具体修改:</strong> 在1.4.2章节中，至少应列出并分析《GB 21670-2008 乘用车制动系统技术要求及试验方法》、《ECE R13H》等法规。在1.4.3章节中，应考虑ISO 26262功能安全标准。</li>
+                            <li><strong>验证方法:</strong> 邀请公司法务合规部门对修改后的章节进行审核确认。</li>
                         </ul>
                     </div>
                 </div>
@@ -505,7 +449,67 @@
                      <div class="p-6">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900">P002: 跨域文档关联不规范</h3>
+                                <h3 class="text-xl font-bold text-gray-900">P002: 指标要求不完整：功能与数据指标缺失</h3>
+                                <p class="text-sm text-gray-500">发现位置: 4.1.1 功能指标, 4.2 数据指标需求</p>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full severity-yellow">🟡 重要</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">问题详情</h4>
+                                <p class="text-gray-600">4.1.1 功能指标表格完全为空。4.2 数据指标需求表格虽然有内容，但其逻辑描述为通用模板语言，并非针对Auto Hold功能的具体设计。</p>
+                                <blockquote class="mt-2 border-l-4 border-gray-300 pl-4 text-gray-500 italic">
+                                    <strong>期望状态:</strong> 应定义用户可感知的具体功能指标（如：激活/退出功能的成功率）和用于运营分析的数据指标（如：Auto Hold功能的日活率）。
+                                </blockquote>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">影响分析</h4>
+                                <p class="text-gray-600">缺少功能指标导致功能好坏没有量化标准。缺少具体的数据指标（埋点）需求，导致产品上线后无法通过数据了解用户使用习惯、评估功能价值，也无法为后续迭代提供数据支持。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4">
+                        <h4 class="font-semibold mb-2">改进方案</h4>
+                        <p class="text-sm text-gray-700">在4.1.1中，增加功能指标，例如：“指标：用户请求激活成功率，描述：用户通过踩停车辆意图激活Auto Hold的成功率应>99.9%”。在4.2中，定义具体的埋点需求，例如：“指标项：AH激活场景分布，指标逻辑：统计每次AH激活时的车辆坡度、所在档位等信息”。</p>
+                    </div>
+                </div>
+
+                <!-- P003 Important -->
+                <div class="card overflow-hidden border-l-4 border-yellow-500">
+                     <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">P003: 术语不一致：大量缩写未在术语表中定义</h3>
+                                <p class="text-sm text-gray-500">发现位置: 1.3 术语解释, 及全文档</p>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full severity-yellow">🟡 重要</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">问题详情</h4>
+                                <p class="text-gray-600">术语表（1.3）仅定义了“AH”。但文档全文大量使用了EPB, ESC, BCM, DHU, ADCU, ZCU, SRS, CAN, VMM等专业缩写，均未进行定义。</p>
+                                <blockquote class="mt-2 border-l-4 border-gray-300 pl-4 text-gray-500 italic">
+                                    <strong>期望状态:</strong> 所有在文档中出现的、非普遍共识的缩写或专业术语，都应在1.3章节的术语解释中进行明确定义。
+                                </blockquote>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">影响分析</h4>
+                                <p class="text-gray-600">对于不熟悉该项目的读者（如新成员、跨部门合作方），会造成严重的阅读障碍，增加沟通成本并可能导致误解。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4">
+                        <h4 class="font-semibold mb-2">改进方案</h4>
+                        <p class="text-sm text-gray-700">在1.3章节的表格中，补充所有在文档中使用的缩写定义。例如：“EPB, Electric Park Brake, 电子驻车制动系统”、“BCM, Body Control Module, 车身控制器”等。</p>
+                    </div>
+                </div>
+                
+                <!-- P004 Important -->
+                <div class="card overflow-hidden border-l-4 border-yellow-500">
+                     <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">P004: 跨域关联缺失：关联文档链接为无效占位符</h3>
                                 <p class="text-sm text-gray-500">发现位置: 1.4.1 当前功能相关文档</p>
                             </div>
                             <span class="px-3 py-1 text-sm font-semibold rounded-full severity-yellow">🟡 重要</span>
@@ -513,75 +517,192 @@
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                             <div>
                                 <h4 class="font-semibold mb-2">问题详情</h4>
-                                <p class="text-gray-600">未采用标准表格罗列关联文档，缺少版本号和ID，导致依赖关系模糊。</p>
+                                <p class="text-gray-600">在1.4.1的表格中，FR文档和DR文档的链接均为“url:xxx”，这是无效的占位符。</p>
+                                <blockquote class="mt-2 border-l-4 border-gray-300 pl-4 text-gray-500 italic">
+                                    <strong>期望状态:</strong> 应提供指向相关联的FR（功能需求）、DR（设计需求）、UE（用户体验）等文档的有效、可访问的链接，并注明版本号。
+                                </blockquote>
                             </div>
                             <div>
                                 <h4 class="font-semibold mb-2">影响分析</h4>
-                                <p class="text-gray-600">难以进行版本管理和影响分析，增加集成风险。</p>
+                                <p class="text-gray-600">无效的链接中断了需求的可追溯性链条。开发和测试团队无法查阅到上游和下游的依赖文档，这在高度依赖跨域协作的汽车软件开发中是不可接受的。</p>
                             </div>
                         </div>
                     </div>
                     <div class="bg-gray-50 px-6 py-4">
                         <h4 class="font-semibold mb-2">改进方案</h4>
-                        <p class="text-sm text-gray-700">参照标准模板的表格格式，重新整理1.4.1章节，为每个关联文档明确其类别、ID和准确的版本号。</p>
+                        <p class="text-sm text-gray-700">替换“url:xxx”为真实、可访问的文档库链接，并填写正确的文档ID和版本号。如果文档尚不存在，应明确标注为“TBD(To Be Defined)”，并指明责任人。</p>
                     </div>
                 </div>
-                
-                <!-- P003 Important -->
+
+                <!-- P005 Important -->
                 <div class="card overflow-hidden border-l-4 border-yellow-500">
                      <div class="p-6">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-xl font-bold text-gray-900">P003: 功能列表结构混乱</h3>
-                                <p class="text-sm text-gray-500">发现位置: 2.7 功能列表</p>
+                                <h3 class="text-xl font-bold text-gray-900">P005: 验收标准模糊：使用了不可测试的描述</h3>
+                                <p class="text-sm text-gray-500">发现位置: 3.1.1 刹停驻车, 3.1.2 溜坡自动驻车</p>
                             </div>
                             <span class="px-3 py-1 text-sm font-semibold rounded-full severity-yellow">🟡 重要</span>
                         </div>
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                             <div>
                                 <h4 class="font-semibold mb-2">问题详情</h4>
-                                <p class="text-gray-600">功能列表的层级划分不清晰，未按标准模板的“标准/挂车/DOW”模式组织。</p>
+                                <p class="text-gray-600">需求描述中多处使用模糊词汇，如“车速小于一定值”，“制动压力大于一定值”，“坡度大于一定值”。虽然部分地方注明了“可调”，但未提供默认值或标定范围。</p>
+                                <blockquote class="mt-2 border-l-4 border-gray-300 pl-4 text-gray-500 italic">
+                                    <strong>期望状态:</strong> 所有的需求描述都必须是具体、客观、可量化的。应明确给出阈值的具体数值或标定范围。
+                                </blockquote>
                             </div>
                             <div>
                                 <h4 class="font-semibold mb-2">影响分析</h4>
-                                <p class="text-gray-600">需求难以被完整理解和分解，可能导致功能遗漏。</p>
+                                <p class="text-gray-600">“不可测试的需求就不是好需求”。模糊的描述导致测试团队无法设计出精确的测试用例，也无法对功能进行自动化测试。这使得功能验收变成了主观判断，而非客观验证。</p>
                             </div>
                         </div>
                     </div>
                     <div class="bg-gray-50 px-6 py-4">
                         <h4 class="font-semibold mb-2">改进方案</h4>
-                        <p class="text-sm text-gray-700">参照标准模板，重构2.7章节，创建清晰的二级和三级功能分类。</p>
+                        <p class="text-sm text-gray-700">将所有“一定值”替换为具体的、可标定的数值。在描述后用括号注明（默认值: X, 范围: Y-Z, CCP可调）。例如，在3.1.1中修改为：“车速小于3kph（默认值，可标定）”。</p>
                     </div>
                 </div>
-                
-                <!-- Hidden analysis items -->
-                <div class="card overflow-hidden border-l-4 border-yellow-500 hidden-on-print-expand hidden analysis-item">
-                     <div class="p-6"><div class="flex justify-between items-start"><div><h3 class="text-xl font-bold text-gray-900">P005: 法规遵从性说明不足</h3><p class="text-sm text-gray-500">发现位置: 1.4.2 政策法规文件</p></div><span class="px-3 py-1 text-sm font-semibold rounded-full severity-yellow">🟡 重要</span></div><div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"><div><h4 class="font-semibold mb-2">问题详情</h4><p class="text-gray-600">法规引用未明确指出具体适用的章节条款，以及这些条款与具体Use Case的关联性。</p></div><div><h4 class="font-semibold mb-2">影响分析</h4><p class="text-gray-600">存在产品不满足目标市场法规的风险，可能导致认证失败或产品召回。</p></div></div></div><div class="bg-gray-50 px-6 py-4"><h4 class="font-semibold mb-2">改进方案</h4><p class="text-sm text-gray-700">与法规部门合作，在表格中更新具体的法规章节和条款原文，并关联到受影响的Use Case ID。</p></div>
-                </div>
-                <div class="card overflow-hidden border-l-4 border-yellow-500 hidden-on-print-expand hidden analysis-item">
-                     <div class="p-6"><div class="flex justify-between items-start"><div><h3 class="text-xl font-bold text-gray-900">P007: 需求存在未关闭的开放点 (批注)</h3><p class="text-sm text-gray-500">发现位置: 2.5 关键状态流转</p></div><span class="px-3 py-1 text-sm font-semibold rounded-full severity-yellow">🟡 重要</span></div><div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"><div><h4 class="font-semibold mb-2">问题详情</h4><p class="text-gray-600">文档中存在多个“批注”，表明某些需求点尚未达成最终共识或需要与相关方确认。</p></div><div><h4 class="font-semibold mb-2">影响分析</h4><p class="text-gray-600">开发人员无法实现不确定的需求，如果强行实现，极有可能在后期因为需求变更而导致大量返工。</p></div></div></div><div class="bg-gray-50 px-6 py-4"><h4 class="font-semibold mb-2">改进方案</h4><p class="text-sm text-gray-700">产品负责人必须立即跟进所有批注中提到的待办事项，与相关团队确认后更新到正文并删除批注。</p></div>
-                </div>
-                <div class="card overflow-hidden border-l-4 border-orange-500 hidden-on-print-expand hidden analysis-item">
-                     <div class="p-6"><div class="flex justify-between items-start"><div><h3 class="text-xl font-bold text-gray-900">P004: 产品梯度配置过于简化</h3><p class="text-sm text-gray-500">发现位置: 2.3 产品梯度配置说明</p></div><span class="px-3 py-1 text-sm font-semibold rounded-full severity-orange">🟠 警告</span></div><div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"><div><h4 class="font-semibold mb-2">问题详情</h4><p class="text-gray-600">产品梯度配置说明表格仅简单罗列了平台，对于不同配置（如Pro, Max）下的功能差异化未做任何说明。</p></div><div><h4 class="font-semibold mb-2">影响分析</h4><p class="text-gray-600">不利于市场、销售等业务方理解不同车型的功能配置差异，也可能让开发团队对是否存在多种配置实现感到困惑。</p></div></div></div><div class="bg-gray-50 px-6 py-4"><h4 class="font-semibold mb-2">改进方案</h4><p class="text-sm text-gray-700">与产品规划团队对齐，明确并详细描述在不同配置下BSV功能的具体表现差异，或明确说明无差异。</p></div>
-                </div>
-                <div class="card overflow-hidden border-l-4 border-orange-500 hidden-on-print-expand hidden analysis-item">
-                     <div class="p-6"><div class="flex justify-between items-start"><div><h3 class="text-xl font-bold text-gray-900">P006: 术语定义不一致</h3><p class="text-sm text-gray-500">发现位置: 1.3 术语解释</p></div><span class="px-3 py-1 text-sm font-semibold rounded-full severity-orange">🟠 警告</span></div><div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"><div><h4 class="font-semibold mb-2">问题详情</h4><p class="text-gray-600">术语“CSD”在文档中定义为“Centerstack Display”，与模板中的“中控屏”常用表达不完全一致。</p></div><div><h4 class="font-semibold mb-2">影响分析</h4><p class="text-gray-600">对于非技术背景的阅读者（如市场、销售），纯英文缩写可能造成理解障碍。</p></div></div></div><div class="bg-gray-50 px-6 py-4"><h4 class="font-semibold mb-2">改进方案</h4><p class="text-sm text-gray-700">在术语表中，为“CSD”的定义增加中文解释，修改为 Centerstack Display (中控显示屏)。</p></div>
-                </div>
-                <div class="card overflow-hidden border-l-4 border-orange-500 hidden-on-print-expand hidden analysis-item">
-                     <div class="p-6"><div class="flex justify-between items-start"><div><h3 class="text-xl font-bold text-gray-900">P008: 功能列表与Use Case不完全对应</h3><p class="text-sm text-gray-500">发现位置: 2.7 功能列表与 3. 功能场景设计</p></div><span class="px-3 py-1 text-sm font-semibold rounded-full severity-orange">🟠 警告</span></div><div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"><div><h4 class="font-semibold mb-2">问题详情</h4><p class="text-gray-600">功能列表中罗列的某些故障退出条目，在Use Case章节没有完全对应的详细设计。</p></div><div><h4 class="font-semibold mb-2">影响分析</h4><p class="text-gray-600">可能导致部分需求细节缺失，开发时可能会遗漏，或测试时缺乏设计的依据。</p></div></div></div><div class="bg-gray-50 px-6 py-4"><h4 class="font-semibold mb-2">改进方案</h4><p class="text-sm text-gray-700">梳理功能列表，补充对应的Use Case，或调整功能列表结构将故障描述整合到其他Use Case的异常流程中。</p></div>
-                </div>
-                <div class="card overflow-hidden border-l-4 border-blue-500 hidden-on-print-expand hidden analysis-item">
-                     <div class="p-6"><div class="flex justify-between items-start"><div><h3 class="text-xl font-bold text-gray-900">P009: 变更日志描述可优化</h3><p class="text-sm text-gray-500">发现位置: 编制/变更日志</p></div><span class="px-3 py-1 text-sm font-semibold rounded-full severity-blue">🔵 建议</span></div><div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"><div><h4 class="font-semibold mb-2">问题详情</h4><p class="text-gray-600">版本V1.0.2的修改内容描述较为笼统，未能体现增量修改的具体条目。</p></div><div><h4 class="font-semibold mb-2">影响分析</h4><p class="text-gray-600">轻微影响版本间变更的快速追溯能力。</p></div></div></div><div class="bg-gray-50 px-6 py-4"><h4 class="font-semibold mb-2">改进方案</h4><p class="text-sm text-gray-700">将变更日志的描述修改得更具体，最好能关联到具体的章节或Use Case ID。</p></div>
-                </div>
-                <div class="card overflow-hidden border-l-4 border-blue-500 hidden-on-print-expand hidden analysis-item">
-                     <div class="p-6"><div class="flex justify-between items-start"><div><h3 class="text-xl font-bold text-gray-900">P010: 文言汇总章节位置和内容可优化</h3><p class="text-sm text-gray-500">发现位置: 4.3.1 文言提示汇总</p></div><span class="px-3 py-1 text-sm font-semibold rounded-full severity-blue">🔵 建议</span></div><div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm"><div><h4 class="font-semibold mb-2">问题详情</h4><p class="text-gray-600">文言的退出条件描述可能存在歧义，且章节位置可以优化。</p></div><div><h4 class="font-semibold mb-2">影响分析</h4><p class="text-gray-600">可能导致HMI实现与预期有细微偏差，影响查阅效率。</p></div></div></div><div class="bg-gray-50 px-6 py-4"><h4 class="font-semibold mb-2">改进方案</h4><p class="text-sm text-gray-700">将文言退出条件的描述修改得更明确；考虑将所有HMI相关信息整合到独立章节。</p></div>
+
+                <!-- P006 Warning -->
+                <div class="card overflow-hidden border-l-4 border-orange-500">
+                     <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">P006: 功能边界模糊：未定义与其他系统的交互边界</h3>
+                                <p class="text-sm text-gray-500">发现位置: 1.2 文档范围</p>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full severity-orange">🟠 警告</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">问题详情</h4>
+                                <p class="text-gray-600">文档清晰定义了Auto Hold与EPB的移交关系，但未定义其与其它相关系统（如ADAS功能、ABS/ESP等基础制动系统）的交互边界和优先级。例如，当ACC自适应巡航跟停后，是由ACC保持制动还是移交给Auto Hold？</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">影响分析</h4>
+                                <p class="text-gray-600">在复杂场景下，功能间可能发生冲突，导致非预期行为。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4">
+                        <h4 class="font-semibold mb-2">改进方案</h4>
+                        <p class="text-sm text-gray-700">增加一个章节或在1.2中扩展，描述功能交互逻辑。例如：“ACC跟停超过3秒后，若AH开启，则由AH接管驻车，ACC退出制动控制”、“任何时候ABS或AEB激活，AH功能应立即退出或被抑制”。</p>
+                    </div>
                 </div>
 
-                <div class="text-center toggle-button-container">
-                    <button id="toggle-analysis-btn" class="toggle-button">
-                        <span>显示其余7个问题的详细分析</span>
-                        <svg class="w-4 h-4 arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                    </button>
+                <!-- P007 Warning -->
+                <div class="card overflow-hidden border-l-4 border-orange-500">
+                     <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">P007: 配置定义简化：EBOC/CCP配置缺失</h3>
+                                <p class="text-sm text-gray-500">发现位置: 2.6 配置</p>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full severity-orange">🟠 警告</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">问题详情</h4>
+                                <p class="text-gray-600">2.6.2 EBOC 和 2.6.3 CCP 章节均简单填写为“无”。</p>
+                                <blockquote class="mt-2 border-l-4 border-gray-300 pl-4 text-gray-500 italic">
+                                    <strong>期望状态:</strong> 应详细列出所有相关的EBOC（工程字节在线配置）和CCP（可标定参数）项。
+                                </blockquote>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">影响分析</h4>
+                                <p class="text-gray-600">影响精准化生产和软件版本管理，给不同配置车型的适配带来困难。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4">
+                        <h4 class="font-semibold mb-2">改进方案</h4>
+                        <p class="text-sm text-gray-700">与架构和开发团队确认所有需要在线/离线配置及标定的参数，并按照标准模板格式进行填写。</p>
+                    </div>
+                </div>
+
+                <!-- P008 Warning -->
+                <div class="card overflow-hidden border-l-4 border-orange-500">
+                     <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">P008: 需求来源不可追溯</h3>
+                                <p class="text-sm text-gray-500">发现位置: 1.1 文档背景</p>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full severity-orange">🟠 警告</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">问题详情</h4>
+                                <p class="text-gray-600">文档背景仅简单描述了本文档的应用范围，但未提及这些功能需求的具体来源，例如是为了解决用户的何种痛点、对标了哪些竞品、或源于哪项上层业务需求。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">影响分析</h4>
+                                <p class="text-gray-600">团队无法深刻理解需求的业务价值，不利于做出正确的技术决策。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4">
+                        <h4 class="font-semibold mb-2">改进方案</h4>
+                        <p class="text-sm text-gray-700">在1.1章节中增加1-2句话，说明功能的业务目标。例如：“为解决用户在城市拥堵路况及红绿灯场景下频繁踩刹车导致的驾驶疲劳问题，特设计此Auto Hold功能”。</p>
+                    </div>
+                </div>
+
+                <!-- P009 Suggestion -->
+                <div class="card overflow-hidden border-l-4 border-blue-500">
+                     <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">P009: 需求表述存在歧义</h3>
+                                <p class="text-sm text-gray-500">发现位置: 4.1.2 性能指标</p>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full severity-blue">🔵 建议</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">问题详情</h4>
+                                <p class="text-gray-600">性能指标“移交EPB泄压时间”的描述为“一般在2s 内”。</p>
+                                <blockquote class="mt-2 border-l-4 border-gray-300 pl-4 text-gray-500 italic">
+                                    <strong>期望状态:</strong> 性能指标应使用更精确的语言，如“不大于2s”或“Max: 2s”。
+                                </blockquote>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">影响分析</h4>
+                                <p class="text-gray-600">“一般在”这种表述会给测试验收留下模糊空间，可能在细节实现上产生理解偏差。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4">
+                        <h4 class="font-semibold mb-2">改进方案</h4>
+                        <p class="text-sm text-gray-700">将“一般在2s 内”修改为“≤ 2s”。</p>
+                    </div>
+                </div>
+
+                <!-- P010 Suggestion -->
+                <div class="card overflow-hidden border-l-4 border-blue-500">
+                     <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">P010: 功能流程图过于简化</h3>
+                                <p class="text-sm text-gray-500">发现位置: 3.1.1, 3.1.2, etc.</p>
+                            </div>
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full severity-blue">🔵 建议</span>
+                        </div>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                            <div>
+                                <h4 class="font-semibold mb-2">问题详情</h4>
+                                <p class="text-gray-600">第三章各UseCase下的“功能详细流程图”非常简单，例如3.1.1的流程图，仅包含开始、判断、激活、结束几个框，信息量甚至不如文字描述丰富。</p>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-2">影响分析</h4>
+                                <p class="text-gray-600">流程图未能以可视化的方式，更详细地展现用户操作、系统判断、状态流转和异常分支，没有起到对文字描述进行补充和梳理的作用。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4">
+                        <h4 class="font-semibold mb-2">改进方案</h4>
+                        <p class="text-sm text-gray-700">建议移除这些过于简化的流程图，或将其丰富化，至少应包含与文字描述对等的逻辑分支和判断条件。</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -600,13 +721,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border-b"><td class="px-6 py-4 font-bold text-red-600">🚨 紧急</td><td class="px-6 py-4 font-semibold">产品/系统架构图缺失 (P001)</td><td class="px-6 py-4">阻塞下游所有工作</td><td class="px-6 py-4">立即召开架构会议，补充图纸</td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">需求存在未关闭的开放点 (P007)</td><td class="px-6 py-4">需求不确定，可能导致返工</td><td class="px-6 py-4">立即与关联方确认开放点</td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">功能列表结构混乱 (P003)</td><td class="px-6 py-4">需求难以理解，可能遗漏</td><td class="px-6 py-4">按标准模板重构功能列表</td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">法规遵从性说明不足 (P005)</td><td class="px-6 py-4">存在市场准入风险</td><td class="px-6 py-4">与法规专家合作，关联至UseCase</td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">跨域文档关联不规范 (P002)</td><td class="px-6 py-4">增加集成风险</td><td class="px-6 py-4">使用标准表格重新整理</td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-bold text-yellow-600">🔶 中</td><td class="px-6 py-4 font-semibold">产品梯度配置过于简化 (P004)</td><td class="px-6 py-4">不利于市场理解，可能混淆开发</td><td class="px-6 py-4">与产品规划对齐，明确差异</td></tr>
-                        <tr class="border-b"><td class="px-6 py-4 font-bold text-blue-600">🔹 低</td><td class="px-6 py-4 font-semibold">变更日志描述可优化 (P009)</td><td class="px-6 py-4">轻微影响追溯效率</td><td class="px-6 py-4">修改描述，关联Use Case ID</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-red-600">🚨 紧急</td><td class="px-6 py-4 font-semibold">法规标准缺失 (P001)</td><td class="px-6 py-4">重大合规风险，可能导致产品无法上市。</td><td class="px-6 py-4">立即组织法务、研发识别并分析相关法规，写入文档。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">指标要求不完整 (P002)</td><td class="px-6 py-4">功能无法量化验收，无法进行数据驱动优化。</td><td class="px-6 py-4">与产品、数据团队合作，定义明确的功能、性能、数据指标。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">术语不一致 (P003)</td><td class="px-6 py-4">增加沟通成本，易造成误解。</td><td class="px-6 py-4">梳理全文所有缩写，在术语表中统一添加定义。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">跨域关联缺失 (P004)</td><td class="px-6 py-4">阻碍跨域协作，存在集成风险。</td><td class="px-6 py-4">替换所有占位符链接为真实文档链接及版本号。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-orange-600">🔥 高</td><td class="px-6 py-4 font-semibold">验收标准模糊 (P005)</td><td class="px-6 py-4">需求不可测试，导致功能验收困难。</td><td class="px-6 py-4">将所有“一定值”等模糊描述替换为具体、可量化的数值。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-yellow-600">🔶 中</td><td class="px-6 py-4 font-semibold">功能边界模糊 (P006)</td><td class="px-6 py-4">可能导致功能间冲突和非预期行为。</td><td class="px-6 py-4">补充定义本功能与ADAS等其他系统的交互和抑制关系。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-yellow-600">🔶 中</td><td class="px-6 py-4 font-semibold">配置定义简化 (P007)</td><td class="px-6 py-4">影响精准化生产和版本管理。</td><td class="px-6 py-4">详细梳理并列出所有EBOC和CCP配置标定项。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-blue-600">🔹 低</td><td class="px-6 py-4 font-semibold">需求来源不可追溯 (P008)</td><td class="px-6 py-4">不利于团队理解业务价值。</td><td class="px-6 py-4">在文档背景中补充说明功能的开发目的和用户价值。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-blue-600">🔹 低</td><td class="px-6 py-4 font-semibold">需求表述存在歧义 (P009)</td><td class="px-6 py-4">可能在细节实现上产生偏差。</td><td class="px-6 py-4">将“一般在”等模糊词汇修改为“≤”等精确表述。</td></tr>
+                        <tr class="border-b"><td class="px-6 py-4 font-bold text-blue-600">🔹 低</td><td class="px-6 py-4 font-semibold">功能流程图过于简化 (P010)</td><td class="px-6 py-4">流程图未起到有效的信息补充作用。</td><td class="px-6 py-4">丰富流程图内容或直接移除过于简化的图表。</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -618,19 +742,18 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="card p-6">
                     <h3 class="text-xl font-bold mb-4">最终结论与核心任务</h3>
-                    <p class="text-gray-600 mb-4">本次BSV特性需求文档评审综合得分 <span class="font-bold text-red-600">69/100分</span>，评审结果为 <span class="font-bold text-red-600">不通过</span>。文档虽有亮点，但存在致命的结构性缺陷，尤其是 <span class="font-bold">产品与系统架构的完全缺失</span>，使其无法作为后续工程开发的有效基线。</p>
+                    <p class="text-gray-600 mb-4">本次【Auto Hold自动驻车特性需求文档】PRD文档评审综合得分 <span class="font-bold text-red-600">49/100分</span>，评审结果为 <span class="font-bold text-red-600">不通过</span>。文档在整体结构、架构设计和状态机定义方面表现出良好的专业性，但存在一个致命的合规性风险，并且在需求的完整性、一致性和可测试性方面有多个重要缺陷，导致其当前版本无法直接用于指导后续开发工作。</p>
                     <div class="mt-6">
                         <h4 class="font-semibold mb-3">核心改进任务列表 (按严重程度)</h4>
                         <ul class="space-y-2 text-sm">
-                            <li class="flex items-start"><span class="text-red-500 mr-2">🚨</span><strong>【P001】紧急:</strong> 必须完成产品/系统架构图的绘制与评审。</li>
-                            <li class="flex items-start"><span class="text-orange-500 mr-2">🔥</span><strong>【P007】高优:</strong> 必须关闭所有文档中的开放性批注。</li>
-                            <li class="flex items-start"><span class="text-orange-500 mr-2">🔥</span><strong>【P003】高优:</strong> 必须重构功能列表。</li>
-                            <li class="flex items-start"><span class="text-orange-500 mr-2">🔥</span><strong>【P005】高优:</strong> 必须完成法规要求的详细分析。</li>
+                            <li class="flex items-start"><span class="text-red-500 mr-2">🚨</span><strong>【P001】紧急任务（1周内完成）:</strong> 修复法规缺失问题： 立即识别并分析所有相关安全法规，确保产品设计满足合规性要求。</li>
+                            <li class="flex items-start"><span class="text-orange-500 mr-2">🔥</span><strong>【P002-P005】高优先级任务（2周内完成）:</strong> 补全核心指标、完善术语表、更新关联文档、明确验收标准。</li>
+                            <li class="flex items-start"><span class="text-yellow-600 mr-2">🔶</span><strong>【P006-P007】中优先级任务（3-4周内完成）:</strong> 明确边界与配置。</li>
+                            <li class="flex items-start"><span class="text-blue-500 mr-2">🔹</span><strong>【P008-P010】低优先级任务（后续版本持续优化）:</strong> 提升文档质量。</li>
                         </ul>
                     </div>
                     <div class="mt-6 border-t pt-4">
-                        <p class="text-sm text-gray-600"><strong>建议整改时间:</strong> 严重问题必须在 <span class="font-bold">1周内</span> 完成，重要问题建议在 <span class="font-bold">2周内</span> 完成。</p>
-                        <p class="text-sm text-gray-600 mt-1"><strong>整改成功标准:</strong> 所有🔴严重和🟡重要问题全部关闭，文档综合评分达到 <span class="font-bold text-green-600">80分</span> 以上。</p>
+                        <p class="text-sm text-gray-600"><strong>整改成功标准:</strong> 所有🔴严重和🟡重要问题全部解决，综合评分达到 <span class="font-bold text-green-600">75分</span> 以上。</p>
                     </div>
                 </div>
                 <div class="card p-6">
@@ -640,13 +763,13 @@
                         <div class="flex flex-col items-center">
                             <h4 class="font-semibold mb-2 text-gray-700">按严重等级</h4>
                             <div class="relative w-36 h-36">
-                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                <svg class="w-full h-full" viewBox="0 0 36 36" transform="rotate(-90)">
                                     <circle cx="18" cy="18" r="15.9155" fill="#fff"/>
                                     <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e6e6e6" stroke-width="4"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#2563eb" stroke-width="4" stroke-dasharray="20 100" stroke-dashoffset="-80" transform="rotate(-90 18 18)"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f97316" stroke-width="4" stroke-dasharray="30 100" stroke-dashoffset="-50" transform="rotate(-90 18 18)"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#d97706" stroke-width="4" stroke-dasharray="40 100" stroke-dashoffset="-10" transform="rotate(-90 18 18)"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#dc2626" stroke-width="4" stroke-dasharray="10 100" stroke-dashoffset="0" transform="rotate(-90 18 18)"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#dc2626" stroke-width="4" stroke-dasharray="10, 100" stroke-dashoffset="0"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#d97706" stroke-width="4" stroke-dasharray="40, 100" stroke-dashoffset="-10"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f97316" stroke-width="4" stroke-dasharray="30, 100" stroke-dashoffset="-50"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#2563eb" stroke-width="4" stroke-dasharray="20, 100" stroke-dashoffset="-80"/>
                                 </svg>
                                  <div class="absolute inset-0 flex flex-col items-center justify-center">
                                     <span class="text-3xl font-bold text-gray-800">10</span>
@@ -664,13 +787,14 @@
                         <div class="flex flex-col items-center">
                             <h4 class="font-semibold mb-2 text-gray-700">按评审维度</h4>
                              <div class="relative w-36 h-36">
-                                <svg class="w-full h-full" viewBox="0 0 36 36">
+                                <svg class="w-full h-full" viewBox="0 0 36 36" transform="rotate(-90)">
                                     <circle cx="18" cy="18" r="15.9155" fill="#fff"/>
                                     <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e6e6e6" stroke-width="4"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#6366f1" stroke-width="4" stroke-dasharray="20 100" stroke-dashoffset="-80" transform="rotate(-90 18 18)"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#10b981" stroke-width="4" stroke-dasharray="20 100" stroke-dashoffset="-60" transform="rotate(-90 18 18)"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f59e0b" stroke-width="4" stroke-dasharray="20 100" stroke-dashoffset="-40" transform="rotate(-90 18 18)"/>
-                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="40 100" stroke-dashoffset="0" transform="rotate(-90 18 18)"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="40, 100" stroke-dashoffset="0"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f59e0b" stroke-width="4" stroke-dasharray="10, 100" stroke-dashoffset="-40"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#10b981" stroke-width="4" stroke-dasharray="10, 100" stroke-dashoffset="-50"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#6366f1" stroke-width="4" stroke-dasharray="20, 100" stroke-dashoffset="-60"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#a855f7" stroke-width="4" stroke-dasharray="20, 100" stroke-dashoffset="-80"/>
                                 </svg>
                                  <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <span class="text-3xl font-bold text-gray-800">10</span>
@@ -679,10 +803,10 @@
                             </div>
                             <ul class="mt-4 w-full space-y-1 text-xs">
                                 <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-sky-500 mr-2"></span>完整性</span><span class="font-semibold">4 (40%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>一致性</span><span class="font-semibold">2 (20%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>可追溯性</span><span class="font-semibold">2 (20%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>明确性</span><span class="font-semibold">2 (20%)</span></li>
-                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-gray-400 mr-2"></span>可测试性</span><span class="font-semibold">0 (0%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>一致性</span><span class="font-semibold">1 (10%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>可测试性</span><span class="font-semibold">1 (10%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>可追溯性</span><span class="font-semibold">2 (20%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>明确性</span><span class="font-semibold">2 (20%)</span></li>
                             </ul>
                         </div>
                     </div>
@@ -693,22 +817,29 @@
     </div>
     
     <script>
+        // This script handles the interactivity of the report, such as toggling sections.
         document.addEventListener('DOMContentLoaded', function() {
-            // Function to handle toggling visibility of elements
-            const setupToggleButton = (buttonId, rowClass, showText, hideText) => {
+            /**
+             * Sets up a toggle button to show/hide elements.
+             * @param {string} buttonId - The ID of the toggle button.
+             * @param {string} elementClass - The class of the elements to be toggled.
+             * @param {string} showText - The text to display on the button when elements are hidden.
+             * @param {string} hideText - The text to display on the button when elements are shown.
+             */
+            const setupToggleButton = (buttonId, elementClass, showText, hideText) => {
                 const button = document.getElementById(buttonId);
                 if (!button) return;
 
-                const rows = document.querySelectorAll(`.${rowClass}`);
+                const elements = document.querySelectorAll(`.${elementClass}`);
                 
                 button.addEventListener('click', () => {
                     const isExpanded = button.classList.toggle('expanded');
+                    button.setAttribute('aria-expanded', isExpanded);
                     
-                    rows.forEach(row => {
-                        row.classList.toggle('hidden');
+                    elements.forEach(el => {
+                        el.classList.toggle('hidden');
                     });
 
-                    const arrow = button.querySelector('.arrow');
                     const textSpan = button.querySelector('span');
                     
                     if (isExpanded) {
@@ -719,29 +850,22 @@
                 });
             };
 
-            // Setup for Rules Table
+            // Setup for Rules Table toggle
             setupToggleButton(
                 'toggle-rules-btn', 
                 'rule-row', 
-                '显示其余14项已通过规则', 
+                '显示其余16项已通过规则', 
                 '收起已通过规则'
             );
 
-            // Setup for Chapters Table
+            // Setup for Chapters Table toggle
             setupToggleButton(
                 'toggle-chapters-btn', 
                 'chapter-row', 
-                '显示其余14个已通过章节', 
+                '显示其余11个已通过章节', 
                 '收起已通过章节'
             );
 
-            // Setup for Analysis Section
-            setupToggleButton(
-                'toggle-analysis-btn', 
-                'analysis-item', 
-                '显示其余7个问题的详细分析', 
-                '收起详细分析'
-            );
         });
     </script>
 
