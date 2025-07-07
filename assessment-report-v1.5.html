@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD文档智能评审报告（汽车行业标准）</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a202c;
+            border-left: 4px solid #2563eb;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        .table-interactive tbody tr.chapter-row {
+            cursor: pointer;
+        }
+        .table-interactive tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .table-interactive tbody tr.chapter-row:hover:not(.toggle-row) {
+            background-color: #f9fafb;
+        }
+        .severity-red-tag { color: #dc2626; background-color: #fee2e2; }
+        .severity-yellow-tag { color: #d97706; background-color: #fef3c7; }
+        .severity-orange-tag { color: #f97316; background-color: #ffedd5; }
+        .severity-blue-tag { color: #2563eb; background-color: #dbeafe; }
+
+        .status-pass {
+            color: #15803d;
+            background-color: #f0fdf4;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .status-fail {
+            color: #b91c1c;
+            background-color: #fef2f2;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .print-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+        .print-button:hover {
+            background-color: #1d4ed8;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .toggle-button .arrow {
+            transition: transform 0.3s ease;
+        }
+        .toggle-button.expanded .arrow {
+            transform: rotate(180deg);
+        }
+        
+        .collapsible summary {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .collapsible summary .arrow {
+            transition: transform 0.3s ease;
+        }
+        .collapsible[open] summary .arrow {
+            transform: rotate(180deg);
+        }
+        
+        .detail-row {
+            background-color: #f8f9fa; /* Slightly different background for the entire row */
+        }
+        .detail-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            border-left-width: 4px;
+            transition: all 0.3s ease-in-out;
+        }
+        .detail-card.highlight {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 2px #3b82f6, 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .detail-card h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+        .detail-card p, .detail-card li {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        .detail-card ul {
+            list-style-position: inside;
+            padding-left: 0.5rem;
+        }
+
+        .preview-mode .preview-highlight {
+            background-color: #dbeafe !important;
+            transition: background-color 0.5s ease;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .hidden-on-print-expand, .detail-row {
+                display: revert !important;
+            }
+            .collapsible > div {
+                display: block !important;
+            }
+            .detail-row {
+                display: none !important; /* Hide details on print by default */
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <button onclick="window.print()" class="print-button no-print">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" />
+        </svg>
+        打印或保存为PDF
+    </button>
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900">PRD文档智能评审报告</h1>
+            <p class="text-lg text-gray-600 mt-2">汽车行业标准</p>
+        </header>
+
+        <!-- Section 1: Review Overview -->
+        <section id="overview" class="mb-12">
+            <h2 class="section-title">评审概述</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h3 class="font-semibold text-lg mb-3">文档信息</h3>
+                    <div class="space-y-2 text-gray-700">
+                        <p><strong>文档名称:</strong> BSV 特性需求文档</p>
+                        <p><strong>版本:</strong> V1.0.2</p>
+                        <p><strong>变更状态:</strong> 变更</p>
+                        <p><strong>需求概述:</strong> 定义盲区监测（BSV）功能的核心特性、用户场景与性能指标。</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="font-semibold text-lg mb-3">评审范围</h3>
+                    <div class="space-y-2 text-gray-700">
+                        <p><strong>评审章节数量:</strong> <a href="#chapter-results" class="text-blue-600 hover:underline">23个章节</a></p>
+                        <p><strong>评审规则数量:</strong> <a href="#" class="text-blue-600 hover:underline">27个规则</a></p>
+                        <p><strong>需求模版:</strong> <a href="#" class="text-blue-600 hover:underline">汽车行业标准PRD模版V2.1</a></p>
+                        <p><strong>评审重点:</strong> PRD的整体质量、对于产品设计的价值和易于被其他理解，被AI Coding理解</p>
+                    </div>
+                </div>
+                <div class="card p-6 col-span-1 md:col-span-2 no-print">
+                    <details class="collapsible">
+                        <summary class="font-semibold text-lg">
+                            问题分级与评分规则 (点击展开)
+                            <svg class="w-5 h-5 arrow text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </summary>
+                        <div class="mt-4 pt-4 border-t">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="flex items-start space-x-3">
+                                    <span class="w-6 h-6 rounded-full bg-red-500 flex-shrink-0"></span>
+                                    <div><strong class="text-red-600">严重:</strong> 阻塞开发推进，必须修复</div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="w-6 h-6 rounded-full bg-yellow-500 flex-shrink-0"></span>
+                                    <div><strong class="text-yellow-600">重要:</strong> 影响质量或效率，建议修复</div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="w-6 h-6 rounded-full bg-orange-500 flex-shrink-0"></span>
+                                    <div><strong class="text-orange-600">警告:</strong> 可能影响后续扩展或维护，建议优化</div>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"></span>
+                                    <div><strong class="text-blue-600">建议:</strong> 优化改进，提升文档质量</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 border-t pt-4 text-sm text-gray-600">
+                                <p><strong>评分规则:</strong> 最终得分 = 70 (基础分) + 亮点加分 (最高+15) - 问题扣分 (严重-8, 重要-4, 警告-2, 建议-1)</p>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Document Highlights -->
+        <section id="highlights" class="mb-12">
+            <h2 class="section-title">文档亮点与优势</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6 border-t-4 border-green-500">
+                    <div class="flex items-center mb-3">
+                        <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+5分</span>
+                        <h3 class="font-semibold text-lg">状态机定义清晰</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-2">文档在2.5章节中，通过状态图和详细的转换条件（T1-T10）对功能的关键状态（OFF, Initialize, Standby, Active, Failure）进行了清晰的定义。</p>
+                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 这种严谨的状态机定义为开发人员提供了无歧义的逻辑框架，极大降低了实现错误的风险，并为状态相关的测试用例设计提供了坚实基础。</p>
+                </div>
+                <div class="card p-6 border-t-4 border-green-500">
+                    <div class="flex items-center mb-3">
+                        <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+5分</span>
+                        <h3 class="font-semibold text-lg">非功能性指标量化明确</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-2">文档在4.1章节明确量化了关键的功能性能指标，如激活延迟&lt;300ms、显示延迟&lt;100ms、帧率&gt;50等。同时在4.2章节详细定义了需要埋点的数据指标及其计算逻辑，如BSV日活/月活率。</p>
+                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 清晰、可量化的指标是功能验收的核心依据，确保了产品性能可以被客观、一致地衡量。数据指标的需求为后续的产品运营和迭代优化提供了数据支持。</p>
+                </div>
+                <div class="card p-6 border-t-4 border-green-500">
+                    <div class="flex items-center mb-3">
+                        <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+3分</span>
+                        <h3 class="font-semibold text-lg">Use Case结构化程度高</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-2">功能场景设计（第3章）中的各个Use Case，如3.1.1 和 3.1.2，均采用了“前置条件”、“触发事件”、“主流程”、“可选流程”的结构化方式进行描述。</p>
+                    <p class="text-sm"><strong class="text-green-700">价值:</strong> 这种结构化的描述方式有助于产品、开发、测试等所有相关方对需求达成共识，并使得需求易于分解为具体的开发任务和测试用例。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Quality Score -->
+        <section id="score" class="mb-12 page-break">
+            <h2 class="section-title">文档质量评分</h2>
+            <div class="card p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="relative w-48 h-48">
+                            <svg class="w-full h-full" viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e6e6e6" stroke-width="3"></path>
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="69, 100" stroke-linecap="round"></path>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-4xl font-bold text-red-600">69</span>
+                                <span class="text-sm text-gray-500">/ 100</span>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <p class="text-2xl font-bold">综合评分</p>
+                            <p class="status-fail mt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+                                不通过
+                            </p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <h3 class="font-semibold text-lg mb-4">各维度得分</h3>
+                        <div class="space-y-4">
+                            <div class="w-full">
+                                <div class="flex justify-between mb-1"><span class="text-base font-medium text-gray-700">完整性</span><span class="text-sm font-medium text-red-700">62 / 100</span></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-red-600 h-2.5 rounded-full" style="width: 62%"></div></div>
+                            </div>
+                            <div class="w-full">
+                                <div class="flex justify-between mb-1"><span class="text-base font-medium text-gray-700">一致性</span><span class="text-sm font-medium text-amber-700">76 / 100</span></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-amber-500 h-2.5 rounded-full" style="width: 76%"></div></div>
+                            </div>
+                            <div class="w-full">
+                                <div class="flex justify-between mb-1"><span class="text-base font-medium text-gray-700">可测试性</span><span class="text-sm font-medium text-green-700">90 / 100</span></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-green-600 h-2.5 rounded-full" style="width: 90%"></div></div>
+                            </div>
+                            <div class="w-full">
+                                <div class="flex justify-between mb-1"><span class="text-base font-medium text-gray-700">可追溯性</span><span class="text-sm font-medium text-amber-700">70 / 100</span></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-amber-500 h-2.5 rounded-full" style="width: 70%"></div></div>
+                            </div>
+                            <div class="w-full">
+                                <div class="flex justify-between mb-1"><span class="text-base font-medium text-gray-700">明确性</span><span class="text-sm font-medium text-amber-700">73 / 100</span></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-amber-500 h-2.5 rounded-full" style="width: 73%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 border-t pt-6">
+                    <h3 class="font-semibold text-lg mb-3">主要不通过原因</h3>
+                    <ul class="space-y-2 list-disc list-inside text-gray-700">
+                        <li>存在1个【<span class="text-red-600 font-semibold">🔴严重</span>】级别问题：产品架构和系统架构完全缺失 (<a href="#problem-P001" class="text-blue-600 hover:underline">P001</a>)，这会阻塞跨域协作和后续的系统设计。</li>
+                        <li>存在3个【<span class="text-yellow-600 font-semibold">🟡重要</span>】级别问题，分别涉及功能列表结构混乱 (<a href="#problem-P003" class="text-blue-600 hover:underline">P003</a>)、法规遵从性说明不足 (<a href="#problem-P005" class="text-blue-600 hover:underline">P005</a>) 和文档关系描述不规范 (<a href="#problem-P002" class="text-blue-600 hover:underline">P002</a>)，影响了需求的清晰度和可追溯性。</li>
+                        <li>未能遵循公司标准的PRD模板进行编写，多处核心章节（如产品架构）存在缺失或格式不匹配问题，降低了文档的规范性和可维护性。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 5: Chapter Dimension Results -->
+        <section id="chapter-results" class="mb-12 page-break">
+            <h2 class="section-title">章节维度评审结果</h2>
+            <div class="card overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600 table-interactive">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">章节名称</th>
+                            <th scope="col" class="px-6 py-3">问题描述</th>
+                            <th scope="col" class="px-6 py-3">问题等级</th>
+                            <th scope="col" class="px-6 py-3">问题维度</th>
+                            <th scope="col" class="px-6 py-3">评价结果</th>
+                            <th scope="col" class="px-6 py-3 w-32 no-print">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chapters-table-body">
+                        <!-- Data will be dynamically inserted here by script -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 6: Adopt Suggestions -->
+        <section id="adopt-suggestions" class="mb-12 page-break no-print">
+            <h2 class="section-title">采纳建议</h2>
+            <div class="card p-6">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 w-12"><input type="checkbox" id="select-all-suggestions" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></th>
+                                <th scope="col" class="px-4 py-3">建议 (点击ID可定位问题)</th>
+                                <th scope="col" class="px-4 py-3">改进方案</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suggestions-table-body">
+                            <!-- Data will be dynamically inserted here by script -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 flex flex-wrap gap-4 justify-end">
+                    <button id="preview-button" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300 ease-in-out">预览采纳效果</button>
+                    <button id="copy-button" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300 ease-in-out">一键拷贝到AI编辑器</button>
+                    <button id="adopt-button" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out">一键生成建议卡片</button>
+                </div>
+                <div id="action-feedback" class="mt-4 text-green-600 font-semibold hidden h-8"></div>
+            </div>
+        </section>
+
+        <!-- Section 8: Summary -->
+        <section id="summary" class="page-break">
+            <h2 class="section-title">评审总结</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4">最终结论与核心任务</h3>
+                    <p class="text-gray-600 mb-4">本次BSV 特性需求文档评审综合得分 <span class="font-bold text-red-600">69/100分</span>，评审结果为 <span class="font-bold text-red-600">不通过</span>。该文档在部分方面表现出色，如拥有清晰的状态机定义和量化的非功能指标。然而，其存在致命的结构性缺陷，尤其是产品与系统架构的完全缺失，使其无法作为后续工程开发的有效基线。文档整体结构与公司标准模板差距较大，多个重要章节存在信息缺失或格式不规范的问题。</p>
+                    <div class="mt-6">
+                        <h4 class="font-semibold mb-3">核心改进任务列表 (按严重程度排序)</h4>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800"><span class="mr-1.5">🚨</span> 紧急任务</span><span class="block text-xs text-gray-500 mt-1">1周内完成</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P001" class="text-blue-600 hover:underline">P001</a>】必须完成产品架构图和系统架构图的绘制与评审，解决开发阻塞点。</p><p class="font-medium text-gray-800 mt-1">【<a href="#problem-P007" class="text-blue-600 hover:underline">P007</a>】必须关闭所有文档中的开放性批注，明确所有待定需求。</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800"><span class="mr-1.5">🔥</span> 高优先级</span><span class="block text-xs text-gray-500 mt-1">2周内完成</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P003" class="text-blue-600 hover:underline">P003</a>】必须按照标准模板重构功能列表，理清各模式下的功能逻辑。</p><p class="font-medium text-gray-800 mt-1">【<a href="#problem-P005" class="text-blue-600 hover:underline">P005</a>】必须完成法规要求的详细分析，并将其与Use Case关联。</p><p class="font-medium text-gray-800 mt-1">【<a href="#problem-P002" class="text-blue-600 hover:underline">P002</a>】必须按标准表格重新整理所有跨域关联文档。</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-orange-100 text-orange-800"><span class="mr-1.5">🔶</span> 中优先级</span><span class="block text-xs text-gray-500 mt-1">3-4周内完成</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P004" class="text-blue-600 hover:underline">P004</a>, <a href="#problem-P008" class="text-blue-600 hover:underline">P008</a>】详细化产品梯度配置，并确保功能列表与Use Case一一对应。</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800"><span class="mr-1.5">🔹</span> 低优先级</span><span class="block text-xs text-gray-500 mt-1">后续优化</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P009" class="text-blue-600 hover:underline">P009</a>, <a href="#problem-P010" class="text-blue-600 hover:underline">P010</a>】优化变更日志的描述，并对HMI文言的表达和位置进行改进。</p></div></div>
+                        </div>
+                    </div>
+                    <div class="mt-6 border-t pt-4">
+                        <p class="text-sm text-gray-600"><strong>整改成功标准:</strong> 所有🔴严重和🟡重要问题全部关闭，综合评分达到 <span class="font-bold text-green-600">80分</span> 以上。</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-center">问题统计汇总</h3>
+                    <div class="flex flex-col items-center gap-8">
+                        <div class="flex flex-col items-center w-full max-w-xs">
+                            <h4 class="font-semibold mb-2 text-gray-700">按严重等级</h4>
+                            <div class="relative w-36 h-36">
+                                <svg class="w-full h-full" viewBox="0 0 36 36" transform="rotate(-90)">
+                                    <circle cx="18" cy="18" r="15.9155" fill="#fff"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e6e6e6" stroke-width="4"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#dc2626" stroke-width="4" stroke-dasharray="10, 100" stroke-dashoffset="0"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#d97706" stroke-width="4" stroke-dasharray="40, 100" stroke-dashoffset="-10"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f97316" stroke-width="4" stroke-dasharray="30, 100" stroke-dashoffset="-50"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#2563eb" stroke-width="4" stroke-dasharray="20, 100" stroke-dashoffset="-80"/>
+                                </svg>
+                                 <div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-3xl font-bold text-gray-800">10</span><span class="text-sm text-gray-500">总问题</span></div>
+                            </div>
+                            <ul class="mt-4 w-full space-y-1 text-xs">
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-600 mr-2"></span>严重</span><span class="font-semibold">1 (10%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>重要</span><span class="font-semibold">4 (40%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-orange-500 mr-2"></span>警告</span><span class="font-semibold">3 (30%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-blue-600 mr-2"></span>建议</span><span class="font-semibold">2 (20%)</span></li>
+                            </ul>
+                        </div>
+                        <div class="flex flex-col items-center w-full max-w-xs">
+                            <h4 class="font-semibold mb-2 text-gray-700">按评审维度</h4>
+                             <div class="relative w-36 h-36">
+                                <svg class="w-full h-full" viewBox="0 0 36 36" transform="rotate(-90)">
+                                    <circle cx="18" cy="18" r="15.9155" fill="#fff"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#e6e6e6" stroke-width="4"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#0ea5e9" stroke-width="4" stroke-dasharray="40, 100" stroke-dashoffset="0"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#f59e0b" stroke-width="4" stroke-dasharray="20, 100" stroke-dashoffset="-40"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#10b981" stroke-width="4" stroke-dasharray="0, 100" stroke-dashoffset="-60"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#6366f1" stroke-width="4" stroke-dasharray="20, 100" stroke-dashoffset="-60"/>
+                                    <circle cx="18" cy="18" r="15.9155" fill="transparent" stroke="#a855f7" stroke-width="4" stroke-dasharray="20, 100" stroke-dashoffset="-80"/>
+                                </svg>
+                                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><span class="text-3xl font-bold text-gray-800">10</span><span class="text-sm text-gray-500">总问题</span></div>
+                            </div>
+                            <ul class="mt-4 w-full space-y-1 text-xs">
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-sky-500 mr-2"></span>完整性</span><span class="font-semibold">4 (40%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>一致性</span><span class="font-semibold">2 (20%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>可测试性</span><span class="font-semibold">0 (0%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>可追溯性</span><span class="font-semibold">2 (20%)</span></li>
+                                <li class="flex items-center justify-between"><span class="flex items-center"><span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>明确性</span><span class="font-semibold">2 (20%)</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    
+    <script>
+        // --- DATA ---
+        const reportData = {
+            problems: {
+                "P001": { severity: "严重", title: "产品架构/系统架构图完全缺失", location: "2.2 产品架构/系统架构", dimension: "完整性", details: "该章节内容仅为“简单功能不需要架构分解”，完全没有提供产品架构图和系统架构图。", impact: "缺少架构图，软件和硬件的边界、模块间的交互关系、信号流和数据流都不明确。这将导致系统设计、软件开发和硬件集成工作无法有效开展，开发团队会产生大量沟通成本和理解偏差。", solution: "立即组织产品负责人（PO）、系统工程师（SE）和技术负责人（TL）召开架构设计会议。补充产品架构图和系统架构图。" },
+                "P002": { severity: "重要", title: "跨域文档关联不规范，可追溯性差", location: "1.4.1 当前功能相关文档", dimension: "可追溯性", details: "关联文档以不规则的列表形式呈现，缺乏结构化的信息。没有清晰的分类和版本标识。", impact: "当关联文档发生变更时，很难评估其对BSV功能的影响范围，增加了版本不匹配和集成失败的风险。", solution: "参照标准模板的表格格式，重新整理1.4.1章节。为每个关联文档明确其类别（UE/DR/PRD等）、文档ID和准确的版本号。" },
+                "P003": { severity: "重要", title: "功能列表结构混乱，不符合MECE原则", location: "2.7 功能列表", dimension: "完整性", details: "功能列表的层级划分不清晰，将不同模式（标准模式、挂车模式、DOW模式）下的功能点混合在一起。", impact: "需求分解和任务分配会变得困难。开发人员可能错误地将某一模式下的逻辑应用到另一模式，导致功能缺陷。", solution: "参照标准模板的功能列表案例，重构2.7章节。创建如“标准模式”、“挂车模式”、“DOW模式”等二级功能分类。" },
+                "P004": { severity: "警告", title: "产品梯度配置过于简化", location: "2.3 产品梯度配置说明", dimension: "完整性", details: "产品梯度配置说明表格仅简单罗列了平台，对于不同配置（如Pro, Max）下的功能差异化未做任何说明。", impact: "不利于市场和销售理解产品配置，也可能导致开发实现混淆。", solution: "与产品规划团队对齐，明确BSV功能是否存在不同梯度配置。如果存在，则详细描述在不同配置下的功能具体表现有何不同。" },
+                "P005": { severity: "重要", title: "法规遵从性说明不足", location: "1.4.2 政策法规文件", dimension: "完整性", details: "法规引用未明确指出具体适用的章节条款，以及这些条款与具体Use Case的关联性。", impact: "存在产品不满足目标市场法规的风险，可能导致认证失败或产品召回。", solution: "与法规部门或合规专家合作，在表格中将“法规相关内容”更新为具体的章节和条款原文，并关联到具体Use Case ID。" },
+                "P006": { severity: "警告", title: "术语定义不一致", location: "1.3 术语解释", dimension: "一致性", details: "术语“CSD”在文档中定义为“Centerstack Display”，与模板中的“中控屏”常用表达不完全一致。", impact: "对于非技术背景的阅读者（如市场、销售），纯英文缩写可能造成理解障碍。", solution: "在术语表中，为“CSD”的定义增加中文解释，修改为 Centerstack Display (中控显示屏)。" },
+                "P007": { severity: "重要", title: "需求存在未关闭的开放点", location: "2.5 关键状态流转", dimension: "明确性", details: "文档中存在多个“批注”，表明某些需求点尚未达成最终共识。例如：[批注[5]:需要跟行车确认挂车模式下是否能开启ICC/ACC等功能]。", impact: "开发人员无法实现不确定的需求，如果强行实现，极有可能在后期因为需求变更而导致大量返工。", solution: "产品负责人必须立即跟进所有批注中提到的待办事项，与行车功能团队开会确认，并将最终结论更新到正文中，然后删除该批注。" },
+                "P008": { severity: "警告", title: "功能列表与Use Case不完全对应", location: "2.7, 3.x", dimension: "一致性", details: "功能列表中的某些条目在Use Case章节没有完全对应的详细设计。", impact: "可能导致部分需求（如此处提到的标准模式下的故障退出逻辑）没有被详细设计，开发时可能会遗漏。", solution: "梳理2.7章节的功能列表，确认标准模式下是否需要独立的故障退出场景。如果需要，则在第3章中补充对应的Use Case。" },
+                "P009": { severity: "建议", title: "变更日志描述可优化", location: "编制/变更日志", dimension: "可追溯性", details: "版本V1.0.2的修改内容描述笼统，未能体现增量修改的具体条目。", impact: "轻微影响版本间变更的快速追溯能力。", solution: "将V1.0.2的变更描述修改得更具体，例如：\n1. 在Usecase 3.4.1, 3.5.1, 3.5.2中，增加关联系统故障的文言提示。\n2. 在Usecase 3.2.1, 3.3.1中，增加与行车功能的抑制逻辑。\n3. 新增Usecase 3.3.2：BSV与BSD联动报警。" },
+                "P010": { severity: "建议", title: "文言汇总内容及位置可优化", location: "4.3.1 文言提示汇总", dimension: "明确性", details: "该章节的备注中，对文言的退出条件描述为“5s后文言和影像退出”，这里的“影像退出”可能存在歧义。", impact: "可能导致HMI实现与预期有细微偏差。", solution: "1. 将“5s后文言和影像退出”修改为更明确的描述，例如：“Toast文言显示5s后自动消失；视图上的常显文言随影像一同退出”。\n2. 考虑将所有HMI相关的提示信息整合到一个独立的章节中。" }
+            },
+            chapters: [
+                { name: "封面", problems: [] },
+                { name: "编制/变更日志", problems: ["P009"] },
+                { name: "1.1 文档背景", problems: [] },
+                { name: "1.2 文档范围", problems: [] },
+                { name: "1.3 术语解释", problems: ["P006"] },
+                { name: "1.4.1 当前功能相关文档", problems: ["P002"] },
+                { name: "1.4.2 政策法规文件", problems: ["P005"] },
+                { name: "1.4.3 行业规范文件", problems: [] },
+                { name: "2.1 产品场景及概要说明", problems: [] },
+                { name: "2.2 产品架构/系统架构", problems: ["P001"] },
+                { name: "2.3 产品梯度配置说明", problems: ["P004"] },
+                { name: "2.4 功能流程图", problems: [] },
+                { name: "2.5 关键状态流转", problems: ["P007"] },
+                { name: "2.6 配置", problems: [] },
+                { name: "2.7 功能列表", problems: ["P003", "P008"] },
+                { name: "3.1.1, 3.1.2 功能激活", problems: [] },
+                { name: "3.2.1 功能退出", problems: [] },
+                { name: "3.3.1, 3.3.2 联动逻辑", problems: [] },
+                { name: "3.4.1 挂车模式故障", problems: [] },
+                { name: "3.5.1, 3.5.2 DOW模式故障", problems: [] },
+                { name: "4.1 功能指标要求", problems: [] },
+                { name: "4.2 数据指标需求", problems: [] },
+                { name: "4.3.1 文言提示汇总", problems: ["P010"] },
+            ]
+        };
+
+        // --- RENDER FUNCTIONS ---
+        function getSeverityClass(severity, type = 'tag') {
+            const map = {
+                '严重': { tag: 'severity-red-tag', border: 'border-red-500', text: 'text-red-600' },
+                '重要': { tag: 'severity-yellow-tag', border: 'border-yellow-500', text: 'text-yellow-600' },
+                '警告': { tag: 'severity-orange-tag', border: 'border-orange-500', text: 'text-orange-600' },
+                '建议': { tag: 'severity-blue-tag', border: 'border-blue-600', text: 'text-blue-600' }
+            };
+            return (map[severity] && map[severity][type]) || '';
+        }
+
+        function getSeverityTagHtml(severity) {
+            const iconMap = {'严重': '🔴', '重要': '🟡', '警告': '🟠', '建议': '🔵'};
+            return `<span class="px-2 py-1 text-xs font-medium rounded-full ${getSeverityClass(severity)}">${iconMap[severity] || ''}${severity}</span>`;
+        }
+
+        function createProblemDetailCard(problemId) {
+            const problem = reportData.problems[problemId];
+            if (!problem) return '';
+            
+            return `
+                <div id="problem-${problemId}" class="detail-card p-6 ${getSeverityClass(problem.severity, 'border')}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">${problemId}: ${problem.title}</h3>
+                            <p class="text-sm text-gray-500">发现位置: ${problem.location}</p>
+                        </div>
+                        <span class="px-3 py-1 text-sm font-semibold rounded-full ${getSeverityClass(problem.severity, 'tag')}">${problem.severity}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <h4>问题详情</h4>
+                            <p>${problem.details}</p>
+                        </div>
+                        <div>
+                            <h4>影响分析</h4>
+                            <p>${problem.impact}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>改进方案</h4>
+                        <p class="whitespace-pre-wrap">${problem.solution}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderChapterTable() {
+            const tableBody = document.getElementById('chapters-table-body');
+            let content = '';
+            reportData.chapters.forEach(chapter => {
+                const hasProblems = chapter.problems.length > 0;
+                let mainProblem, problemInfo, problemDimensions, resultHtml, rowClass, detailContent = '';
+
+                if (hasProblems) {
+                    mainProblem = reportData.problems[chapter.problems[0]];
+                    problemInfo = mainProblem.title.substring(0, 15) + '...';
+                    problemDimensions = [...new Set(chapter.problems.map(pId => reportData.problems[pId].dimension))].join(', ');
+                    const isFail = chapter.problems.some(pId => ['严重', '重要'].includes(reportData.problems[pId].severity));
+                    resultHtml = isFail 
+                        ? `<span class="status-fail">❌不通过</span>` 
+                        : `<span class="status-pass">✅通过</span>`;
+                    rowClass = '';
+                    detailContent = chapter.problems.map(createProblemDetailCard).join('<div class="my-4"></div>');
+                } else {
+                    problemInfo = '无问题';
+                    problemDimensions = '-';
+                    resultHtml = `<span class="status-pass">✅通过</span>`;
+                    rowClass = 'bg-green-50';
+                }
+
+                content += `
+                    <tr class="chapter-row border-b ${rowClass}" ${hasProblems ? `data-chapter-id="${chapter.problems.join('-')}"` : ''}>
+                        <td class="px-6 py-4 font-semibold">${chapter.name}</td>
+                        <td class="px-6 py-4">${problemInfo}</td>
+                        <td class="px-6 py-4">${hasProblems ? getSeverityTagHtml(mainProblem.severity) : '-'}</td>
+                        <td class="px-6 py-4">${problemDimensions}</td>
+                        <td class="px-6 py-4">${resultHtml}</td>
+                        <td class="px-6 py-4 no-print">${hasProblems ? `<button class="toggle-button view-details-btn"><span>查看详情</span> <svg class="w-4 h-4 arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg></button>` : ''}</td>
+                    </tr>
+                `;
+                if(hasProblems) {
+                    content += `<tr id="details-${chapter.problems.join('-')}" class="detail-row hidden"><td colspan="6" class="p-4">${detailContent}</td></tr>`;
+                }
+            });
+            tableBody.innerHTML = content;
+        }
+
+        function renderSuggestionsTable() {
+            const suggestionsBody = document.getElementById('suggestions-table-body');
+            let content = '';
+            const problemOrder = ["P001", "P007", "P003", "P005", "P002", "P004", "P008", "P009", "P006", "P010"];
+            problemOrder.forEach(pId => {
+                 const problem = reportData.problems[pId];
+                 if(problem) {
+                    content += `
+                        <tr class="border-b">
+                            <td class="px-4 py-4 align-top"><input type="checkbox" class="suggestion-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" data-suggestion-id="${pId}"></td>
+                            <td class="px-4 py-4">
+                                <p class="font-semibold">${getSeverityTagHtml(problem.severity)} ${problem.title} <a href="#problem-${pId}" class="text-blue-600 hover:underline problem-link">[${pId}]</a></p>
+                                <p class="text-xs text-gray-500 mt-1">${problem.details}</p>
+                            </td>
+                            <td class="px-4 py-4 text-xs whitespace-pre-wrap">${problem.solution}</td>
+                        </tr>
+                    `;
+                 }
+            });
+            suggestionsBody.innerHTML = content;
+        }
+
+
+        // --- MAIN EXECUTION & EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', function() {
+            renderChapterTable();
+            renderSuggestionsTable();
+
+            document.body.addEventListener('click', function(event) {
+                // Global handler for all problem links
+                const problemLink = event.target.closest('a.problem-link, a[href^="#problem-"]');
+                if (problemLink) {
+                    event.preventDefault();
+                    const problemId = problemLink.getAttribute('href').substring(1);
+                    
+                    // Find the chapter row that contains this problem
+                    const chapterRow = Array.from(document.querySelectorAll('.chapter-row[data-chapter-id]')).find(row => row.dataset.chapterId.includes(problemId.replace('problem-','')));
+                    
+                    if (chapterRow) {
+                        const detailRow = document.getElementById(`details-${chapterRow.dataset.chapterId}`);
+                        if (detailRow && detailRow.classList.contains('hidden')) {
+                            chapterRow.click(); // Use existing logic to expand
+                        }
+
+                        // Scroll to the problem card after a short delay
+                        setTimeout(() => {
+                            const problemCard = document.getElementById(problemId);
+                            if (problemCard) {
+                                problemCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                problemCard.classList.add('highlight');
+                                setTimeout(() => problemCard.classList.remove('highlight'), 2500);
+                            }
+                        }, 150);
+                    }
+                }
+
+                // Handler for expanding/collapsing rows
+                const chapterRow = event.target.closest('.chapter-row[data-chapter-id]');
+                if (chapterRow && !event.target.closest('a')) {
+                     const chapterId = chapterRow.dataset.chapterId;
+                    const detailRow = document.getElementById(`details-${chapterId}`);
+                    if (!detailRow) return;
+
+                    const button = chapterRow.querySelector('.view-details-btn');
+                    const isExpanded = !detailRow.classList.contains('hidden');
+
+                    detailRow.classList.toggle('hidden');
+                    if (button) {
+                        button.classList.toggle('expanded', !isExpanded);
+                        button.querySelector('span').textContent = isExpanded ? '查看详情' : '收起详情';
+                    }
+                }
+            });
+
+            const selectAllCheckbox = document.getElementById('select-all-suggestions');
+            const suggestionCheckboxes = document.querySelectorAll('.suggestion-checkbox');
+            const adoptButton = document.getElementById('adopt-button');
+            const copyButton = document.getElementById('copy-button');
+            const previewButton = document.getElementById('preview-button');
+            const actionFeedback = document.getElementById('action-feedback');
+            
+            let originalStates = {};
+
+            function showFeedback(message, type = 'success') {
+                actionFeedback.textContent = message;
+                actionFeedback.classList.remove('hidden', 'text-green-600', 'text-red-600', 'text-indigo-600');
+                
+                if (type === 'error') actionFeedback.classList.add('text-red-600');
+                else if (type === 'info') actionFeedback.classList.add('text-indigo-600');
+                else actionFeedback.classList.add('text-green-600');
+
+                setTimeout(() => actionFeedback.classList.add('hidden'), 5000);
+            }
+
+            selectAllCheckbox.addEventListener('change', () => {
+                suggestionCheckboxes.forEach(cb => { cb.checked = selectAllCheckbox.checked; });
+            });
+            
+            adoptButton.addEventListener('click', () => {
+                const selected = Array.from(suggestionCheckboxes).filter(cb => cb.checked).map(cb => cb.dataset.suggestionId);
+                if (selected.length > 0) showFeedback(`已为 ${selected.join(', ')} 生成建议卡片!`);
+                else showFeedback('请至少选择一条建议。', 'error');
+            });
+
+            copyButton.addEventListener('click', () => {
+                const selected = Array.from(suggestionCheckboxes).filter(cb => cb.checked);
+                if (selected.length === 0) {
+                    showFeedback('请至少选择一条建议进行拷贝。', 'error');
+                    return;
+                }
+                let text = "采纳以下PRD评审建议：\n\n";
+                selected.forEach(cb => {
+                    const row = cb.closest('tr');
+                    text += `---\n问题: ${row.cells[1].querySelector('p.font-semibold').innerText}\n详情: ${row.cells[1].querySelector('p.text-xs').innerText}\n改进方案: ${row.cells[2].innerText}\n`;
+                });
+                navigator.clipboard.writeText(text).then(() => showFeedback('建议内容已成功拷贝到剪贴板!'), () => showFeedback('拷贝失败!', 'error'));
+            });
+
+            previewButton.addEventListener('click', () => {
+                const isPreviewing = document.body.classList.contains('preview-mode');
+                const selected = Array.from(suggestionCheckboxes).filter(cb => cb.checked).map(cb => cb.dataset.suggestionId);
+
+                if (!isPreviewing) {
+                    if (selected.length === 0) {
+                        showFeedback('请选择要预览采纳效果的建议。', 'error');
+                        return;
+                    }
+                    originalStates = {};
+                    selected.forEach(id => {
+                        const row = document.querySelector(`.chapter-row[data-chapter-id*="${id}"]`);
+                        if(row) {
+                            originalStates[id] = { html: row.innerHTML, className: row.className };
+                            row.classList.add('preview-highlight');
+                            row.cells[2].innerHTML = `<span class="px-2 py-1 text-xs font-medium rounded-full severity-green">✅已采纳</span>`;
+                            row.cells[4].innerHTML = `<span class="status-pass">✅通过</span>`;
+                        }
+                    });
+                    document.body.classList.add('preview-mode');
+                    previewButton.textContent = '恢复预览前状态';
+                    previewButton.classList.replace('bg-indigo-600', 'bg-red-600');
+                    previewButton.classList.replace('hover:bg-indigo-700', 'hover:bg-red-700');
+                    showFeedback('预览模式已开启。高亮部分为采纳建议后的模拟效果。', 'info');
+                } else {
+                    Object.keys(originalStates).forEach(id => {
+                        const row = document.querySelector(`.chapter-row[data-chapter-id*="${id}"]`);
+                        if(row) {
+                            row.innerHTML = originalStates[id].html;
+                            row.className = originalStates[id].className;
+                        }
+                    });
+                    document.body.classList.remove('preview-mode');
+                    previewButton.textContent = '预览采纳效果';
+                    previewButton.classList.replace('bg-red-600', 'bg-indigo-600');
+                    previewButton.classList.replace('hover:bg-red-700', 'hover:bg-indigo-700');
+                    actionFeedback.classList.add('hidden');
+                    originalStates = {};
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
