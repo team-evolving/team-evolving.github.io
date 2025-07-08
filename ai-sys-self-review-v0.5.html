@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliReq 自我学习与优化中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: #f4f7f9;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+            border-left: 4px solid #2563eb;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+            transition: all 0.3s ease;
+        }
+        .card:hover:not(.scope-option) {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Modal styles */
+        .modal { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease; }
+        
+        /* Table interaction */
+        .interactive-table tbody tr:hover { background-color: #f9fafb; }
+        .highlight {
+            animation: highlight-animation 3s ease-out;
+        }
+        @keyframes highlight-animation {
+            0% { background-color: #dbeafe; }
+            100% { background-color: transparent; }
+        }
+        
+        /* Batch action footer */
+        #batch-action-footer { transition: transform 0.3s ease-in-out; }
+        
+        /* Loading animation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1.5s linear infinite;
+        }
+        .btn-loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            width: 16px;
+            height: 16px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Data refresh animation */
+        .data-refreshing {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        #collapsible-summary-content {
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            max-height: 500px; /* Adjust as needed */
+            overflow: hidden;
+        }
+        #collapsible-summary-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0 !important;
+        }
+    </style>
+</head>
+<body class="text-gray-800 pb-24">
+
+    <div class="max-w-screen-2xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">IntelliReq 自我学习与优化中心</h1>
+                    <p class="text-md text-gray-500 mt-1">通过分析评估过程与结果，持续提升AI评审的准确性与价值。</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Section 0: Self-check Scope Setting (Updated Design) -->
+        <section id="scope-setting" class="mb-8">
+            <div class="card p-6">
+                 <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+                            自检范围设定
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-1">请选择一个范围以启动AI自检，分析该范围内的规则现状。</p>
+                    </div>
+                    <button id="start-check-btn" class="bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]">
+                        <span class="btn-text">开始AI自检</span>
+                        <div class="btn-loader rounded-full hidden"></div>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">按时间段</label>
+                        <input id="datepicker" class="w-full p-2 border rounded-md" placeholder="请选择日期范围...">
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">按选择的PRD</label>
+                        <button id="open-prd-modal-btn" class="w-full text-left p-2 border rounded-md bg-white hover:bg-gray-50 flex justify-between items-center">
+                           <span id="prd-selection-btn-text" class="text-gray-500">手动搜索并选择一个或多个PRD</span>
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">按评审人</label>
+                        <select id="author-select" class="w-full p-2 border rounded-md bg-white"><option value="all">所有评审人</option><option value="张三">张三</option><option value="李四">李四</option><option value="王五">王五</option><option value="赵六">赵六</option></select>
+                    </div>
+                </div>
+
+                <div id="current-scope-summary" class="mt-6 p-4 bg-gray-50 rounded-lg hidden">
+                    <div class="flex justify-between items-center cursor-pointer" id="toggle-summary-btn">
+                        <h3 class="font-semibold text-gray-800">当前设定的自检范围</h3>
+                        <svg id="toggle-summary-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 transition-transform transform" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div id="collapsible-summary-content" class="mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-2 text-sm text-gray-600 mb-4">
+                            <p><strong>时间范围：</strong> <span id="summary-time"></span></p>
+                            <p><strong>选择的PRD：</strong> <span id="summary-prd"></span></p>
+                            <p><strong>评审人：</strong> <span id="summary-author"></span></p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t grid grid-cols-3 text-center">
+                            <div>
+                                <p class="text-2xl font-bold text-blue-600" id="summary-prd-count">0</p>
+                                <p class="text-xs text-gray-500">预计PRD数量</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-blue-600" id="summary-issue-count">0</p>
+                                <p class="text-xs text-gray-500">AI评审问题数量</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-bold text-blue-600" id="summary-time-estimate">0</p>
+                                <p class="text-xs text-gray-500">预计用时(分钟)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Overall Performance Dashboard -->
+        <section id="dashboard" class="mb-8">
+            <h2 class="section-title">评审任务整体表现</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card p-6 flex flex-col justify-between"><h3 class="font-semibold text-lg text-gray-700 mb-2">问题采纳率</h3><div class="text-center my-4"><p class="text-5xl font-bold text-blue-600">70%</p><p class="text-gray-500 mt-1">采纳: 7 / 发现: 10</p></div><div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-blue-600 h-2.5 rounded-full" style="width: 70%"></div></div></div>
+                <div class="card p-6 flex flex-col justify-between"><h3 class="font-semibold text-lg text-gray-700 mb-2">AI规则自检问题</h3><div class="text-center my-auto space-y-2"><div><span class="text-5xl font-bold text-red-500">5</span><span class="text-xl text-gray-500" id="total-rules-count">/ 32</span></div><p class="text-gray-500">有问题规则 / 总规则数</p></div><p class="text-xs text-center text-gray-400 invisible">Placeholder to keep height</p></div>
+                <div class="card p-6"><h3 class="font-semibold text-lg text-gray-700 mb-3">被拒绝的问题分析</h3><div class="space-y-3 text-sm"><div class="flex justify-between items-center"><span>误报 (False Positive)</span><span class="font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded">2 个</span></div><div class="flex justify-between items-center"><span>建议不佳 (Poor Suggestion)</span><span class="font-bold bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">1 个</span></div><div class="flex justify-between items-center"><span>重复问题 (Duplicate)</span><span class="font-bold bg-gray-100 text-gray-700 px-2 py-0.5 rounded">0 个</span></div></div></div>
+                <div class="card p-6 bg-blue-50 border-l-4 border-blue-500"><h3 class="font-semibold text-lg text-gray-700 mb-3">待处理优化项</h3><div class="space-y-3 text-sm"><div class="flex justify-between items-center"><span class="text-gray-600">待优化规则</span><span class="font-bold text-lg text-blue-700">4 条</span></div><div class="flex justify-between items-center"><span class="text-gray-600">新规则建议</span><span class="font-bold text-lg text-blue-700">1 条</span></div><div class="flex justify-between items-center"><span class="text-gray-600">待删除规则</span><span class="font-bold text-lg text-blue-700">0 条</span></div></div></div>
+            </div>
+        </section>
+
+        <!-- Section 2: Rule Performance Analysis -->
+        <section id="rule-performance" class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="section-title !mb-0">规则库表现分析</h2>
+                <button id="new-rule-btn" class="bg-white border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-gray-50 transition-colors duration-300 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" /></svg>
+                    建议新规则
+                </button>
+            </div>
+            <div class="card p-4">
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <div class="relative flex-grow">
+                        <input type="search" id="rule-search-input" class="w-full pl-10 pr-4 py-2 border rounded-lg" placeholder="按规则名称或ID搜索...">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                        </div>
+                    </div>
+                    <select id="rule-status-filter" class="border rounded-lg px-4 py-2">
+                        <option value="all">所有状态</option>
+                        <option value="正常">正常</option>
+                        <option value="建议修改">建议修改</option>
+                        <option value="建议新增">建议新增</option>
+                        <option value="建议删除">建议删除</option>
+                    </select>
+                    <select id="rule-issue-sort" class="border rounded-lg px-4 py-2">
+                        <option value="default">默认排序</option>
+                        <option value="desc">按问题数降序</option>
+                        <option value="asc">按问题数升序</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-600 interactive-table">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-4 py-3">规则ID</th>
+                                <th scope="col" class="px-6 py-3 min-w-[250px]">规则名称</th>
+                                <th scope="col" class="px-6 py-3 text-center">执行: PRD数/问题数/采纳数</th>
+                                <th scope="col" class="px-6 py-3 min-w-[120px] text-center">健康度</th>
+                                <th scope="col" class="px-4 py-3 text-center">状态</th>
+                                <th scope="col" class="px-6 py-3 min-w-[150px]">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rule-table-body">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Rejected Issues Analysis (Updated) -->
+        <section id="feedback-details" class="mb-8">
+            <h2 class="section-title">被拒绝问题分析</h2>
+            <div class="card overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600 interactive-table">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">问题ID</th>
+                            <th scope="col" class="px-6 py-3">来源规则</th>
+                            <th scope="col" class="px-6 py-3">问题描述</th>
+                            <th scope="col" class="px-6 py-3">拒绝类型</th>
+                            <th scope="col" class="px-6 py-3">拒绝理由 (AI分析)</th>
+                            <th scope="col" class="px-6 py-3">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rejected-issues-body">
+                        <!-- JS will populate this -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Rule Optimization & Release Management (Updated) -->
+        <section id="rule-release-management" class="mb-8">
+            <h2 class="section-title">建议与规则发布</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="card p-5 border-l-4 border-blue-500"><h3 class="text-gray-500">新增规则</h3><p class="text-3xl font-bold text-gray-800">1</p></div>
+                <div class="card p-5 border-l-4 border-yellow-500"><h3 class="text-gray-500">优化规则</h3><p class="text-3xl font-bold text-gray-800" id="count-optimized">4</p></div>
+                <div class="card p-5 border-l-4 border-red-500"><h3 class="text-gray-500">待删除规则</h3><p class="text-3xl font-bold text-gray-800" id="count-to-delete">0</p></div>
+                <div class="card p-5 border-l-4 border-green-500"><h3 class="text-gray-500">已发布</h3><p class="text-3xl font-bold text-gray-800">27</p></div>
+            </div>
+            <div class="card overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600 interactive-table" id="release-table">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3"><input type="checkbox" id="select-all-checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"></th>
+                            <th scope="col" class="px-6 py-3">规则ID</th>
+                            <th scope="col" class="px-6 py-3">规则名称</th>
+                            <th scope="col" class="px-6 py-3 min-w-[100px]">变更类型</th>
+                            <th scope="col" class="px-6 py-3">申请来源</th>
+                            <th scope="col" class="px-6 py-3 min-w-[250px]">变更说明</th>
+                            <th scope="col" class="px-6 py-3 min-w-[100px]">状态</th>
+                            <th scope="col" class="px-6 py-3">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="release-table-body">
+                        <!-- JS will populate this -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Sticky Footer for Batch Actions -->
+    <div id="batch-action-footer" class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] p-4 transform translate-y-full hidden">
+        <div class="max-w-screen-2xl mx-auto flex justify-between items-center">
+            <div>
+                <span class="font-semibold">已选择 <span id="selected-count">0</span> 个规则</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="batch-ai-test-btn" class="bg-gray-100 text-gray-700 font-semibold px-5 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-300 flex items-center gap-2">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                    规则AI测试
+                </button>
+                <button id="batch-simulate-btn" class="bg-blue-100 text-blue-700 font-semibold px-5 py-2 rounded-lg hover:bg-blue-200 transition-colors duration-300 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L8.21 5.15c-.5.42-1.15.64-1.8.64H4.9c-1.61 0-2.58 1.88-1.35 3.11l1.48 1.48c.36.36.53.87.44 1.37l-.4 2.38c-.28 1.65 1.25 2.94 2.79 2.2l2.12-1.04c.56-.28 1.2-.28 1.76 0l2.12 1.04c1.54.74 3.07-.55 2.79-2.2l-.4-2.38c-.09-.5.08-1.01.44-1.37l1.48-1.48c1.23-1.23.26-3.11-1.35-3.11h-1.51c-.65 0-1.3-.22-1.8-.64l-.3-1.98zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+                    批量模拟评估
+                </button>
+                <button class="bg-green-600 text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                    发布选中项
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Edit Rule Modal -->
+    <div id="edit-rule-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0" onclick="closeModal('edit-rule-modal')">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-6xl transform -translate-y-10" onclick="event.stopPropagation()">
+            <div class="p-5 border-b flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900" id="modal-title">编辑规则</h3>
+                    <p class="text-sm text-gray-500 mt-1" id="modal-subtitle">在这里查看、修改和评估规则的详细信息。</p>
+                </div>
+                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeModal('edit-rule-modal')">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 max-h-[75vh] overflow-y-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left Column: Main editable fields -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="bg-gray-50 rounded-lg p-3 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                            <label for="modal-rule-name" class="block text-xs font-medium text-gray-500">规则名称</label>
+                            <input type="text" id="modal-rule-name" class="w-full bg-transparent border-0 p-1 text-base font-semibold text-gray-800 focus:ring-0 focus:outline-none">
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                            <label for="modal-rule-chapter" class="block text-xs font-medium text-gray-500">针对章节</label>
+                            <input type="text" id="modal-rule-chapter" class="w-full bg-transparent border-0 p-1 text-sm text-gray-800 focus:ring-0 focus:outline-none">
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                            <label for="modal-rule-description" class="block text-xs font-medium text-gray-500">规则描述</label>
+                            <textarea id="modal-rule-description" rows="4" class="w-full bg-transparent border-0 p-1 text-sm text-gray-800 focus:ring-0 focus:outline-none resize-y"></textarea>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 focus-within:ring-2 focus-within:ring-blue-500 transition">
+                            <label for="modal-rule-interpretation" class="block text-xs font-medium text-gray-500">详细释义与重要性</label>
+                            <textarea id="modal-rule-interpretation" rows="5" class="w-full bg-transparent border-0 p-1 text-sm text-gray-800 focus:ring-0 focus:outline-none resize-y"></textarea>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 has-[:focus-within]:ring-2 has-[:focus-within]:ring-blue-500 transition">
+                            <label for="modal-rule-checkpoints" class="block text-xs font-medium text-gray-500">核心检查点 (Key Checkpoints)</label>
+                            <textarea id="modal-rule-checkpoints" rows="6" class="w-full bg-transparent border-0 p-1 text-sm text-gray-800 focus:ring-0 focus:outline-none resize-y font-mono"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Metadata and secondary actions -->
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">元数据</h4>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">规则编号</span>
+                                    <span id="modal-rule-id" class="font-mono text-gray-700 bg-gray-200 px-2 py-0.5 rounded"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">评审维度</span>
+                                    <select id="modal-rule-dimension" class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-1"></select>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">权重系数</span>
+                                    <input type="number" step="0.1" id="modal-rule-weight" class="w-20 text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">状态与版本</h4>
+                             <div class="space-y-3 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">当前状态</span>
+                                    <span id="modal-rule-status" class="px-2 py-1 font-semibold text-xs leading-tight rounded-full"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">版本</span>
+                                    <select id="modal-rule-version" class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-1"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="modal-test-actions" class="bg-gray-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">测试与评估</h4>
+                             <div class="space-y-3">
+                                <button type="button" id="rule-test-btn" class="w-full bg-white border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                                    <span class="btn-text">运行规则测试</span>
+                                    <div class="btn-loader rounded-full hidden"></div>
+                                </button>
+                                <button type="button" id="ai-reevaluate-btn" class="w-full bg-blue-100 text-blue-700 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors duration-300 flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L8.21 5.15c-.5.42-1.15.64-1.8.64H4.9c-1.61 0-2.58 1.88-1.35 3.11l1.48 1.48c.36.36.53.87.44 1.37l-.4 2.38c-.28 1.65 1.25 2.94 2.79 2.2l2.12-1.04c.56-.28 1.2-.28 1.76 0l2.12 1.04c1.54.74 3.07-.55 2.79-2.2l-.4-2.38c-.09-.5.08-1.01.44-1.37l1.48-1.48c1.23-1.23.26-3.11-1.35-3.11h-1.51c-.65 0-1.3-.22-1.8-.64l-.3-1.98zM10 13a3 3 0 100-6 3 3 0 000 6z" /></svg>
+                                    <span class="btn-text">AI 重新评估</span>
+                                    <div class="btn-loader rounded-full hidden"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="modal-footer-actions" class="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+                <button type="button" id="delete-rule-btn" class="text-red-600 hover:text-red-800 text-sm font-semibold flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                    删除
+                </button>
+                <div class="flex rounded-md shadow-sm">
+                    <button type="button" id="save-rule-btn" class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                        保存
+                    </button>
+                    <div class="relative -ml-px block">
+                        <button type="button" id="save-options-toggle" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div id="save-options-menu" class="origin-top-right absolute right-0 bottom-12 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
+                            <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="save-options-toggle">
+                                <a href="#" id="save-as-new-btn" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">另存为新版本</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Other Modals -->
+    <div id="new-rule-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0" onclick="closeModal('new-rule-modal')">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-2xl transform -translate-y-10" onclick="event.stopPropagation()">
+            <div class="p-6 border-b"><h3 class="text-xl font-semibold">建议新规则</h3><p class="text-sm text-gray-500">帮助IntelliReq发现更多潜在问题</p></div>
+            <div class="p-6"><form><div class="mb-4"><label for="new-rule-name" class="block text-sm font-medium text-gray-700 mb-1">规则名称</label><input type="text" id="new-rule-name" class="block w-full text-sm border-gray-300 rounded-md shadow-sm" placeholder="例如：HMI交互状态反馈完整性检查"></div><div class="mb-4"><label for="new-rule-dim" class="block text-sm font-medium text-gray-700 mb-1">归属维度</label><select id="new-rule-dim" class="block w-full text-sm border-gray-300 rounded-md shadow-sm"><option>需求完整性</option><option>需求一致性</option><option>需求可测试性</option><option>需求可追溯性</option><option>需求明确性</option></select></div><div><label for="new-rule-desc" class="block text-sm font-medium text-gray-700 mb-1">规则描述和检测逻辑</label><textarea id="new-rule-desc" rows="5" class="block w-full text-sm border-gray-300 rounded-md shadow-sm" placeholder="请详细描述您希望AI检查的内容..."></textarea></div></form></div>
+            <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3"><button type="button" class="bg-white border border-gray-300 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-50" onclick="closeModal('new-rule-modal')">取消</button><button type="button" id="add-new-rule-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-blue-700">提交建议</button></div>
+        </div>
+    </div>
+    <div id="simulation-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0" onclick="closeModal('simulation-modal')">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-lg transform -translate-y-10" onclick="event.stopPropagation()">
+            <div class="p-6 border-b"><h3 class="text-xl font-semibold">批量模拟评估</h3><p class="text-sm text-gray-500">评估选中的规则变更对原始PRD的影响</p></div>
+            <div id="simulation-content" class="p-8"><div id="sim-loading" class="text-center"><div class="loader mx-auto"></div><p class="mt-4 text-gray-600">正在进行模拟评估...</p></div><div id="sim-results" class="hidden"><h4 class="text-lg font-semibold text-center mb-4">模拟评估完成</h4></div></div>
+            <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-3"><button type="button" class="bg-white border border-gray-300 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-50" onclick="closeModal('simulation-modal')">关闭</button></div>
+        </div>
+    </div>
+    
+    <!-- New PRD Selection Modal -->
+    <div id="prd-selection-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0" onclick="closeModal('prd-selection-modal')">
+        <div class="modal-content bg-white rounded-lg shadow-xl w-full max-w-3xl transform -translate-y-10" onclick="event.stopPropagation()">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="text-xl font-semibold text-gray-900">选择PRD文档</h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeModal('prd-selection-modal')">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-4 mb-4">
+                    <input type="search" id="prd-modal-search" class="flex-grow p-2 border rounded-md" placeholder="搜索PRD标题、编号或关键词...">
+                    <select id="prd-modal-project-filter" class="p-2 border rounded-md bg-white"><option>所有项目</option></select>
+                    <select id="prd-modal-status-filter" class="p-2 border rounded-md bg-white"><option>所有状态</option><option>已发布</option><option>审核中</option></select>
+                </div>
+                <div class="border rounded-lg overflow-hidden">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 border-b">
+                         <label class="flex items-center">
+                            <input type="checkbox" id="prd-modal-select-all" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mr-3">
+                            全选
+                        </label>
+                        <span id="prd-modal-selected-count" class="text-sm font-semibold text-gray-700">已选择: 0个PRD</span>
+                    </div>
+                    <div id="prd-modal-list" class="max-h-72 overflow-y-auto">
+                        <!-- PRD list will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t flex justify-end items-center space-x-3">
+                <button type="button" class="bg-white border border-gray-300 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-50" onclick="closeModal('prd-selection-modal')">取消</button>
+                <button type="button" id="confirm-prd-selection-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-blue-700">确认选择</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- DATA ---
+        let allRulesData = [
+            {"ID":"R1.1","评审维度":"需求完整性","规则名称":"PRD文档结构完整性检查","问题分类":"结构缺失","规则描述":"检查PRD文档是否包含产品概述、功能需求、非功能需求、接口设计、验收标准等基本章节。","权重":1,"针对章节":"全文","详细释义与重要性":"这是确保PRD作为一份合格技术文档的基础。缺少任何一个核心章节都可能导致下游团队（开发、测试）无法准确理解产品全貌，增加沟通成本和返工风险。","核心检查点 (Key Checkpoints)实例化":"1. 检查一级目录是否包含“产品概述”、“功能需求”、“非功能需求”等。\n2. 检查“功能需求”章节下是否有具体的UseCase或功能点描述。\n3. 检查文档末尾是否有“验收标准”或“测试建议”章节。"},
+            {"ID":"R1.2","评审维度":"需求完整性","规则名称":"跨域文档关联完整性检查","问题分类":"关联缺失","规则描述":"检查PRD中是否明确引用了相关的FRD、ID、HMI、测试等文档，并提供了有效的链接或标识。","权重":1,"针对章节":"1. 产品概述, 2. 功能需求","详细释义与重要性":"现代汽车功能开发是多团队协作的结果。PRD必须清晰地指明其依赖和被依赖的文档，形成完整的文档链，便于追溯和信息同步。","核心检查点 (Key Checkpoints)实例化":"1. 搜索文档中是否出现“FRD”、“ID文档”、“HMI规范”等关键词。\n2. 检查引用的文档名称后是否紧跟版本号或链接。\n3. 如果提到“详见《XXX》”，检查该文档是否真实存在于文档库中。"},
+            {"ID":"R1.3","评审维度":"需求完整性","规则名称":"变更日志完整性检查","问题分类":"流程缺失","规则描述":"检查PRD是否包含清晰的变更历史记录（Version History），每次变更都应有日期、作者、变更内容摘要。","权重":0.8,"针对章节":"0. 文档信息","详细释义与重要性":"PRD是动态迭代的，清晰的变更历史是追踪需求演进、理解决策过程的关键，尤其是在出现问题回溯时，能快速定位变更点和原因。","核心检查点 (Key Checkpoints)实例化":"1. 检查文档开头或结尾是否有“Version History”或“变更记录”表格。\n2. 检查表格是否包含“日期”、“版本号”、“作者”、“变更描述”这几列。\n3. 检查最近一次的变更记录日期是否合理。"},
+            {"ID":"R1.4","评审维度":"需求完整性","规则名称":"功能流程图完整性检查","问题分类":"内容缺失","规则描述":"检查核心功能是否都配有业务流程图（Flowchart），清晰展示用户、系统、外部模块的交互流程。","权重":0.8,"针对章节":"3. 功能需求","详细释义与重要性":"“一图胜千言”。流程图能最直观地表达复杂的业务逻辑和交互顺序，帮助所有相关人员快速对齐理解，是发现逻辑漏洞的有效手段。","核心检查点 (Key Checkpoints)实例化":"1. 针对每个核心功能点（如“用户登录”、“OTA升级”），检查其小节内是否有流程图。\n2. 检查流程图是否使用了标准的UML活动图或基本流程图符号。\n3. 检查流程图是否包含了异常或分支流程。"},
+            {"ID":"R1.5","评审维度":"需求完整性","规则名称":"状态流转设计完整性检查","问题分类":"内容缺失","规则描述":"对于有明确状态的功能（如登录、任务执行），检查是否提供了状态机图（State Machine Diagram），并描述了所有状态及转换条件。","权重":1,"针对章节":"3. 功能需求","详细释义与重要性":"对于有复杂状态的功能，状态机图是必不可少的。它能穷举所有可能的状态和触发条件，确保逻辑的严密性，避免出现无法处理的中间状态或死锁。","核心检查点 (Key Checkpoints)实例化":"1. 搜索文档中是否存在“状态机”、“State Machine”等关键词。\n2. 检查状态机图是否清晰地标明了“初始状态”、“结束状态”以及所有中间状态。\n3. 检查每个状态转换的箭头（Transition）上是否标注了触发事件（Trigger）和执行动作（Action）。"},
+            {"ID":"R1.6","评审维度":"需求完整性","规则名称":"产品架构图内容检查","问题分类":"内容缺失","规则描述":"检查是否包含产品架构图或系统架构图，图中应清晰标明本功能模块与其它模块、ECU、云端的交互关系。","权重":1,"针对章节":"1. 产品概述","详细释义与重要性":"架构图定义了功能的边界和上下文。它帮助开发人员理解本功能在整个系统中的位置，以及需要与哪些外部模块进行数据交互，是进行技术方案设计的基础。","核心检查点 (Key Checkpoints)实例化":"1. 检查“产品概述”或类似章节中是否存在架构图。\n2. 检查图中是否用方框清晰表示了本功能模块、关联的ECU、云端服务等。\n3. 检查模块间的连线是否清晰地标明了交互的数据流向或接口名称。"},
+            {"ID":"R1.7","评审维度":"需求完整性","规则名称":"功能列表与UseCase对应关系检查","问题分类":"内容缺失","规则描述":"检查功能列表（Feature List）中的每一项功能，是否都能在后续章节中找到对应的详细功能描述或UseCase。","权重":1,"针对章节":"2. 功能列表, 3. 功能需求","详细释义与重要性":"确保PRD的概览和详细描述是一致的。功能列表中承诺的功能，必须在后续有详细的阐述，否则该功能点就是“空头支票”。","核心检查点 (Key Checkpoints)实例化":"1. 提取功能列表中的所有功能点名称。\n2. 逐一在“功能需求”章节中搜索，检查是否存在对应的标题或小节。\n3. 对比两边的数量和名称，确保一一对应。"},
+            {"ID":"R1.8","评审维度":"需求完整性","规则名称":"功能UseCase完整性检查","问题分类":"内容缺失","规则描述":"检查每个UseCase是否都包含了基本元素：简要描述、参与者、前置/后置条件、基本流程、异常流程。","权重":1,"针对章节":"3. 功能需求","详细释义与重要性":"结构化的UseCase是定义功能需求的标准方式。完整的UseCase元素能确保需求的考虑是全面的，特别是异常流程，往往是软件bug的高发区。","核心检查点 (Key Checkpoints)实例化":"1. 随机抽取2-3个UseCase。\n2. 检查其内容是否包含了“前置条件”、“基本流程”、“异常流程”等标准字段。\n3. 检查“异常流程”部分是否考虑了至少一种非理想情况（如网络中断、用户误操作）。"},
+            {"ID":"R1.9","评审维度":"需求完整性","规则名称":"指标要求完整性检查","问题分类":"内容缺失","规则描述":"检查非功能需求部分，是否定义了关键的性能指标（如响应时间、并发用户数）、可靠性指标（MTBF）、数据指标（埋点）等。","权重":1,"针对章节":"4. 非功能需求","详细释义与重要性":"功能能用和功能好用是两回事。非功能性需求定义了“好用”的标准，是衡量产品质量和用户体验的关键，也是测试团队制定专项测试的依据。","核心检查点 (Key Checkpoints)实例化":"1. 检查“非功能需求”章节。\n2. 搜索是否存在“性能”、“可靠性”、“安全性”、“可维护性”等小节。\n3. 检查性能指标是否量化，例如“页面打开时间应小于2秒”，而非“页面打开要快”。"},
+            {"ID":"R1.10","评审维度":"需求完整性","规则名称":"法规标准完整性检查","问题分类":"合规缺失","规则描述":"检查PRD是否识别并列出了所涉及的国家标准（GB）、行业标准（如ISO26262）或企业内部规范，并分析了其对需求的影响。","权重":1.2,"针对章节":"5. 需求合规性","详细释义与重要性":"汽车产品必须满足严格的法规要求。在需求阶段就识别出相关的法规标准，是确保产品能够合法上市销售的前提，也是功能安全、网络安全等设计的根本输入。","核心检查点 (Key Checkpoints)实例化":"1. 检查文档中是否有“法规要求”或“合规性分析”章节。\n2. 搜索是否存在“GB”、“ISO26262”、“ASPICE”等关键词。\n3. 检查是否不仅仅是罗列法规名称，而是分析了法规对具体功能点的影响。"},
+            {"ID":"R1.11","评审维度":"需求完整性","规则名称":"配置定义完整性检查","问题分类":"内容缺失","规则描述":"检查是否包含功能配置表，明确哪些功能是标配、选配或可在线配置（EBOC）或可标定（CCP）。","权重":0.8,"针对章节":"2. 功能列表","详细释义与重要性":"对于面向不同车型、不同市场的复杂产品，配置管理至关重要。清晰的配置定义能避免在生产和销售环节出现混乱。","核心检查点 (Key Checkpoints)实例化":"1. 检查功能列表或独立章节中，是否存在功能配置表。\n2. 检查表格中是否明确标明了每个功能的配置属性（如标配/选配）。\n3. 检查是否存在“可标定项”或“在线配置项”的说明。"},
+            {"ID":"R1.12","评审维度":"需求完整性","规则名称":"智能座舱功能完整性检查","问题分类":"内容缺失","规则描述":"针对智能座舱功能，检查是否包含HMI交互说明、多模态交互（语音、手势）的详细定义、场景引擎或原子化服务的设计。","权重":1,"针对章节":"3. 功能需求","详细释义与重要性":"智能座舱的需求定义有其特殊性，需要超越传统的功能描述，详细定义HMI、多模态交互和场景化服务，这些是决定座舱产品体验的核心。","核心检查点 (Key Checkpoints)实例化":"1. 如果是座舱相关PRD，检查是否包含“HMI设计”或“交互说明”章节。\n2. 搜索“语音控制”、“手势识别”等关键词，检查是否有详细的指令和反馈定义。\n3. 检查是否有“场景引擎”或“服务找人”相关的描述。"},
+            {"ID":"R2.1","评审维度":"需求一致性","规则名称":"术语使用一致性检查","问题分类":"表达不一致","规则描述":"检查文档全文对于同一专业术语、功能模块名称、ECU名称的使用是否保持一致，并检查是否在术语表中进行了定义。","权重":1,"针对章节":"全文","详细释义与重要性":"不一致的术语会造成巨大的沟通障碍和误解。确保术语统一是保障多团队高效协作，以及PRD本身专业性的基本要求。","核心检查点 (Key Checkpoints)实例化":"1. 提取文档中的核心术语（如“ACC”、“DMS”）。\n2. 检查该术语在全文中的写法是否完全一致（大小写、全称/简称）。\n3. 检查文档开头是否有“术语表”或“名词解释”，并检查核心术语是否被定义。"},
+            {"ID":"R2.2","评审维度":"需求一致性","规则名称":"功能描述一致性检查","问题分类":"逻辑不一致","规则描述":"检查不同章节、图表、文字之间对同一功能的描述是否存在矛盾或不一致的地方。","权重":1.2,"针对章节":"全文","详细释义与重要性":"这是最容易出错的地方。例如，概述章节说功能A依赖模块B，但架构图中却画成了依赖模块C。这种不一致会导致严重的设计和开发错误。","核心检查点 (Key Checkpoints)实例化":"1. 对比“产品概述”中的功能简介和“功能需求”中的详细描述，看是否存在矛盾。\n2. 检查流程图中的步骤顺序，是否与文字描述的步骤一致。\n3. 检查表格中的参数值，是否与正文描述中的值一致。"},
+            {"ID":"R2.3","评审维度":"需求一致性","规则名称":"技术架构一致性检查","问题分类":"逻辑不一致","规则描述":"检查功能描述是否与提供的产品架构/系统架构图保持一致，没有超出架构范围或与架构定义冲突。","权重":1,"针对章节":"1. 产品概述, 3. 功能需求","详细释义与重要性":"所有功能需求都必须在已定义的架构约束下实现。如果需求描述超出了架构能力（例如要求一个没有联网能力的ECU去访问云端），则该需求是不可实现的。","核心检查点 (Key Checkpoints)实例化":"1. 查看架构图，理解本功能模块的输入和输出。\n2. 阅读功能描述，检查其所依赖的数据或触发的动作，是否都能在架构图上找到对应的交互路径。\n3. 检查功能描述中是否幻想出了架构图中不存在的模块或接口。"},
+            {"ID":"R2.4","评审维度":"需求一致性","规则名称":"功能优先级一致性检查","问题分类":"逻辑不一致","规则描述":"检查功能列表中的优先级（P0/P1/P2）是否与文档中对功能重要性的描述保持一致。","权重":0.8,"针对章节":"2. 功能列表, 3. 功能需求","详细释义与重要性":"确保团队对功能的优先级有统一的认知，避免资源投入的错配。","核心检查点 (Key Checkpoints)实例化":"1. 查看功能列表中的优先级定义。\n2. 在正文中搜索“核心功能”、“基础功能”、“体验优化”等描述性词语。\n3. 检查被描述为“核心功能”的功能点，其优先级是否为P0或P1。"},
+            {"ID":"R3.1","评审维度":"需求可测试性","规则名称":"验收标准可测试性检查","问题分类":"不可测","规则描述":"检查验收标准（Acceptance Criteria）是否具体、量化、可验证，避免使用“良好”、“及时”、“方便”等模糊词汇。","权重":1.2,"针对章节":"6. 验收标准","详细释义与重要性":"不可测试的需求就等于没有需求。如果验收标准模糊，测试团队将无法编写有效的测试用例，也无法判断功能是否真的完成了。这是保证产品质量的最后一道防线。","核心检查点 (Key Checkpoints)实例化":"1. 逐条阅读验收标准。\n2. 检查是否存在“快”、“好”、“流畅”、“美观”、“易用”等主观或模糊词汇。\n3. 检查标准是否可量化，例如将“响应要及时”改为“在收到指令后1秒内必须有响应”。"},
+            {"ID":"R3.2","评审维度":"需求可测试性","规则名称":"异常场景可测试性检查","问题分类":"不可测","规则描述":"检查每个核心功能的异常流程是否清晰、可复现，便于测试团队设计负向测试用例。","权重":1,"针对章节":"3. 功能需求","详细释义与重要性":"健壮的软件必须能妥善处理各种异常情况。如果异常流程描述不清，测试就无法覆盖这些场景，可能导致产品在用户实际使用中遇到异常时崩溃或行为异常。","核心检查点 (Key Checkpoints)实例化":"1. 阅读UseCase中的“异常流程”部分。\n2. 检查异常的触发条件是否清晰，例如“当网络连接断开时”。\n3. 检查系统在异常发生后的预期行为是否明确，例如“系统应弹出‘网络连接失败’的提示，并在2秒后自动隐藏”。"},
+            {"ID":"R3.3","评审维度":"需求可测试性","规则名称":"性能指标可测试性检查","问题分类":"不可测","规则描述":"检查定义的性能指标是否有明确的测试环境、测试方法和量化标准。","权重":1,"针对章节":"4. 非功能需求","详细释义与重要性":"性能指标的定义必须是科学和可操作的，否则就只是一句空话。","核心检查点 (Key Checkpoints)实例化":"1. 查看性能指标，如“系统启动时间小于5秒”。\n2. 检查是否定义了测试条件，例如“在常温、正常电压下，从ACC ON到首帧画面显示的时间”。\n3. 检查是否定义了测试方法，例如“通过总线日志分析或视频录制分析”。"},
+            {"ID":"R3.4","评审维度":"需求可测试性","规则名称":"功能生命周期可测试性检查","问题分类":"不可测","规则描述":"检查功能是否定义了清晰的开启、关闭、暂停、恢复等操作方式，便于进行全生命周期的测试。","权重":0.8,"针对章节":"3. 功能需求","详细释义与重要性":"一个功能不仅要能正常运行，还要能被用户或系统正常地控制。如果一个功能无法关闭，可能会带来安全隐患或糟糕的用户体验。","核心检查点 (Key Checkpoints)实例化":"1. 检查功能描述中是否定义了如何开启和关闭该功能（例如通过中控屏开关、语音指令等）。\n2. 对于长时间运行的任务，检查是否定义了暂停和恢复的逻辑。\n3. 检查功能的默认状态（上电后是开启还是关闭）是否明确。"},
+            {"ID":"R4.1","评审维度":"需求可追溯性","规则名称":"需求来源可追溯性检查","问题分类":"不可追溯","规则描述":"检查每条或每组需求是否能追溯到其来源，如市场卡片、竞品分析报告、上层系统需求等。","权重":0.8,"针对章节":"2. 功能列表","详细释义与重要性":"需求的可追溯性是需求管理的核心。知道每一条需求为何而来，有助于在需求变更或裁剪时做出正确的决策，避免误删重要功能。","核心检查点 (Key Checkpoints)实例化":"1. 查看功能列表或需求条目。\n2. 检查每条需求是否有来源字段或追溯链接，指向Jira、Doors等上游工具。\n3. 如果没有工具链接，检查是否在描述中提及了来源，如“根据XX竞品分析报告”。"},
+            {"ID":"R4.2","评审维度":"需求可追溯性","规则名称":"需求变更可追溯性检查","问题分类":"不可追溯","规则描述":"检查需求的每次重大变更，是否能在变更历史或相关流程工具中找到对应的评审记录或变更请求。","权重":1,"针对章节":"0. 文档信息","详细释义与重要性":"确保需求的变更过程是受控且有记录的，符合流程规范，便于审计和问题回溯。","核心检查点 (Key Checkpoints)实例化":"1. 查看“变更记录”中的重大变更项。\n2. 检查是否有关联的变更单号或会议纪要ID。\n3. 随机抽查一个变更，看是否能找到对应的支撑材料。"},
+            {"ID":"R4.3","评审维度":"需求可追溯性","规则名称":"跨文档关联可追溯性检查","问题分类":"不可追溯","规则描述":"检查PRD中的需求ID是否能与下游文档（如开发任务、测试用例）中的ID建立关联。","权重":1,"针对章节":"全文","详细释义与重要性":"建立从PRD到开发、测试的完整追溯链，是保证功能被正确、完整实现和测试的关键。","核心检查点 (Key Checkpoints)实例化":"1. 检查PRD中的需求是否都有唯一的ID（例如 R_ACC_001）。\n2. 询问开发或测试，是否能在他们的任务管理工具（如Jira）或测试用例管理工具（如Zephyr）中，通过这个ID找到对应的开发任务或测试用例。"},
+            {"ID":"R5.1","评审维度":"需求明确性","规则名称":"需求表述明确性检查","问题分类":"表达模糊","规则描述":"检查需求描述是否存在歧义、含糊不清的词语（如“可能”、“大约”、“等等”），确保每句话都有唯一、清晰的解释。","权重":1.2,"针对章节":"全文","详细释义与重要性":"模糊的需求是魔鬼。一个词语的歧义可能导致开发人员的理解与产品经理的预期天差地别，最终导致功能返工。PRD必须像法律条文一样严谨。","核心检查点 (Key Checkpoints)实例化":"1. 全文搜索“可能”、“也许”、“大概”、“左右”、“等”、“其它”这类模糊词汇。\n2. 分析包含这些词汇的句子，判断是否会引起歧义。\n3. 例如，将“系统大约在2秒后响应”改为“系统应在2.0±0.2秒内响应”。"},
+            {"ID":"R5.2","评审维度":"需求明确性","规则名称":"功能边界明确性检查","问题分类":"边界模糊","规则描述":"检查PRD是否清晰定义了功能的边界（Scope），明确说明了“做什么”和“不做什么”。","权重":1,"针对章节":"1. 产品概述, 3. 功能需求","详细释义与重要性":"清晰的边界定义有助于管理各方的预期。明确“不做什么”和“做什么”同等重要，可以避免在项目后期出现范围蔓延（Scope Creep）的情况。","核心检查点 (Key Checkpoints)实例化":"1. 检查“产品概述”中是否有“功能范围”或“Scope”章节。\n2. 检查该章节中是否明确列出了“In Scope”（范围内）和“Out of Scope”（范围外）的功能点。\n3. 检查功能描述中是否存在可能被误解为包含额外功能的描述。"},
+            {"ID":"R5.3","评审维度":"需求明确性","规则名称":"用户交互明确性检查","问题分类":"表达模糊","规则描述":"检查涉及用户交互的部分，是否对界面元素、提示文案、交互反馈有明确的描述。","权重":1,"针对章节":"3. 功能需求","详细释义与重要性":"对于用户能直接感知到的功能，交互的明确性至关重要。模糊的描述会让HMI设计师和开发人员无所适从，最终做出的产品体验不佳。","核心检查点 (Key Checkpoints)实例化":"1. 检查功能描述中提到用户操作的地方。\n2. 检查是否明确定义了操作后的系统反馈，例如“点击按钮后，按钮变为‘加载中’状态，并有菊花图显示”。\n3. 检查所有的提示文案（Toast、Dialog）是否给出了具体的文本内容，而非“弹出一个提示”。"},
+            {"ID":"R5.4","评审维度":"需求明确性","规则名称":"模糊词汇使用检查","问题分类":"表达模糊","规则描述":"检查是否使用了如'大概'、'可能'、'左右'等不确定性词汇。","权重":1.1,"针对章节":"全文","详细释义与重要性":"不确定性词汇会导致需求解释的二义性，增加开发和测试的沟通成本。","核心检查点 (Key Checkpoints)实例化":"1. 全文搜索'大概', '可能', '左右', '也许'等词汇。\n2. 标记包含这些词汇的句子，并建议修改为量化描述。"},
+            {"ID":"R6.1","评审维度":"需求明确性","规则名称":"HMI交互状态反馈完整性检查","问题分类":"内容缺失","规则描述":"检查所有用户可操作的HMI元素是否都定义了点击、长按、禁用、加载中等状态下的视觉反馈。","权重":1.2,"针对章节":"3. 功能需求, 5. HMI设计","详细释义与重要性":"清晰的交互反馈是提升用户体验的关键。用户需要明确知道他们的操作是否生效、系统当前的状态是什么。","核心检查点 (Key Checkpoints)实例化":"1. 遍历HMI原型图中的所有按钮、开关、滑块等控件。\n2. 检查PRD中是否对每个控件的不同状态（正常、按下、禁用）有对应的视觉效果描述。"},
+            {"ID":"R6.2","评审维度":"需求完整性","规则名称":"数据埋点需求完整性检查","问题分类":"内容缺失","规则描述":"检查非功能需求中是否包含数据埋点章节，并定义了核心用户行为的埋点事件ID和上报参数。","权重":0.9,"针对章节":"4. 非功能需求","详细释义与重要性":"数据是产品迭代和优化的基础。在需求阶段就定义好埋点，可以确保产品上线后能收集到有效数据，支撑后续的业务决策。","核心检查点 (Key Checkpoints)实例化":"1. 检查文档中是否存在“数据埋点”或“数据采集”章节。\n2. 检查该章节是否包含一个埋点列表，列出了事件ID、事件名称、触发时机、上报参数等。"}
+        ];
+        
+        const mockPrdData = [
+            { id: 'prd-001', name: '智能驾驶辅助系统需求规格书', project: '智能驾驶', author: '张三', date: '2025-07-01', status: '已发布' },
+            { id: 'prd-002', name: '车载娱乐系统交互界面设计', project: '用户界面', author: '李四', date: '2025-07-02', status: '审核中' },
+            { id: 'prd-003', name: '电池管理系统安全监控', project: '三电系统', author: '王五', date: '2025-07-03', status: '已发布' },
+            { id: 'prd-004', name: '车联网通信协议规范', project: '车联网', author: '赵六', date: '2025-07-04', status: '已发布' },
+            { id: 'prd-005', name: 'Auto Hold自动驻车 (V1.0)', project: '智能驾驶', author: '张三', date: '2025-06-20', status: '已发布' },
+            { id: 'prd-006', name: '整车OTA升级策略 (V2.2)', project: '基础软件', author: '孙七', date: '2025-06-15', status: '已发布' }
+        ];
+
+        const mockRejectedIssues = [
+            { issueId: 'P006', ruleId: 'R5.2', description: 'AI认为文档未定义与ADAS等系统的交互边界，但实际上在《系统架构设计》文档中有详细描述。', type: '误报', reason: 'AI未能关联外部文档知识，导致对功能边界的判断不完整。' },
+            { issueId: 'P008', ruleId: 'R4.1', description: 'AI建议补充业务目标，但评审人认为此项为可选，当前阶段无需强制。', type: '问题不准', reason: '规则的强制性过高，未考虑文档不同阶段的差异性。' },
+            { issueId: 'P010', ruleId: 'R1.4', description: 'AI认为流程图过于简化，但评审人认为对于高阶设计文档，当前信息已足够。', type: '建议不佳', reason: 'AI对细节的关注度过高，未能识别当前文档的评审阶段和要求。' },
+            { issueId: 'P012', ruleId: 'R2.1', description: 'AI提示术语“IVI”与“车载信息娱乐系统”混用，建议统一。', type: '误报', reason: '评审人确认两个术语在团队内部可互换使用，无需强制统一。' }
+        ];
+
+        let mockReleaseData = [
+            { ruleId: 'R6.1', type: '新增', source: '提交建议', description: '<b>【产品经理：赵六】</b><b>【PRD名称：智能座舱HMI规范】</b><br>评论/建议：所有用户操作必须有明确的视觉或听觉反馈，此规则用于检查相关描述的完整性。', status: '待发布' },
+            { ruleId: 'R6.2', type: '新增', source: '表现分析', description: '检查非功能需求中是否包含数据埋点章节，并定义了核心操作的埋点事件。', status: '待发布' },
+            { ruleId: 'R2.3', type: '优化', source: '提交建议', description: '<b>【产品经理：王五】</b><b>【PRD名称：Auto Hold】</b><br>评论/建议：建议增加对服务调用超时的检查，目前规则只检查了接口是否存在，但未考虑性能问题。', status: '待发布' },
+            { ruleId: 'R5.2', type: '优化', source: '拒绝分析', description: '根据被拒问题(P006)分析进行修复：规则过于严格，在PRD早期阶段不适用。', status: '待发布' },
+            { ruleId: 'R3.1', type: '优化', source: '表现分析', description: '增加对“一定值”等模糊词汇的检测，提高标准的可量化性。', status: '待发布' },
+            { ruleId: 'R5.4', type: '新增', source: '表现分析', description: '新增规则，用于禁止使用“一般在”等不确定性描述，以提高需求明确性。', status: '待发布' },
+            { ruleId: 'R1.5', type: '优化', source: '提交建议', description: '<b>【产品经理：李四】</b><b>【PRD名称：车载娱乐系统】</b><br>评论/建议：状态机图中应强制要求包含“中断”状态及其恢复路径。', status: '待发布' },
+            { ruleId: 'R4.1', type: '优化', source: '拒绝分析', description: '根据被拒问题(P008)分析进行修复：将强制要求调整为建议要求。', status: '待发布' },
+            { ruleId: 'R1.3', type: '删除', source: '表现分析', description: '该规则与公司文档管理系统功能重复，采纳率极低，建议删除。', status: '待发布' },
+            { ruleId: 'R3.4', type: '删除', source: '表现分析', description: '规则与新流程冲突，建议废弃。', status: '待发布' },
+            { ruleId: 'R1.1', type: '优化', source: '表现分析', description: '根据最新模板，更新了PRD必须包含的核心章节列表。', status: '已发布' },
+            { ruleId: 'R2.2', type: '优化', source: '表现分析', description: '增强了对图表和文字描述一致性的检查逻辑。', status: '已发布' }
+        ];
+
+        // --- SCRIPT ---
+        
+        // Augment data with simulated AI check results
+        allRulesData.forEach(rule => {
+            rule.version = `1.${Math.floor(Math.random() * 5)}`;
+            rule.affectedPRDs = Math.floor(Math.random() * 25) + 5;
+            rule.found = Math.floor(Math.random() * 40 * (rule['权重'] || 1));
+            
+            const baseAdoptionRate = 0.5 + (rule['权重'] * 0.4); // Higher weight rules are more likely to be adopted
+            rule.adopted = Math.min(rule.found, Math.floor(rule.found * (baseAdoptionRate + (Math.random() * 0.2 - 0.1))));
+
+            const adoptionRate = rule.found > 0 ? (rule.adopted / rule.found) : 1;
+            
+            if (adoptionRate >= 0.8) {
+                rule.status = '正常';
+            } else if (adoptionRate >= 0.3) {
+                rule.status = '建议修改';
+            } else {
+                rule.status = '建议删除';
+            }
+        });
+        // Manually set some statuses to ensure variety for demo purposes
+        if(allRulesData.length > 2) allRulesData[1].status = '正常';
+        if(allRulesData.length > 4) allRulesData[3].status = '建议修改';
+        if(allRulesData.length > 5) allRulesData[4].status = '建议删除';
+
+
+        // Modal Interactivity
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.querySelector('.modal-content').classList.remove('-translate-y-10');
+                }, 10);
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('opacity-0');
+                modal.querySelector('.modal-content').classList.add('-translate-y-10');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+        
+        // --- Main Logic on DOMContentLoaded ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- STATE ---
+            let selectedPrdIds = [];
+            let tempSelectedPrdIds = [];
+
+            // --- SELECTORS ---
+            const startCheckBtn = document.getElementById('start-check-btn');
+            const authorSelect = document.getElementById('author-select');
+            const openPrdModalBtn = document.getElementById('open-prd-modal-btn');
+            const scopeSummarySection = document.getElementById('current-scope-summary');
+            const toggleSummaryBtn = document.getElementById('toggle-summary-btn');
+            const toggleSummaryIcon = document.getElementById('toggle-summary-icon');
+            const collapsibleSummaryContent = document.getElementById('collapsible-summary-content');
+            const summaryTime = document.getElementById('summary-time');
+            const summaryPrd = document.getElementById('summary-prd');
+            const summaryAuthor = document.getElementById('summary-author');
+            const summaryPrdCount = document.getElementById('summary-prd-count');
+            const summaryIssueCount = document.getElementById('summary-issue-count');
+            const summaryTimeEstimate = document.getElementById('summary-time-estimate');
+            const prdModalList = document.getElementById('prd-modal-list');
+            const prdModalSearch = document.getElementById('prd-modal-search');
+            const prdModalProjectFilter = document.getElementById('prd-modal-project-filter');
+            const prdModalStatusFilter = document.getElementById('prd-modal-status-filter');
+            const prdModalSelectAll = document.getElementById('prd-modal-select-all');
+            const prdModalSelectedCount = document.getElementById('prd-modal-selected-count');
+            const confirmPrdBtn = document.getElementById('confirm-prd-selection-btn');
+            const prdSelectionBtnText = document.getElementById('prd-selection-btn-text');
+            const searchInput = document.getElementById('rule-search-input');
+            const statusFilter = document.getElementById('rule-status-filter');
+            const issueSort = document.getElementById('rule-issue-sort');
+            const tableBody = document.getElementById('rule-table-body');
+            const newRuleBtn = document.getElementById('new-rule-btn');
+            const ruleTestBtn = document.getElementById('rule-test-btn');
+            const aiReevaluateBtn = document.getElementById('ai-reevaluate-btn');
+            const saveRuleBtn = document.getElementById('save-rule-btn');
+            const saveOptionsToggle = document.getElementById('save-options-toggle');
+            const saveOptionsMenu = document.getElementById('save-options-menu');
+            const saveAsNewBtn = document.getElementById('save-as-new-btn');
+            const deleteRuleBtn = document.getElementById('delete-rule-btn');
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
+            const batchActionFooter = document.getElementById('batch-action-footer');
+            const selectedCountSpan = document.getElementById('selected-count');
+            const batchSimulateBtn = document.getElementById('batch-simulate-btn');
+
+            const picker = new Litepicker({ 
+                element: document.getElementById('datepicker'), 
+                singleMode: false, 
+                lang: 'zh-CN', 
+                format: 'YYYY-MM-DD',
+                setup: (p) => {
+                    p.on('selected', validateScopeAndSummary);
+                }
+            });
+
+            // --- FUNCTIONS ---
+            function validateScopeAndSummary() {
+                const dateStart = picker.getStartDate();
+                const dateEnd = picker.getEndDate();
+                const author = authorSelect.value;
+                const isDateSet = dateStart && dateEnd;
+                const isPrdSet = selectedPrdIds.length > 0;
+                const isAuthorSet = author !== 'all';
+                const isAnyScopeSet = isDateSet || isPrdSet || isAuthorSet;
+                if (startCheckBtn) startCheckBtn.disabled = !isAnyScopeSet;
+                if (scopeSummarySection) scopeSummarySection.classList.toggle('hidden', !isAnyScopeSet);
+                if (isAnyScopeSet) {
+                    summaryTime.textContent = isDateSet ? `${dateStart.format('YYYY-MM-DD')} 至 ${dateEnd.format('YYYY-MM-DD')}` : '未指定';
+                    summaryPrd.textContent = isPrdSet ? `已选择 ${selectedPrdIds.length} 个PRD` : '未选择PRD (将分析时间范围内的所有PRD)';
+                    summaryAuthor.textContent = isAuthorSet ? author : '所有评审人';
+                    const prdCount = isPrdSet ? selectedPrdIds.length : Math.floor(Math.random() * 10) + 5;
+                    summaryPrdCount.textContent = prdCount;
+                    summaryIssueCount.textContent = prdCount * (Math.floor(Math.random() * 5) + 3);
+                    summaryTimeEstimate.textContent = Math.ceil(prdCount * (Math.random() * 1.5 + 0.5));
+                }
+            }
+
+            function populatePrdModalFilters() {
+                const projects = [...new Set(mockPrdData.map(p => p.project))];
+                prdModalProjectFilter.innerHTML = '<option>所有项目</option>';
+                projects.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p;
+                    option.textContent = p;
+                    prdModalProjectFilter.appendChild(option);
+                });
+            }
+
+            function populatePrdModal() {
+                 if (!prdModalList) return;
+                 const searchTerm = prdModalSearch.value.toLowerCase();
+                 const projectFilter = prdModalProjectFilter.value;
+                 const statusFilter = prdModalStatusFilter.value;
+                 const filteredData = mockPrdData.filter(prd => {
+                    const matchesSearch = prd.name.toLowerCase().includes(searchTerm) || prd.id.toLowerCase().includes(searchTerm);
+                    const matchesProject = projectFilter === '所有项目' || prd.project === projectFilter;
+                    const matchesStatus = statusFilter === '所有状态' || prd.status === statusFilter;
+                    return matchesSearch && matchesProject && matchesStatus;
+                 });
+                 prdModalList.innerHTML = '';
+                 filteredData.forEach(prd => {
+                    const isChecked = tempSelectedPrdIds.includes(prd.id);
+                    const row = document.createElement('div');
+                    row.className = 'grid grid-cols-[auto,1fr,auto,auto,auto] items-center gap-4 p-3 border-b border-gray-100 last:border-b-0';
+                    row.innerHTML = `
+                        <input type="checkbox" data-id="${prd.id}" class="prd-modal-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" ${isChecked ? 'checked' : ''}>
+                        <div>
+                            <p class="font-semibold text-gray-800">${prd.name}</p>
+                            <p class="text-xs text-gray-500">${prd.id}</p>
+                        </div>
+                        <span class="text-sm text-gray-600">${prd.project}</span>
+                        <span class="text-sm text-gray-600">${prd.author}</span>
+                        <span class="px-2 py-1 text-xs rounded-full ${prd.status === '已发布' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${prd.status}</span>
+                    `;
+                    prdModalList.appendChild(row);
+                 });
+                 updatePrdModalCount();
+            }
+            
+            function updatePrdModalCount() {
+                const checkboxes = prdModalList.querySelectorAll('.prd-modal-checkbox');
+                tempSelectedPrdIds = Array.from(checkboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.dataset.id);
+                prdModalSelectedCount.textContent = `已选择: ${tempSelectedPrdIds.length}个PRD`;
+                prdModalSelectAll.checked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+            }
+
+            function confirmPrdSelection() {
+                selectedPrdIds = [...tempSelectedPrdIds];
+                if (prdSelectionBtnText) {
+                    if (selectedPrdIds.length > 0) {
+                        prdSelectionBtnText.textContent = `已选择 ${selectedPrdIds.length} 个PRD`;
+                        prdSelectionBtnText.classList.remove('text-gray-500');
+                        prdSelectionBtnText.classList.add('text-blue-700', 'font-semibold');
+                    } else {
+                        prdSelectionBtnText.textContent = '手动搜索并选择一个或多个PRD';
+                        prdSelectionBtnText.classList.add('text-gray-500');
+                        prdSelectionBtnText.classList.remove('text-blue-700', 'font-semibold');
+                    }
+                }
+                closeModal('prd-selection-modal');
+                validateScopeAndSummary();
+            }
+
+            function triggerAiCheck() {
+                if(!startCheckBtn || startCheckBtn.disabled) return;
+                const btnText = startCheckBtn.querySelector('.btn-text');
+                const btnLoader = startCheckBtn.querySelector('.btn-loader');
+                startCheckBtn.disabled = true;
+                if(btnText) btnText.textContent = 'AI自检中...';
+                if(btnLoader) btnLoader.classList.remove('hidden');
+                const sectionsToRefresh = ['#dashboard', '#rule-performance', '#feedback-details', '#rule-release-management'];
+                sectionsToRefresh.forEach(sel => {
+                    const el = document.querySelector(sel);
+                    if(el) el.classList.add('data-refreshing');
+                });
+                setTimeout(() => {
+                    startCheckBtn.disabled = false;
+                    validateScopeAndSummary();
+                    if(btnText) btnText.textContent = '重新自检';
+                    if(btnLoader) btnLoader.classList.add('hidden');
+                    sectionsToRefresh.forEach(sel => {
+                        const el = document.querySelector(sel);
+                        if(el) el.classList.remove('data-refreshing');
+                    });
+                    const problemRateEl = document.querySelector('#dashboard .text-blue-600');
+                    if (problemRateEl) problemRateEl.textContent = `${Math.floor(Math.random() * 21) + 70}%`;
+                }, 2000);
+            }
+
+            function renderRejectedIssuesTable() {
+                const tableBody = document.getElementById('rejected-issues-body');
+                if (!tableBody) return;
+                tableBody.innerHTML = '';
+                mockRejectedIssues.forEach(issue => {
+                    const rule = allRulesData.find(r => r.ID === issue.ruleId);
+                    if (!rule) return;
+                    let typeBadgeClass = '';
+                    switch(issue.type) {
+                        case '误报': typeBadgeClass = 'bg-red-100 text-red-700'; break;
+                        case '建议不佳': typeBadgeClass = 'bg-yellow-100 text-yellow-700'; break;
+                        case '问题不准': typeBadgeClass = 'bg-orange-100 text-orange-700'; break;
+                        default: typeBadgeClass = 'bg-gray-100 text-gray-700'; break;
+                    }
+                    const row = document.createElement('tr');
+                    row.className = 'border-b';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 font-mono">${issue.issueId}</td>
+                        <td class="px-6 py-4 font-semibold">${rule['规则名称']}</td>
+                        <td class="px-6 py-4 text-xs">${issue.description}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 font-semibold text-xs leading-tight rounded-full ${typeBadgeClass}">${issue.type}</span></td>
+                        <td class="px-6 py-4 text-xs text-gray-500">${issue.reason}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-3 text-sm">
+                                <button class="text-blue-600 hover:underline optimize-rule-btn" data-rule-id="${issue.ruleId}">优化规则</button>
+                                <button class="text-green-600 hover:underline add-to-release-from-rejected-btn" data-rule-id="${issue.ruleId}">加入发布</button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                tableBody.querySelectorAll('.optimize-rule-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => openAndPrepopulateModal(e.target.dataset.ruleId, true));
+                });
+                tableBody.querySelectorAll('.add-to-release-from-rejected-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const ruleId = e.target.dataset.ruleId;
+                        const ruleData = allRulesData.find(r => r.ID === ruleId);
+                        const issueData = mockRejectedIssues.find(i => i.ruleId === ruleId);
+                        if(ruleData && issueData) {
+                            addToRelease(ruleData, '优化', `根据被拒问题(${issueData.issueId})分析进行修复。`, '拒绝分析');
+                        }
+                    });
+                });
+            }
+
+            function updateFooter() {
+                const selectedCheckboxes = document.querySelectorAll('#release-table-body .row-checkbox:checked');
+                const count = selectedCheckboxes.length;
+                if (selectedCountSpan) {
+                    selectedCountSpan.textContent = count;
+                }
+                if (batchActionFooter) {
+                    if (count > 0) {
+                        batchActionFooter.classList.remove('hidden', 'translate-y-full');
+                    } else {
+                        batchActionFooter.classList.add('translate-y-full');
+                        setTimeout(() => batchActionFooter.classList.add('hidden'), 300);
+                    }
+                }
+            }
+
+            function setupReleaseTableCheckboxes() {
+                document.querySelectorAll('#release-table-body .row-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (!this.checked) {
+                            if(selectAllCheckbox) selectAllCheckbox.checked = false;
+                        } else {
+                            const allChecked = Array.from(document.querySelectorAll('#release-table-body .row-checkbox')).every(cb => cb.checked);
+                            if(selectAllCheckbox) selectAllCheckbox.checked = allChecked;
+                        }
+                        updateFooter();
+                    });
+                });
+                 updateFooter();
+            }
+            window.setupReleaseTableCheckboxes = setupReleaseTableCheckboxes;
+
+            function renderTable(rules) {
+                if (!tableBody) return;
+                tableBody.innerHTML = '';
+                if (rules.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">没有找到匹配的规则。</td></tr>';
+                    return;
+                }
+                rules.forEach(rule => {
+                    const adoptionRate = rule.found > 0 ? (rule.adopted / rule.found) * 100 : 100;
+                    const adoptionRateText = rule.found > 0 ? `${Math.round(adoptionRate)}%` : 'N/A';
+                    let healthBarClass = '';
+                    if (adoptionRate >= 80) { healthBarClass = 'bg-green-500'; }
+                    else if (adoptionRate >= 60) { healthBarClass = 'bg-yellow-400'; }
+                    else if (adoptionRate >= 30) { healthBarClass = 'bg-red-500'; }
+                    else { healthBarClass = 'bg-gray-300'; }
+                    let statusBadge = '';
+                    switch(rule.status) {
+                        case '建议修改': statusBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-yellow-700 bg-yellow-100 rounded-full">${rule.status}</span>`; break;
+                        case '建议删除': statusBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-red-700 bg-red-100 rounded-full">${rule.status}</span>`; break;
+                        case '建议新增': statusBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-green-700 bg-green-100 rounded-full">${rule.status}</span>`; break;
+                        default: statusBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-gray-700 bg-gray-100 rounded-full">${rule.status}</span>`;
+                    }
+                    const row = document.createElement('tr');
+                    row.className = 'border-b';
+                    row.setAttribute('data-rule-id', rule.ID);
+                    row.innerHTML = `
+                        <td class="px-4 py-4 font-mono">${rule.ID}</td>
+                        <td class="px-6 py-4 font-semibold text-gray-800">${rule['规则名称']}</td>
+                        <td class="px-6 py-4 text-center font-mono">${rule.affectedPRDs} / ${rule.found} / ${rule.adopted}</td>
+                        <td class="px-4 py-4 text-center">
+                            <div class="flex items-center justify-center">
+                                <div class="w-20 bg-gray-200 rounded-full h-2.5 mr-2">
+                                    <div class="${healthBarClass} h-2.5 rounded-full" style="width: ${adoptionRate}%"></div>
+                                </div>
+                                <span class="text-xs font-semibold text-gray-600">${adoptionRateText}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-center">${statusBadge}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center space-x-3 text-sm">
+                                <button class="text-blue-600 hover:underline edit-rule-btn">编辑</button>
+                                <button class="text-green-600 hover:underline add-to-release-btn">加入发布</button>
+                            </div>
+                        </td>
+                    `;
+                    row.querySelector('.edit-rule-btn').addEventListener('click', () => {
+                        openAndPrepopulateModal(rule.ID, true);
+                    });
+                     row.querySelector('.add-to-release-btn').addEventListener('click', () => {
+                        let type = '优化';
+                        if (rule.status === '建议新增') type = '新增';
+                        if (rule.status === '建议删除') type = '删除';
+                        addToRelease(rule, type, '来自规则库表现分析的手动添加', '表现分析');
+                    });
+                    tableBody.appendChild(row);
+                });
+            }
+
+            function applyFiltersAndSort() {
+                let filteredRules = [...allRulesData];
+                const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                if (searchTerm) {
+                    filteredRules = filteredRules.filter(rule => rule['规则名称'].toLowerCase().includes(searchTerm) || rule['ID'].toLowerCase().includes(searchTerm));
+                }
+                const status = statusFilter ? statusFilter.value : 'all';
+                if (status !== 'all') {
+                    filteredRules = filteredRules.filter(rule => rule.status === status);
+                }
+                const sortOrder = issueSort ? issueSort.value : 'default';
+                if (sortOrder !== 'default') {
+                    filteredRules.sort((a, b) => sortOrder === 'desc' ? b.found - a.found : a.found - b.found);
+                }
+                renderTable(filteredRules);
+            }
+
+            function openAndPrepopulateModal(ruleId, isEditable = true) {
+                const rule = allRulesData.find(r => r.ID === ruleId);
+                if (!rule) return;
+                const modal = document.getElementById('edit-rule-modal');
+                if (!modal) return;
+                modal.querySelector('#modal-title').textContent = isEditable ? '编辑规则' : '查看规则详情';
+                modal.querySelector('#modal-subtitle').textContent = isEditable ? '在这里查看、修改和评估规则的详细信息。' : '规则内容（只读）。';
+                modal.querySelector('#modal-rule-id').textContent = rule.ID;
+                modal.querySelector('#modal-rule-name').value = rule['规则名称'];
+                modal.querySelector('#modal-rule-chapter').value = rule['针对章节'];
+                modal.querySelector('#modal-rule-description').value = rule['规则描述'];
+                modal.querySelector('#modal-rule-interpretation').value = rule['详细释义与重要性'];
+                modal.querySelector('#modal-rule-checkpoints').value = rule['核心检查点 (Key Checkpoints)实例化'];
+                const dimensionSelect = modal.querySelector('#modal-rule-dimension');
+                if(dimensionSelect) {
+                    if(dimensionSelect.options.length === 0) {
+                        const dimensions = [...new Set(allRulesData.map(r => r['评审维度']))];
+                        dimensions.forEach(d => {
+                            const option = document.createElement('option');
+                            option.value = d;
+                            option.textContent = d;
+                            dimensionSelect.appendChild(option);
+                        });
+                    }
+                    dimensionSelect.value = rule['评审维度'];
+                }
+                modal.querySelector('#modal-rule-weight').value = rule['权重'];
+                const statusEl = modal.querySelector('#modal-rule-status');
+                statusEl.textContent = rule.status;
+                statusEl.className = 'px-2 py-1 font-semibold text-xs leading-tight rounded-full';
+                if (rule.status === '正常') statusEl.classList.add('bg-green-100', 'text-green-700');
+                else if (rule.status === '建议修改') statusEl.classList.add('bg-yellow-100', 'text-yellow-700');
+                else if (rule.status === '建议删除') statusEl.classList.add('bg-red-100', 'text-red-700');
+                const versionSelect = modal.querySelector('#modal-rule-version');
+                versionSelect.innerHTML = '';
+                const versions = ['1.0', '1.1', '1.2', '2.0', '2.1'];
+                versions.forEach(v => {
+                    const option = document.createElement('option');
+                    option.value = v;
+                    option.textContent = `v${v}`;
+                    versionSelect.appendChild(option);
+                });
+                versionSelect.value = rule.version || '1.0';
+                modal.querySelectorAll('input, textarea, select').forEach(el => el.disabled = !isEditable);
+                modal.querySelector('#modal-footer-actions').style.display = isEditable ? 'flex' : 'none';
+                modal.querySelector('#modal-test-actions').style.display = isEditable ? 'block' : 'none';
+                openModal('edit-rule-modal');
+            }
+            
+            function renderReleaseTable() {
+                const releaseTableBody = document.getElementById('release-table-body');
+                if (!releaseTableBody) return;
+                releaseTableBody.innerHTML = '';
+                mockReleaseData.forEach(item => {
+                    const rule = allRulesData.find(r => r.ID === item.ruleId);
+                    if (!rule) return;
+                    let typeBadge = '';
+                    switch(item.type) {
+                        case '优化': typeBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-yellow-700 bg-yellow-100 rounded-full">优化</span>`; break;
+                        case '删除': typeBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-red-700 bg-red-100 rounded-full">删除</span>`; break;
+                        case '新增': typeBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-green-700 bg-green-100 rounded-full">新增</span>`; break;
+                        default: typeBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-gray-700 bg-gray-100 rounded-full">${item.type}</span>`; break;
+                    }
+                    let statusBadge = '';
+                     switch(item.status) {
+                        case '待发布': statusBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-gray-700 bg-gray-100 rounded-full">待发布</span>`; break;
+                        case '已发布': statusBadge = `<span class="px-2 py-1 font-semibold text-xs leading-tight text-green-700 bg-green-100 rounded-full">已发布</span>`; break;
+                    }
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'border-b';
+                    newRow.setAttribute('data-release-id', item.ruleId);
+                    newRow.innerHTML = `
+                        <td class="px-4 py-4"><input type="checkbox" class="row-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"></td>
+                        <td class="px-6 py-4 font-mono">${item.ruleId}</td>
+                        <td class="px-6 py-4 font-semibold">${rule['规则名称']}</td>
+                        <td class="px-6 py-4">${typeBadge}</td>
+                        <td class="px-6 py-4 text-xs">${item.source}</td>
+                        <td class="px-6 py-4 text-xs">${item.description}</td>
+                        <td class="px-6 py-4">${statusBadge}</td>
+                        <td class="px-6 py-4"><button class="text-blue-600 hover:underline text-xs view-details-btn" data-rule-id="${item.ruleId}">查看详情</button></td>
+                    `;
+                    releaseTableBody.appendChild(newRow);
+                });
+                releaseTableBody.querySelectorAll('.view-details-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        openAndPrepopulateModal(e.target.dataset.ruleId, false);
+                    });
+                });
+                setupReleaseTableCheckboxes();
+            }
+
+            function addToRelease(rule, type, changeDescription, source) {
+                const releaseTableBody = document.getElementById('release-table-body');
+                if (!releaseTableBody || document.querySelector(`#release-table-body tr[data-release-id="${rule.ID}"]`)) {
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-5 right-5 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md shadow-lg z-50';
+                    notification.textContent = '该规则已在发布列表中。';
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 3000);
+                    return;
+                }
+                mockReleaseData.unshift({
+                    ruleId: rule.ID,
+                    type: type,
+                    source: source,
+                    description: changeDescription,
+                    status: '待发布'
+                });
+                renderReleaseTable();
+                const releaseSection = document.getElementById('rule-release-management');
+                if (releaseSection) {
+                    releaseSection.scrollIntoView({ behavior: 'smooth' });
+                    const newRow = releaseTableBody.querySelector(`[data-release-id="${rule.ID}"]`);
+                    if (newRow) {
+                        newRow.classList.add('highlight');
+                        setTimeout(() => newRow.classList.remove('highlight'), 3000);
+                    }
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            if(authorSelect) authorSelect.addEventListener('change', validateScopeAndSummary);
+            if(openPrdModalBtn) openPrdModalBtn.addEventListener('click', () => { tempSelectedPrdIds = [...selectedPrdIds]; populatePrdModal(); openModal('prd-selection-modal'); });
+            if(toggleSummaryBtn) toggleSummaryBtn.addEventListener('click', () => { collapsibleSummaryContent.classList.toggle('collapsed'); toggleSummaryIcon.classList.toggle('rotate-180'); });
+            if(prdModalSearch) prdModalSearch.addEventListener('input', populatePrdModal);
+            if(prdModalProjectFilter) prdModalProjectFilter.addEventListener('change', populatePrdModal);
+            if(prdModalStatusFilter) prdModalStatusFilter.addEventListener('change', populatePrdModal);
+            if(prdModalList) prdModalList.addEventListener('change', (e) => { if (e.target.matches('.prd-modal-checkbox')) updatePrdModalCount(); });
+            if(prdModalSelectAll) prdModalSelectAll.addEventListener('change', (e) => { prdModalList.querySelectorAll('.prd-modal-checkbox').forEach(cb => cb.checked = e.target.checked); updatePrdModalCount(); });
+            if(confirmPrdBtn) confirmPrdBtn.addEventListener('click', confirmPrdSelection);
+            if(startCheckBtn) startCheckBtn.addEventListener('click', triggerAiCheck);
+            if(searchInput) searchInput.addEventListener('input', applyFiltersAndSort);
+            if(statusFilter) statusFilter.addEventListener('change', applyFiltersAndSort);
+            if(issueSort) issueSort.addEventListener('change', applyFiltersAndSort);
+            if(newRuleBtn) newRuleBtn.addEventListener('click', () => openModal('new-rule-modal'));
+            if(ruleTestBtn) ruleTestBtn.addEventListener('click', function() {
+                const btnText = this.querySelector('.btn-text');
+                const btnLoader = this.querySelector('.btn-loader');
+                if(btnText) btnText.textContent = '测试中...';
+                if(btnLoader) btnLoader.classList.remove('hidden');
+                this.disabled = true;
+                setTimeout(() => {
+                    alert('规则测试完成：发现 3 个潜在问题。');
+                    if(btnText) btnText.textContent = '运行规则测试';
+                    if(btnLoader) btnLoader.classList.add('hidden');
+                    this.disabled = false;
+                }, 1500);
+            });
+            if(aiReevaluateBtn) aiReevaluateBtn.addEventListener('click', function() {
+                const btnText = this.querySelector('.btn-text');
+                const btnLoader = this.querySelector('.btn-loader');
+                if(btnText) btnText.textContent = '评估中...';
+                if(btnLoader) btnLoader.classList.remove('hidden');
+                this.disabled = true;
+                setTimeout(() => {
+                    const interpretationTextarea = document.getElementById('modal-rule-interpretation');
+                    const checkpointsTextarea = document.getElementById('modal-rule-checkpoints');
+                    if(interpretationTextarea) interpretationTextarea.value = "AI建议： " + interpretationTextarea.value.replace("AI建议： ", "") + "\n- 新增考虑：确保与最新法规要求对齐。";
+                    if(checkpointsTextarea) checkpointsTextarea.value = "AI建议： " + checkpointsTextarea.value.replace("AI建议： ", "") + "\n- 新增检查点：检查是否引用了最新的 HMI 规范版本。";
+                    document.querySelectorAll('#edit-rule-modal textarea').forEach(el => {
+                        el.parentElement.classList.add('highlight');
+                        setTimeout(() => el.parentElement.classList.remove('highlight'), 3000);
+                    });
+                    if(btnText) btnText.textContent = 'AI 重新评估';
+                    if(btnLoader) btnLoader.classList.add('hidden');
+                    this.disabled = false;
+                }, 1500);
+            });
+            if(saveRuleBtn) saveRuleBtn.addEventListener('click', function() {
+                const ruleId = document.getElementById('modal-rule-id').textContent;
+                const ruleIndex = allRulesData.findIndex(r => r.ID === ruleId);
+                if (ruleIndex === -1) return;
+                allRulesData[ruleIndex] = {
+                    ...allRulesData[ruleIndex],
+                    '规则名称': document.getElementById('modal-rule-name').value,
+                    '评审维度': document.getElementById('modal-rule-dimension').value,
+                    '针对章节': document.getElementById('modal-rule-chapter').value,
+                    '权重': parseFloat(document.getElementById('modal-rule-weight').value),
+                    '规则描述': document.getElementById('modal-rule-description').value,
+                    '详细释义与重要性': document.getElementById('modal-rule-interpretation').value,
+                    '核心检查点 (Key Checkpoints)实例化': document.getElementById('modal-rule-checkpoints').value,
+                };
+                applyFiltersAndSort();
+                alert('规则 ' + ruleId + ' 已保存！');
+            });
+            if(saveOptionsToggle) saveOptionsToggle.addEventListener('click', () => saveOptionsMenu.classList.toggle('hidden'));
+            if(saveAsNewBtn) saveAsNewBtn.addEventListener('click', (e) => { e.preventDefault(); alert('已另存为新版本！'); if(saveOptionsMenu) saveOptionsMenu.classList.add('hidden'); });
+            if(deleteRuleBtn) deleteRuleBtn.addEventListener('click', function() {
+                const ruleId = document.getElementById('modal-rule-id').textContent;
+                if (confirm(`您确定要删除规则 ${ruleId} 吗？此操作不可撤销。`)) {
+                    allRulesData = allRulesData.filter(r => r.ID !== ruleId);
+                    applyFiltersAndSort();
+                    closeModal('edit-rule-modal');
+                }
+            });
+            if(selectAllCheckbox) selectAllCheckbox.addEventListener('change', function() {
+                const rowCheckboxes = document.querySelectorAll('#release-table-body .row-checkbox');
+                rowCheckboxes.forEach(checkbox => { checkbox.checked = selectAllCheckbox.checked; });
+                updateFooter();
+            });
+            if (batchSimulateBtn) batchSimulateBtn.addEventListener('click', () => {
+                openModal('simulation-modal');
+                const simLoading = document.getElementById('sim-loading');
+                const simResults = document.getElementById('sim-results');
+                if(simLoading) simLoading.style.display = 'block';
+                if(simResults) simResults.classList.add('hidden');
+                setTimeout(() => {
+                     if(simLoading) simLoading.style.display = 'none';
+                     if(simResults) simResults.classList.remove('hidden');
+                }, 2500);
+            });
+            window.addEventListener('click', function(e) {
+                if (saveOptionsMenu && saveOptionsToggle && !saveOptionsToggle.contains(e.target) && !saveOptionsMenu.contains(e.target)) {
+                    saveOptionsMenu.classList.add('hidden');
+                }
+            });
+
+            // --- INITIALIZATION ---
+            document.getElementById('total-rules-count').textContent = `/ ${allRulesData.length}`;
+            populatePrdModalFilters();
+            validateScopeAndSummary();
+            renderRejectedIssuesTable();
+            renderReleaseTable();
+            applyFiltersAndSort();
+        });
+
+        // Close modal on escape key press
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
+                        closeModal(modal.id);
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
