@@ -256,17 +256,7 @@
             gap: 1.5rem;
         }
 
-        /* Sticky header styles for overview container */
-        #overview-container {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background-color: #f0f2f5; /* Match body background */
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: box-shadow 0.3s ease;
-        }
+
 
         .problem-distribution-bar {
             height: 1.5rem; /* Height of the bar */
@@ -459,13 +449,15 @@
 
         /* Sticky Header Styles */
         .sticky-header {
+            position: -webkit-sticky; /* Safari support */
             position: sticky;
             top: 0;
-            z-index: 30;
+            z-index: 1000;
             background-color: #f0f2f5;
             padding-top: 1rem;
             padding-bottom: 1rem;
-            transition: box-shadow 0.3s ease-in-out;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .sticky-header.is-stuck {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
@@ -593,10 +585,10 @@
         </header>
 
         <!-- Section 1: Top Summary/Dashboard -->
-        <section id="top-dashboard" class="mb-5 page-break" style="margin-top: -25px;">
+        <section id="top-dashboard" class="mb-5 page-break">
+            <h2 class="section-title">BSV 特性需求文档评审概览</h2>
             <div id="sticky-sentinel" style="height: 1px;"></div>
             <div id="overview-container" class="sticky-header">
-                <h2 class="section-title">BSV 特性需求文档评审概览</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: 评审结果 & 综合评分 -->
                     <div class="summary-card-item">
@@ -1412,11 +1404,46 @@
             const stickySentinel = document.getElementById('sticky-sentinel');
 
             // --- STICKY HEADER LOGIC ---
-            const observer = new IntersectionObserver(
-                ([e]) => stickyContainer.classList.toggle('is-stuck', e.intersectionRatio < 1),
-                { threshold: [1] }
-            );
-            observer.observe(stickySentinel);
+            if (stickyContainer && stickySentinel) {
+                let isSticky = false;
+                const originalPosition = stickyContainer.offsetTop;
+                let originalRect = null;
+
+                function handleScroll() {
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const shouldStick = scrollTop >= originalPosition;
+
+                    if (shouldStick && !isSticky) {
+                        // Store original dimensions and position
+                        originalRect = stickyContainer.getBoundingClientRect();
+                        const parentRect = stickyContainer.parentElement.getBoundingClientRect();
+
+                        stickyContainer.style.position = 'fixed';
+                        stickyContainer.style.top = '0';
+                        stickyContainer.style.left = parentRect.left + 'px';
+                        stickyContainer.style.width = originalRect.width + 'px';
+                        stickyContainer.style.zIndex = '1000';
+                        stickyContainer.classList.add('is-stuck');
+                        isSticky = true;
+                    } else if (!shouldStick && isSticky) {
+                        stickyContainer.style.position = 'sticky';
+                        stickyContainer.style.left = '';
+                        stickyContainer.style.width = '';
+                        stickyContainer.classList.remove('is-stuck');
+                        isSticky = false;
+                    }
+                }
+
+                window.addEventListener('scroll', handleScroll);
+                window.addEventListener('resize', () => {
+                    if (isSticky) {
+                        // Recalculate position on resize
+                        const parentRect = stickyContainer.parentElement.getBoundingClientRect();
+                        stickyContainer.style.left = parentRect.left + 'px';
+                    }
+                });
+                handleScroll(); // Check initial state
+            }
 
             // --- TAB SWITCHING LOGIC ---
             function showTab(tabId) {
