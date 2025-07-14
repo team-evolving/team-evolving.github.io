@@ -407,43 +407,122 @@
             background-color: #f3f4f6; /* gray-100 */
         }
 
-        /* Modal Specific Styles (for AI Optimize and Export Options) */
+        /* Modal Specific Styles */
         .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            background-color: rgba(0, 0, 0, 0.5);
             transition: opacity 0.3s ease-out;
         }
         .modal-overlay.hidden {
             opacity: 0;
             pointer-events: none;
         }
-        .modal-overlay > div { /* The actual modal content */
-            transform: translateY(-20px); /* Start slightly above */
+        .modal-overlay > div {
+            transform: translateY(-20px);
             transition: transform 0.3s ease-out, opacity 0.3s ease-out;
             opacity: 0;
         }
         .modal-overlay:not(.hidden) > div {
-            transform: translateY(0); /* Move to center */
+            transform: translateY(0);
             opacity: 1;
         }
         .modal-content-card {
             background-color: white;
-            padding: 2rem;
-            border-radius: 0.75rem;
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.75rem; /* rounded-lg */
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            max-width: 24rem; /* max-w-sm */
             width: 100%;
-            text-align: center;
+            max-width: 32rem; /* max-w-lg */
             position: relative;
         }
         .modal-close-button {
             position: absolute;
-            top: 0.75rem; /* top-3 */
-            right: 0.75rem; /* right-3 */
-            color: #6b7280; /* gray-500 */
+            top: 0.75rem;
+            right: 0.75rem;
+            color: #6b7280;
             transition: color 0.1s ease-in-out;
         }
         .modal-close-button:hover {
-            color: #374151; /* gray-700 */
+            color: #374151;
+        }
+
+        /* Sticky Header Styles */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background-color: #f0f2f5;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+        .sticky-header.is-stuck {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Share Link Modal Specific Styles */
+        #share-link-modal-overlay .modal-content-card {
+            text-align: left;
+        }
+        .user-search-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+        .user-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+        }
+        .user-list-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+        .user-list-item:last-child {
+            border-bottom: none;
+        }
+        .user-list-item:hover {
+            background-color: #f9fafb;
+        }
+        .selected-users-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            min-height: 40px;
+        }
+        .selected-user-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #e0e7ff;
+            color: #4338ca;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+        .remove-user-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .generated-link-container {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: #f3f4f6;
+            border-radius: 0.375rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
 
@@ -454,19 +533,21 @@
             .no-print {
                 display: none !important;
             }
-            .card {
+            .card, .sticky-header {
                 box-shadow: none;
                 border: 1px solid #e2e8f0;
+            }
+            .sticky-header {
+                position: static;
             }
             .page-break {
                 page-break-before: always;
             }
-            /* Ensure all tab content is visible when printing */
             .tab-content {
                 display: block !important;
             }
             .tabs {
-                display: none !important; /* Hide tab navigation when printing */
+                display: none !important;
             }
             .hidden-on-print-expand, .detail-row {
                 display: revert !important;
@@ -475,17 +556,15 @@
                 display: block !important;
             }
             .detail-row {
-                display: none !important; /* Hide details on print by default */
+                display: none !important;
             }
-            /* Ensure detailed score cards are expanded when printing */
             .detailed-score-card-item .problem-insights-section {
-                max-height: none !important; /* Override max-height for printing */
+                max-height: none !important;
                 overflow: visible !important;
                 padding-top: 1rem !important;
                 margin-top: 1rem !important;
                 border-top: 1px solid #e2e8f0 !important;
             }
-            /* Hide the global toggle button in print */
             #toggle-all-dimension-details {
                 display: none !important;
             }
@@ -496,49 +575,52 @@
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <!-- Header -->
-        <header class="text-center mb-12">
+        <header class="text-center mb-8">
             <h1 class="text-4xl font-bold text-gray-900">PRD文档智能评审报告</h1>
             <p class="text-lg text-gray-600 mt-2">汽车行业标准</p>
         </header>
 
         <!-- Section 1: Top Summary/Dashboard -->
-        <section id="top-dashboard" class="mb-12 page-break">
-            <h2 class="section-title">评审概览</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Left Column: 评审结果 & 综合评分 -->
-                <div class="summary-card-item">
-                    <div class="flex-1 text-center">
-                        <p class="text-gray-500 text-sm">评审结果</p>
-                        <p class="text-red-600 text-2xl font-bold mt-1">不通过</p>
+        <section id="top-dashboard" class="mb-8 page-break">
+            <div id="sticky-sentinel" style="height: 1px;"></div>
+            <div id="overview-container" class="sticky-header">
+                <h2 class="section-title">评审概览</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column: 评审结果 & 综合评分 -->
+                    <div class="summary-card-item">
+                        <div class="flex-1 text-center">
+                            <p class="text-gray-500 text-sm">评审结果</p>
+                            <p class="text-red-600 text-2xl font-bold mt-1">不通过</p>
+                        </div>
+                        <div class="border-l border-gray-300 h-16"></div> <!-- Divider -->
+                        <div class="flex-1 text-center">
+                            <p class="text-gray-500 text-sm">综合评分</p>
+                            <p class="text-gray-900 text-2xl font-bold mt-1">69<span class="text-base text-gray-500">/100</span></p>
+                        </div>
                     </div>
-                    <div class="border-l border-gray-300 h-16"></div> <!-- Divider -->
-                    <div class="flex-1 text-center">
-                        <p class="text-gray-500 text-sm">综合评分</p>
-                        <p class="text-gray-900 text-2xl font-bold mt-1">69<span class="text-base text-gray-500">/100</span></p>
-                    </div>
-                </div>
 
-                <!-- Right Column: 问题分布 -->
-                <div class="card p-6 flex flex-col justify-center">
-                    <h3 class="text-xl font-bold mb-4 text-center">问题分布 (共10个)</h3>
-                    <div class="problem-distribution-bar w-full">
-                        <div class="problem-segment red" style="width: 10%;">1</div>
-                        <div class="problem-segment yellow" style="width: 40%;">4</div>
-                        <div class="problem-segment orange" style="width: 30%;">3</div>
-                        <div class="problem-segment blue" style="width: 20%;">2</div>
+                    <!-- Right Column: 问题分布 -->
+                    <div class="card p-6 flex flex-col justify-center">
+                        <h3 class="text-xl font-bold mb-4 text-center">问题分布 (共10个)</h3>
+                        <div class="problem-distribution-bar w-full">
+                            <div class="problem-segment red" style="width: 10%;">1</div>
+                            <div class="problem-segment yellow" style="width: 40%;">4</div>
+                            <div class="problem-segment orange" style="width: 30%;">3</div>
+                            <div class="problem-segment blue" style="width: 20%;">2</div>
+                        </div>
+                        <ul class="mt-4 flex justify-around text-xs text-gray-700">
+                            <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-600 mr-1"></span>严重: 1</li>
+                            <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-yellow-600 mr-1"></span>重要: 4</li>
+                            <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-orange-500 mr-1"></span>警告: 3</li>
+                            <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-blue-600 mr-1"></span>建议: 2</li>
+                        </ul>
                     </div>
-                    <ul class="mt-4 flex justify-around text-xs text-gray-700">
-                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-600 mr-1"></span>严重: 1</li>
-                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-yellow-600 mr-1"></span>重要: 4</li>
-                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-orange-500 mr-1"></span>警告: 3</li>
-                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-blue-600 mr-1"></span>建议: 2</li>
-                    </ul>
                 </div>
             </div>
         </section>
 
         <!-- Section 2: Detailed Quality Score -->
-        <section id="detailed-score" class="mb-12 page-break">
+        <section id="detailed-score" class="mb-8 page-break">
             <h2 class="section-title">各维度质量评分详情</h2>
             <div class="card p-6">
                 <div class="flex justify-end items-center mb-4">
@@ -554,7 +636,7 @@
         </section>
 
         <!-- Tabbed Sections Container -->
-        <section class="mb-12 page-break">
+        <section class="mb-8 page-break">
             <div class="card p-6">
                 <div class="tabs no-print">
                     <button class="tab-button active" data-tab="tab-highlights-improvements">评审总结</button>
@@ -728,7 +810,7 @@
         </section>
 
         <!-- Global Action Buttons Section -->
-        <section class="mb-12 no-print global-action-buttons-section">
+        <section class="mb-8 no-print global-action-buttons-section">
             <div class="card p-6 flex flex-wrap gap-4 justify-between items-center">
                 <button id="manual-confirm-button" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -808,7 +890,31 @@
                 </svg>
             </button>
             <h3 class="text-xl font-bold text-gray-900 mb-4">分享报告链接</h3>
-            <p class="text-gray-700">实际会显示查找其它用户，多选并生成分享查看本报告链接，链接可一键复制。</p>
+            
+            <input type="text" id="user-search-input" placeholder="通过姓名或邮箱模糊搜索用户..." class="user-search-input">
+            
+            <div id="user-list" class="user-list">
+                <!-- User items will be dynamically inserted here -->
+            </div>
+
+            <h4 class="font-semibold text-gray-800 mt-4 mb-2">已选择的用户:</h4>
+            <div id="selected-users-container" class="selected-users-container">
+                <!-- Selected user tags will be dynamically inserted here -->
+            </div>
+
+            <button id="generate-link-btn" class="w-full mt-4 bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">生成分享链接</button>
+
+            <div id="generated-link-container" class="generated-link-container hidden">
+                <span id="generated-link" class="text-sm text-gray-700 truncate"></span>
+                <button id="copy-link-btn" title="复制链接" class="p-1 rounded-md hover:bg-gray-200 transition-colors">
+                    <svg class="copy-icon h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <svg class="check-icon h-5 w-5 text-green-500 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1284,28 +1390,148 @@
             renderSuggestionsTable();
             renderDetailedScores();
 
-            // --- MODAL AND DROPDOWN ELEMENTS ---
+            // --- DOM ELEMENT REFERENCES ---
             const exportDropdown = document.getElementById('export-dropdown');
             const aiOptimizeModalOverlay = document.getElementById('ai-optimize-modal-overlay');
             const exportOptionsModalOverlay = document.getElementById('export-options-modal-overlay');
             const shareLinkModalOverlay = document.getElementById('share-link-modal-overlay');
-            
-            // Tab switching logic
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
+            const stickyContainer = document.getElementById('overview-container');
+            const stickySentinel = document.getElementById('sticky-sentinel');
 
+            // --- STICKY HEADER LOGIC ---
+            const observer = new IntersectionObserver(
+                ([e]) => stickyContainer.classList.toggle('is-stuck', e.intersectionRatio < 1),
+                { threshold: [1] }
+            );
+            observer.observe(stickySentinel);
+
+            // --- TAB SWITCHING LOGIC ---
             function showTab(tabId) {
                 tabContents.forEach(content => content.classList.remove('active'));
                 tabButtons.forEach(button => button.classList.remove('active'));
                 document.getElementById(tabId).classList.add('active');
                 document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
             }
-
             showTab('tab-highlights-improvements'); 
+            tabButtons.forEach(button => button.addEventListener('click', () => showTab(button.dataset.tab)));
 
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => showTab(button.dataset.tab));
+            // --- SHARE LINK MODAL LOGIC ---
+            const mockUsers = [
+                { id: 'u1', name: '张三', email: 'zhangsan@example.com' },
+                { id: 'u2', name: '李四', email: 'lisi@example.com' },
+                { id: 'u3', name: '王五', email: 'wangwu@example.com' },
+                { id: 'u4', name: '赵六', email: 'zhaoliu@example.com' },
+                { id: 'u5', name: '孙七', email: 'sunqi@example.com' },
+                { id: 'u6', name: '周八', email: 'zhouba@example.com' }
+            ];
+            let selectedUserIds = new Set();
+            const userSearchInput = document.getElementById('user-search-input');
+            const userListContainer = document.getElementById('user-list');
+            const selectedUsersContainer = document.getElementById('selected-users-container');
+            const generateLinkBtn = document.getElementById('generate-link-btn');
+            const generatedLinkContainer = document.getElementById('generated-link-container');
+            const generatedLinkSpan = document.getElementById('generated-link');
+            const copyLinkBtn = document.getElementById('copy-link-btn');
+
+            function renderUserList(filter = '') {
+                userListContainer.innerHTML = '';
+                const filteredUsers = mockUsers.filter(user => 
+                    user.name.toLowerCase().includes(filter.toLowerCase()) || 
+                    user.email.toLowerCase().includes(filter.toLowerCase())
+                );
+
+                if (filteredUsers.length === 0) {
+                    userListContainer.innerHTML = `<p class="p-2 text-gray-500 text-sm">未找到用户</p>`;
+                    return;
+                }
+
+                filteredUsers.forEach(user => {
+                    const isSelected = selectedUserIds.has(user.id);
+                    const item = document.createElement('div');
+                    item.className = 'user-list-item';
+                    item.dataset.userId = user.id;
+                    item.innerHTML = `
+                        <input type="checkbox" class="mr-3 form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" ${isSelected ? 'checked' : ''}>
+                        <div>
+                            <p class="font-medium text-gray-800">${user.name}</p>
+                            <p class="text-sm text-gray-500">${user.email}</p>
+                        </div>
+                    `;
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleUserSelection(user.id);
+                    });
+                    userListContainer.appendChild(item);
+                });
+            }
+
+            function renderSelectedUsers() {
+                selectedUsersContainer.innerHTML = '';
+                selectedUserIds.forEach(userId => {
+                    const user = mockUsers.find(u => u.id === userId);
+                    if (user) {
+                        const tag = document.createElement('span');
+                        tag.className = 'selected-user-tag';
+                        tag.innerHTML = `
+                            ${user.name}
+                            <button class="remove-user-btn" data-user-id="${user.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        `;
+                        tag.querySelector('.remove-user-btn').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            toggleUserSelection(user.id);
+                        });
+                        selectedUsersContainer.appendChild(tag);
+                    }
+                });
+            }
+
+            function toggleUserSelection(userId) {
+                if (selectedUserIds.has(userId)) {
+                    selectedUserIds.delete(userId);
+                } else {
+                    selectedUserIds.add(userId);
+                }
+                renderUserList(userSearchInput.value);
+                renderSelectedUsers();
+                generatedLinkContainer.classList.add('hidden'); // Hide link when selection changes
+            }
+
+            userSearchInput.addEventListener('input', () => renderUserList(userSearchInput.value));
+            generateLinkBtn.addEventListener('click', () => {
+                if (selectedUserIds.size === 0) {
+                    showFeedback('请至少选择一个用户进行分享。', 'error');
+                    return;
+                }
+                const userParams = Array.from(selectedUserIds).join(',');
+                const link = `${window.location.origin}${window.location.pathname}?share_with=${userParams}`;
+                generatedLinkSpan.textContent = link;
+                generatedLinkContainer.classList.remove('hidden');
             });
+
+            copyLinkBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(generatedLinkSpan.textContent).then(() => {
+                    const copyIcon = copyLinkBtn.querySelector('.copy-icon');
+                    const checkIcon = copyLinkBtn.querySelector('.check-icon');
+                    if (copyIcon && checkIcon) {
+                        copyIcon.classList.add('hidden');
+                        checkIcon.classList.remove('hidden');
+                        showFeedback('链接已复制！'); // Provide visual text feedback as well
+                        setTimeout(() => {
+                            copyIcon.classList.remove('hidden');
+                            checkIcon.classList.add('hidden');
+                        }, 2000);
+                    } else {
+                        showFeedback('链接已复制！'); // Fallback
+                    }
+                }, () => {
+                    showFeedback('复制失败，请手动复制。', 'error');
+                });
+            });
+
 
             // --- GLOBAL CLICK HANDLER FOR DYNAMIC CONTENT & MODALS ---
             document.body.addEventListener('click', function(event) {
@@ -1372,6 +1598,8 @@
                         exportOptionsModalOverlay.classList.remove('hidden');
                     } else if (clickedElement.dataset.action === 'share-link') {
                         shareLinkModalOverlay.classList.remove('hidden');
+                        renderUserList(); // Initial render for share modal
+                        renderSelectedUsers();
                     }
                     
                     // --- Other Global Buttons ---
@@ -1448,7 +1676,10 @@
                     info: 'text-indigo-600'
                 };
                 actionFeedback.classList.add(typeClasses[type] || typeClasses.success);
-                setTimeout(() => actionFeedback.classList.add('hidden'), 5000);
+                setTimeout(() => {
+                    actionFeedback.classList.add('hidden');
+                    actionFeedback.textContent = '';
+                }, 3000);
             }
             
             // --- Global toggle for dimension details ---
