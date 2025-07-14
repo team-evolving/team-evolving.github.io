@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRD文档智能评审报告（汽车行业标准）</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: #f0f2f5; /* Lighter background for a cleaner look */
+        }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a202c;
+            border-left: 4px solid #2563eb;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2.5rem; /* Add some top margin for section separation */
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* Lighter shadow for a cleaner feel */
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Subtle hover effect */
+            transform: translateY(-1px);
+        }
+        .table-interactive tbody tr.chapter-row {
+            cursor: pointer;
+        }
+        .table-interactive tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .table-interactive tbody tr.chapter-row:hover:not(.toggle-row) {
+            background-color: #f9fafb;
+        }
+        .severity-red-tag { color: #dc2626; background-color: #fee2e2; }
+        .severity-yellow-tag { color: #d97706; background-color: #fef3c7; }
+        .severity-orange-tag { color: #f97316; background-color: #ffedd5; }
+        .severity-blue-tag { color: #2563eb; background-color: #dbeafe; }
+        .severity-green { color: #15803d; background-color: #dcfce7; } /* Added green for highlights */
+
+
+        .status-pass {
+            color: #15803d;
+            background-color: #f0fdf4;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .status-fail {
+            color: #b91c1c;
+            background-color: #fef2f2;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .toggle-button .arrow {
+            transition: transform 0.3s ease;
+        }
+        .toggle-button.expanded .arrow {
+            transform: rotate(180deg);
+        }
+        
+        .collapsible summary {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .collapsible summary .arrow {
+            transition: transform 0.3s ease;
+        }
+        .collapsible[open] summary .arrow {
+            transform: rotate(180deg);
+        }
+        
+        .detail-row {
+            background-color: #f8f9fa; /* Slightly different background for the entire row */
+        }
+        .detail-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            border-left-width: 4px;
+            transition: all 0.3s ease-in-out;
+        }
+        .detail-card.highlight {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 2px #3b82f6, 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .detail-card h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+        .detail-card p, .detail-card li {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        .detail-card ul {
+            list-style-position: inside;
+            padding-left: 0.5rem;
+        }
+
+        .preview-mode .preview-highlight {
+            background-color: #dbeafe !important;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Tab specific styles */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+            overflow-x: auto; /* Allow horizontal scrolling for many tabs */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome, Safari, Opera */
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease-in-out;
+            white-space: nowrap; /* Prevent tab titles from wrapping */
+        }
+
+        .tab-button:hover {
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        .tab-button.active {
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Styles for problem insights content */
+        .detailed-score-card-item .problem-insights-section {
+            max-height: 0; /* Use max-height for transition */
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin 0.5s ease-out, border-top 0.5s ease-out;
+            padding-top: 0;
+            margin-top: 0;
+            border-top: 0px solid transparent;
+        }
+
+        /* Show problem insights content when the container is expanded */
+        #detailed-scores-container.expanded .detailed-score-card-item .problem-insights-section {
+            max-height: 500px; /* Sufficiently large value */
+            padding-top: 1rem;
+            margin-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Initial state of the arrow (pointing down for "展开所有详情" - default collapsed state) */
+        #toggle-all-arrow {
+            transition: transform 0.3s ease;
+            transform: rotate(0deg); /* Pointing down by default */
+        }
+        /* When expanded, arrow points up */
+        #toggle-all-dimension-details.expanded #toggle-all-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Styles for the new problem detail card structure */
+        .problem-analysis-section {
+            margin-bottom: 1.5rem;
+        }
+        .problem-analysis-section h4 {
+            font-size: 1rem; /* Slightly larger for section title */
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 0.75rem;
+        }
+        .problem-analysis-section .sub-section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+            margin-top: 1rem; /* Space above sub-sections */
+        }
+        .problem-analysis-section .sub-section-content {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+
+        /* Styles for the new solution structure */
+        .solution-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .solution-section h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 0.75rem;
+        }
+        .solution-section .sub-section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.25rem;
+            margin-top: 0.75rem; /* Smaller top margin for solution sub-sections */
+        }
+        .solution-section ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+        }
+        .solution-section ul li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Specific styles for the new top-dashboard layout */
+        .summary-card-item {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .problem-distribution-bar {
+            height: 1.5rem; /* Height of the bar */
+            display: flex;
+            border-radius: 0.375rem; /* rounded-md */
+            overflow: hidden;
+        }
+
+        .problem-segment {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 600; /* font-semibold */
+            color: white; /* text-white */
+            transition: width 0.5s ease-in-out;
+        }
+        .problem-segment.red { background-color: #dc2626; } /* Tailwind red-600 */
+        .problem-segment.yellow { background-color: #d97706; } /* Tailwind yellow-600 */
+        .problem-segment.orange { background-color: #f97316; } /* Tailwind orange-500 */
+        .problem-segment.blue { background-color: #2563eb; } /* Tailwind blue-600 */
+
+        /* Custom styles for "改进方案" column */
+        #suggestions-table-body td.solution-cell {
+            padding: 0.5rem 1rem !important; /* Adjusted vertical padding */
+            vertical-align: top; /* Align content to the top */
+            font-size: 0.75rem; /* text-xs */
+            color: #4b5563; /* text-gray-700 */
+        }
+        #suggestions-table-body .solution-cell ul {
+            margin: 0 !important; /* Remove all default margins */
+            padding: 0 0 0 1rem !important; /* Remove vertical padding, keep left for list-style */
+            list-style-type: disc;
+            list-style-position: outside; /* Ensure bullets are outside the text block */
+        }
+        #suggestions-table-body .solution-cell ul li {
+            margin: 0 !important; /* Remove all default margins */
+            padding: 0 !important; /* Remove all default paddings */
+            line-height: 1.3 !important; /* Adjust line-height for compact list items */
+        }
+        /* For paragraph-like content within the solution cell (if any is rendered directly) */
+        #suggestions-table-body .solution-cell p {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.3 !important;
+        }
+
+        /* New style for table row cells to add vertical spacing */
+        #suggestions-table-body tr td {
+            padding-top: 0.5rem !important; /* Add vertical padding to all cells in tbody */
+            padding-bottom: 0.5rem !important; /* Add vertical padding to all cells in tbody */
+        }
+
+        /* New style for the status column to ensure content fits */
+        #suggestions-table-body td.status-col {
+            min-width: 100px; /* Minimum width to fit "暂不接受" */
+            white-space: nowrap; /* Prevent text from wrapping */
+            padding-left: 1rem !important; /* Ensure padding is consistent */
+            padding-right: 1rem !important; /* Ensure padding is consistent */
+        }
+
+        /* Global Action Buttons Section Styling */
+        .global-action-buttons-section .card {
+            display: flex;
+            justify-content: space-between; /* Distribute items with space between */
+            align-items: center;
+            gap: 1rem; /* Space between buttons */
+            padding: 1.5rem; /* Consistent padding for the section card */
+        }
+
+        /* Specific styles for each button to match the image */
+        /* 回返人工确认 button */
+        #manual-confirm-button {
+            background-color: transparent; /* Transparent background */
+            color: #4b5563; /* Tailwind gray-700 */
+            font-weight: 500; /* font-medium */
+            padding: 0.5rem 0.75rem; /* Smaller padding */
+            border-radius: 0.375rem; /* rounded-md */
+            box-shadow: none; /* No shadow */
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none; /* No underline by default */
+        }
+        #manual-confirm-button:hover {
+            color: #1f2937; /* Tailwind gray-900 */
+            background-color: #f9fafb; /* Light hover background */
+        }
+
+        /* AI评审失误优化 button - now a text link */
+        #ai-optimize-button {
+            color: #10b981; /* Tailwind green-500 */
+            background-color: transparent;
+            box-shadow: none;
+            padding: 0.5rem 0.75rem; /* Smaller padding */
+            font-weight: 500; /* font-medium */
+            text-decoration: none; /* No underline by default */
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #ai-optimize-button:hover {
+            color: #059669; /* Tailwind green-600 */
+            text-decoration: underline; /* Underline on hover */
+        }
+
+        /* 导出评审报告 button - now a primary button */
+        #export-report-button {
+            background-color: #2563eb; /* Tailwind blue-600 */
+            color: white;
+            font-weight: 600; /* font-semibold */
+            padding: 0.75rem 1.5rem; /* Larger padding */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #export-report-button:hover {
+            background-color: #1d4ed8; /* Tailwind blue-700 */
+        }
+
+        /* Export Dropdown Specific Styles */
+        #export-dropdown {
+            top: auto; /* Override top: 0 from previous positioning */
+            bottom: 100%; /* Position above the button */
+            right: 0;
+            margin-bottom: 0.5rem; /* Small gap between button and dropdown */
+            transform: translateY(10px); /* Initial offset for animation */
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+            z-index: 50; /* Ensure it's above other content */
+        }
+        #export-dropdown.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+        #export-dropdown button {
+            padding: 0.5rem 1rem; /* Padding for dropdown items */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: #374151; /* gray-700 */
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.1s ease-in-out;
+        }
+        #export-dropdown button:hover {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+
+        /* Modal Specific Styles (for AI Optimize and Export Options) */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+            transition: opacity 0.3s ease-out;
+        }
+        .modal-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-overlay > div { /* The actual modal content */
+            transform: translateY(-20px); /* Start slightly above */
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+        .modal-overlay:not(.hidden) > div {
+            transform: translateY(0); /* Move to center */
+            opacity: 1;
+        }
+        .modal-content-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            max-width: 24rem; /* max-w-sm */
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 0.75rem; /* top-3 */
+            right: 0.75rem; /* right-3 */
+            color: #6b7280; /* gray-500 */
+            transition: color 0.1s ease-in-out;
+        }
+        .modal-close-button:hover {
+            color: #374151; /* gray-700 */
+        }
+
+
+        @media print {
+            body {
+                background-color: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid #e2e8f0;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            /* Ensure all tab content is visible when printing */
+            .tab-content {
+                display: block !important;
+            }
+            .tabs {
+                display: none !important; /* Hide tab navigation when printing */
+            }
+            .hidden-on-print-expand, .detail-row {
+                display: revert !important;
+            }
+            .collapsible > div {
+                display: block !important;
+            }
+            .detail-row {
+                display: none !important; /* Hide details on print by default */
+            }
+            /* Ensure detailed score cards are expanded when printing */
+            .detailed-score-card-item .problem-insights-section {
+                max-height: none !important; /* Override max-height for printing */
+                overflow: visible !important;
+                padding-top: 1rem !important;
+                margin-top: 1rem !important;
+                border-top: 1px solid #e2e8f0 !important;
+            }
+            /* Hide the global toggle button in print */
+            #toggle-all-dimension-details {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900">PRD文档智能评审报告</h1>
+            <p class="text-lg text-gray-600 mt-2">汽车行业标准</p>
+        </header>
+
+        <!-- Section 1: Top Summary/Dashboard -->
+        <section id="top-dashboard" class="mb-12 page-break">
+            <h2 class="section-title">评审概览</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left Column: 评审结果 & 综合评分 -->
+                <div class="summary-card-item">
+                    <div class="flex-1 text-center">
+                        <p class="text-gray-500 text-sm">评审结果</p>
+                        <p class="text-red-600 text-2xl font-bold mt-1">不通过</p>
+                    </div>
+                    <div class="border-l border-gray-300 h-16"></div> <!-- Divider -->
+                    <div class="flex-1 text-center">
+                        <p class="text-gray-500 text-sm">综合评分</p>
+                        <p class="text-gray-900 text-2xl font-bold mt-1">69<span class="text-base text-gray-500">/100</span></p>
+                    </div>
+                </div>
+
+                <!-- Right Column: 问题分布 -->
+                <div class="card p-6 flex flex-col justify-center">
+                    <h3 class="text-xl font-bold mb-4 text-center">问题分布 (共10个)</h3>
+                    <div class="problem-distribution-bar w-full">
+                        <div class="problem-segment red" style="width: 10%;">1</div>
+                        <div class="problem-segment yellow" style="width: 40%;">4</div>
+                        <div class="problem-segment orange" style="width: 30%;">3</div>
+                        <div class="problem-segment blue" style="width: 20%;">2</div>
+                    </div>
+                    <ul class="mt-4 flex justify-around text-xs text-gray-700">
+                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-600 mr-1"></span>严重: 1</li>
+                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-yellow-600 mr-1"></span>重要: 4</li>
+                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-orange-500 mr-1"></span>警告: 3</li>
+                        <li class="flex items-center"><span class="w-2 h-2 rounded-full bg-blue-600 mr-1"></span>建议: 2</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Detailed Quality Score -->
+        <section id="detailed-score" class="mb-12 page-break">
+            <h2 class="section-title">各维度质量评分详情</h2>
+            <div class="card p-6">
+                <div class="flex justify-end items-center mb-4">
+                    <button id="toggle-all-dimension-details" class="flex items-center text-blue-600 hover:text-blue-800 transition duration-200">
+                        <span id="toggle-all-text">展开</span>
+                        <svg id="toggle-all-arrow" class="w-5 h-5 ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                </div>
+                <div id="detailed-scores-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <!-- Content will be dynamically inserted here by script -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabbed Sections Container -->
+        <section class="mb-12 page-break">
+            <div class="card p-6">
+                <div class="tabs no-print">
+                    <button class="tab-button active" data-tab="tab-highlights-improvements">评审总结</button>
+                    <button class="tab-button" data-tab="tab-chapter-results">章节评审详细</button>
+                    <button class="tab-button" data-tab="tab-adopt-suggestions">建议转行动</button>
+                    <button class="tab-button" data-tab="tab-review-context">评审上下文</button>
+                </div>
+
+                <!-- Tab Content: 亮点与改进 (Merged content) -->
+                <div id="tab-highlights-improvements" class="tab-content active">
+                    <h2 class="section-title">报告摘要与核心发现</h2>
+                    <!-- Content from "最终结论与核心任务" -->
+                    <p class="text-gray-600 mb-4">本次BSV 特性需求文档评审综合得分 <span class="font-bold text-red-600">69/100分</span>，评审结果为 <span class="font-bold text-red-600">不通过</span>。该文档在部分方面表现出色，如拥有清晰的状态机定义和量化的非功能指标。然而，其存在致命的结构性缺陷，尤其是产品与系统架构的完全缺失，使其无法作为后续工程开发的有效基线。文档整体结构与公司标准模板差距较大，多个重要章节存在信息缺失或格式不规范的问题。</p>
+                    <div class="mt-6">
+                        <h4 class="font-semibold mb-3">核心改进任务列表 (按严重程度排序)</h4>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800"><span class="mr-1.5">🚨</span> 紧急任务</span><span class="block text-xs text-gray-500 mt-1">1周内完成</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P001" class="text-blue-600 hover:underline">P001</a>】必须完成产品架构图和系统架构图的绘制与评审，解决开发阻塞点。</p><p class="font-medium text-gray-800 mt-1">【<a href="#problem-P007" class="text-blue-600 hover:underline">P007</a>】必须关闭所有文档中的开放性批注，明确所有待定需求。</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800"><span class="mr-1.5">🔥</span> 高优先级</span><span class="block text-xs text-gray-500 mt-1">2周内完成</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P003" class="text-blue-600 hover:underline">P003</a>】必须按照标准模板重构功能列表，理清各模式下的功能逻辑。</p><p class="font-medium text-gray-800 mt-1">【<a href="#problem-P005" class="text-blue-600 hover:underline">P005</a>】必须完成法规要求的详细分析，并将其与Use Case关联。</p><p class="font-medium text-gray-800 mt-1">【<a href="#problem-P002" class="text-blue-600 hover:underline">P002</a>】必须按标准表格重新整理所有跨域关联文档。</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-orange-100 text-orange-800"><span class="mr-1.5">🔶</span> 中优先级</span><span class="block text-xs text-gray-500 mt-1">3-4周内完成</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P004" class="text-blue-600 hover:underline">P004</a>, <a href="#problem-P008" class="text-blue-600 hover:underline">P008</a>】详细化产品梯度配置，并确保功能列表与Use Case一一对应。</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-28"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800"><span class="mr-1.5">🔹</span> 低优先级</span><span class="block text-xs text-gray-500 mt-1">后续优化</span></div><div class="ml-4 flex-grow"><p class="font-medium text-gray-800">【<a href="#problem-P009" class="text-blue-600 hover:underline">P009</a>, <a href="#problem-P010" class="text-blue-600 hover:underline">P010</a>】优化变更日志的描述，并对HMI文言的表达和位置进行改进。</p></div></div>
+                        </div>
+                    </div>
+                    <div class="mt-6 border-t pt-4">
+                        <p class="text-sm text-gray-600"><strong>整改成功标准:</strong> 所有🔴严重和🟡重要问题全部关闭，综合评分达到 <span class="font-bold text-green-600">80分</span> 以上。</p>
+                    </div>
+
+                    <!-- Content from "文档亮点与优势" -->
+                    <h2 class="section-title mt-8">文档亮点与优势</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="card p-6 border-t-4 border-green-500">
+                            <div class="flex items-center mb-3">
+                                <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+5分</span>
+                                <h3 class="font-semibold text-lg">状态机定义清晰</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2">文档在2.5章节中，通过状态图和详细的转换条件（T1-T10）对功能的关键状态（OFF, Initialize, Standby, Active, Failure）进行了清晰的定义。</p>
+                            <p class="text-sm"><strong class="text-green-700">价值:</strong> 这种严谨的状态机定义为开发人员提供了无歧义的逻辑框架，极大降低了实现错误的风险，并为状态相关的测试用例设计提供了坚实基础。</p>
+                        </div>
+                        <div class="card p-6 border-t-4 border-green-500">
+                            <div class="flex items-center mb-3">
+                                <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+5分</span>
+                                <h3 class="font-semibold text-lg">非功能性指标量化明确</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2">文档在4.1章节明确量化了关键的功能性能指标，如激活延迟&lt;300ms、显示延迟&lt;100ms、帧率&gt;50等。同时在4.2章节详细定义了需要埋点的数据指标及其计算逻辑，如BSV日活/月活率。</p>
+                            <p class="text-sm"><strong class="text-green-700">价值:</strong> 清晰、可量化的指标是功能验收的核心依据，确保了产品性能可以被客观、一致地衡量。数据指标的需求为后续的产品运营和迭代优化提供了数据支持。</p>
+                        </div>
+                        <div class="card p-6 border-t-4 border-green-500">
+                            <div class="flex items-center mb-3">
+                                <span class="severity-green text-sm font-bold px-3 py-1 rounded-full mr-3">+3分</span>
+                                <h3 class="font-semibold text-lg">Use Case结构化程度高</h3>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2">功能场景设计（第3章）中的各个Use Case，如3.1.1 和 3.1.2，均采用了“前置条件”、“触发事件”、“主流程”、“可选流程”的结构化方式进行描述。</p>
+                            <p class="text-sm"><strong class="text-green-700">价值:</strong> 这种结构化的描述方式有助于产品、开发、测试等所有相关方对需求达成共识，并使得需求易于分解为具体的开发任务和测试用例。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content: 章节维度评审结果 -->
+                <div id="tab-chapter-results" class="tab-content">
+                    <h2 class="section-title">章节评审详细</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-600 table-interactive">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">章节名称</th>
+                                    <th scope="col" class="px-6 py-3">问题描述</th>
+                                    <th scope="col" class="px-6 py-3">问题等级</th>
+                                    <th scope="col" class="px-6 py-3">问题维度</th>
+                                    <th scope="col" class="px-6 py-3">评价结果</th>
+                                    <th scope="col" class="px-6 py-3 w-32 no-print">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chapters-table-body">
+                                <!-- Data will be dynamically inserted here by script -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab Content: 采纳建议 -->
+                <div id="tab-adopt-suggestions" class="tab-content">
+                    <h2 class="section-title">建议转行动</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-600">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 w-12"><input type="checkbox" id="select-all-suggestions" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></th>
+                                    <th scope="col" class="px-4 py-3">建议 (点击ID可定位问题)</th>
+                                    <th scope="col" class="px-4 py-3">改进方案</th>
+                                    <th scope="col" class="px-4 py-3">采纳状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suggestions-table-body">
+                                <!-- Data will be dynamically inserted here by script -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-6 flex flex-wrap gap-4 justify-end">
+                        <!-- Removed preview-button from here -->
+                        <button id="copy-button" class="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7l3-3m-3 3l-3-3m3 3V5" />
+                            </svg>
+                            一键拷贝到AI编辑器
+                        </button>
+                        <button id="adopt-button" class="text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2 px-3 py-1 rounded-md bg-blue-100 hover:bg-blue-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            一键生成建议卡片
+                        </button>
+                    </div>
+                    <div id="action-feedback" class="mt-4 text-green-600 font-semibold hidden h-8"></div>
+                </div>
+
+                <!-- Tab Content: 评审上下文 -->
+                <div id="tab-review-context" class="tab-content">
+                    <h2 class="section-title">评审上下文</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="card p-6">
+                            <h3 class="font-semibold text-lg mb-3">文档信息</h3>
+                            <div class="space-y-2 text-gray-700">
+                                <p><strong>文档名称:</strong> BSV 特性需求文档</p>
+                                <p><strong>版本:</strong> V1.0.2</p>
+                                <p><strong>变更状态:</strong> 变更</p>
+                                <p><strong>需求概述:</strong> 定义盲区监测（BSV）功能的核心特性、用户场景与性能指标。</p>
+                            </div>
+                        </div>
+                        <div class="card p-6">
+                            <h3 class="font-semibold text-lg mb-3">评审范围</h3>
+                            <div class="space-y-2 text-gray-700">
+                                <p><strong>评审章节数量:</strong> <a href="#chapter-results" class="text-blue-600 hover:underline">23个章节</a></p>
+                                <p><strong>评审规则数量:</strong> <a href="#" class="text-blue-600 hover:underline">27个规则</a></p>
+                                <p><strong>需求模版:</strong> <a href="#" class="text-blue-600 hover:underline">汽车行业标准PRD模版V2.1</a></p>
+                                <p><strong>评审重点:</strong> PRD的整体质量、对于产品设计的价值和易于被其他理解，被AI Coding理解</p>
+                            </div>
+                        </div>
+                        <div class="card p-6 col-span-1 md:col-span-2 no-print">
+                            <details class="collapsible">
+                                <summary class="font-semibold text-lg">
+                                    问题分级与评分规则 (点击展开)
+                                    <svg class="w-5 h-5 arrow text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                                </summary>
+                                <div class="mt-4 pt-4 border-t">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <div class="flex items-start space-x-3">
+                                            <span class="w-6 h-6 rounded-full bg-red-500 flex-shrink-0"></span>
+                                            <div><strong class="text-red-600">严重:</strong> 阻塞开发推进，必须修复</div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <span class="w-6 h-6 rounded-full bg-yellow-500 flex-shrink-0"></span>
+                                            <div><strong class="text-yellow-600">重要:</strong>影响质量或效率，建议修复</div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <span class="w-6 h-6 rounded-full bg-orange-500 flex-shrink-0"></span>
+                                            <div><strong class="text-orange-600">警告:</strong> 可能影响后续扩展或维护，建议优化</div>
+                                        </div>
+                                        <div class="flex items-start space-x-3">
+                                            <span class="w-6 h-6 rounded-full bg-blue-500 flex-shrink-0"></span>
+                                            <div><strong class="text-blue-600">建议:</strong> 优化改进，提升文档质量</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 border-t pt-4 text-sm text-gray-600">
+                                        <p><strong>评分规则:</strong> 最终得分 = 70 (基础分) + 亮点加分 (最高+15) - 问题扣分 (严重-8, 重要-4, 警告-2, 建议-1)</p>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Global Action Buttons Section -->
+        <section class="mb-12 no-print global-action-buttons-section">
+            <div class="card p-6 flex flex-wrap gap-4 justify-between items-center">
+                <button id="manual-confirm-button" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8a5 5 0 000-10H6" />
+                    </svg>
+                    回返人工确认
+                </button>
+<!-- Right Buttons -->
+                <div class="flex items-center gap-4">
+                    <button id="ai-optimize-button" class="text-sm font-medium text-green-500 hover:text-green-700 transition-colors flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        AI评审失误优化
+                    </button>
+                    <div class="relative">
+                        <button id="export-report-button" class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            导出评审报告
+                        </button>
+                        <div id="export-dropdown" class="absolute bottom-full right-0 mb-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 hidden">
+                            <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-action="export-file">导出报告文件</button>
+                            <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-action="share-link">分享报告链接</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    
+    <!-- AI Optimize Modal Structure -->
+    <div id="ai-optimize-modal-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[100] hidden">
+        <div class="modal-content-card">
+            <button id="ai-optimize-modal-close" class="modal-close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">AI评审优化</h3>
+            <p class="text-gray-700">实际会跳转到 AI智能建议、优化界面</p>
+        </div>
+    </div>
+
+    <!-- Export Options Modal Structure -->
+    <div id="export-options-modal-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[100] hidden">
+        <div class="modal-content-card">
+            <button id="export-options-modal-close" class="modal-close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">导出报告文件</h3>
+            <div class="flex flex-col space-y-2">
+                <button class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors" data-action="print-report">打印</button>
+                <button class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors" data-action="save-pdf">保存为PDF</button>
+                <button class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors" data-action="save-word">导出为Word</button>
+                <button class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors" data-action="save-image">导出为图片</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Link Modal Structure -->
+    <div id="share-link-modal-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[100] hidden">
+        <div class="modal-content-card">
+            <button id="share-link-modal-close" class="modal-close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">分享报告链接</h3>
+            <p class="text-gray-700">实际会显示查找其它用户，多选并生成分享查看本报告链接的功能。</p>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const reportData = {
+            problems: {
+                "P001": { 
+                    severity: "严重", title: "产品架构/系统架构图完全缺失", location: "2.2 产品架构/系统架构", dimension: "完整性", 
+                    details: "该章节内容仅为“简单功能不需要架构分解”，完全没有提供产品架构图和系统架构图。", 
+                    impact: "缺少架构图，软件和硬件的边界、模块间的交互关系、信号流和数据流都不明确。这将导致系统设计、软件开发和硬件集成工作无法有效开展，开发团队会产生大量沟通成本和理解偏差。", 
+                    solution: {
+                        idea: "通过架构设计会议明确产品和系统边界。",
+                        specific: [
+                            "组织产品负责人（PO）、系统工程师（SE）和技术负责人（TL）召开架构设计会议。",
+                            "补充产品架构图和系统架构图。"
+                        ],
+                        verification: "架构图已完成评审并获得批准。"
+                    },
+                    expectedState: "应组织产品负责人与技术负责人进行架构分解，并识别并列出所有相关的国家及地区法规（如GB, ECE）和行业标准（如ISO 26262），并分析关键条款对功能设计的要求。当前状态完全忽略了汽车产品开发的合规性基石。", 
+                    originalExcerpt: "该章节内容仅为“简单功能不需要架构分解”，完全没有提供产品架构图和系统架构图。" 
+                },
+                "P002": { 
+                    severity: "重要", title: "跨域文档关联不规范，可追溯性差", location: "1.4.1 当前功能相关文档", dimension: "可追溯性", 
+                    details: "关联文档以不规则的列表形式呈现，缺乏结构化的信息。没有清晰的分类和版本标识。", 
+                    impact: "当关联文档发生变更时，很难评估其对BSV功能的影响范围，增加了版本不匹配和集成失败的风险。", 
+                    solution: {
+                        idea: "重新整理关联文档，提高可追溯性。",
+                        specific: [
+                            "参照标准模板的表格格式，重新整理1.4.1章节。",
+                            "为每个关联文档明确其类别（UE/DR/PRD等）、文档ID和准确的版本号。"
+                        ],
+                        verification: "关联文档列表已结构化，并包含所有必要信息。"
+                    },
+                    expectedState: "应参照标准模板的表格格式，重新整理1.4.1章节。为每个关联文档明确其类别（UE/DR/PRD等）、文档ID和准确的版本号，确保可追溯性。", 
+                    originalExcerpt: "关联文档以不规则的列表形式呈现，缺乏结构化的信息。" 
+                },
+                "P003": { 
+                    severity: "重要", title: "功能列表结构混乱，不符合MECE原则", location: "2.7 功能列表", dimension: "完整性", 
+                    details: "功能列表的层级划分不清晰，将不同模式（标准模式、挂车模式、DOW模式）下的功能点混合在一起。", 
+                    impact: "需求分解和任务分配会变得困难。开发人员可能错误地将某一模式下的逻辑应用到另一模式，导致功能缺陷。", 
+                    solution: {
+                        idea: "重构功能列表，使其符合MECE原则。",
+                        specific: [
+                            "参照标准模板的功能列表案例，重构2.7章节。",
+                            "创建如“标准模式”、“挂车模式”、“DOW模式”等二级功能分类。"
+                        ],
+                        verification: "功能列表已按模式清晰分类，无交叉或遗漏。"
+                    },
+                    expectedState: "应按照标准模板的功能列表案例，重构2.7章节。创建如“标准模式”、“挂车模式”、“DOW模式”等二级功能分类，确保MECE原则。", 
+                    originalExcerpt: "功能列表的层级划分不清晰，将不同模式（标准模式、挂车模式、DOW模式）下的功能点混合在一起。" 
+                },
+                "P004": { 
+                    severity: "警告", title: "产品梯度配置过于简化", location: "2.3 产品梯度配置说明", dimension: "完整性", 
+                    details: "产品梯度配置说明表格仅简单罗列了平台，对于不同配置（如Pro, Max）下的功能差异化未做任何说明。", 
+                    impact: "不利于市场和销售理解产品配置，也可能导致开发实现混淆。", 
+                    solution: {
+                        idea: "详细化产品梯度配置说明。",
+                        specific: [
+                            "与产品规划团队对齐，明确BSV功能是否存在不同梯度配置。",
+                            "如果存在，则详细描述在不同配置下的功能具体表现有何不同。"
+                        ],
+                        verification: "产品梯度配置已清晰定义，并得到相关团队确认。"
+                    },
+                    expectedState: "应与产品规划团队对齐，明确BSV功能是否存在不同梯度配置。如果存在，则详细描述在不同配置下的功能具体表现有何不同，以便市场和销售理解。", 
+                    originalExcerpt: "产品梯度配置说明表格仅简单罗列了平台，对于不同配置（如Pro, Max）下的功能差异化未做任何说明。" 
+                },
+                "P005": { 
+                    severity: "重要", title: "法规遵从性说明不足", location: "1.4.2 政策法规文件", dimension: "完整性", 
+                    details: "法规引用未明确指出具体适用的章节条款，以及这些条款与具体Use Case的关联性。", 
+                    impact: "存在产品不满足目标市场法规的风险，可能导致认证失败或产品召回。", 
+                    solution: {
+                        idea: "补充法规遵从性详细说明。",
+                        specific: [
+                            "与法规部门或合规专家合作，在表格中将“法规相关内容”更新为具体的章节和条款原文。",
+                            "将法规条款关联到具体 Use Case ID。"
+                        ],
+                        verification: "法规遵从性说明已更新并与Use Case关联，通过合规审查。"
+                    },
+                    expectedState: "应与法规部门或合规专家合作，在表格中将“法规相关内容”更新为具体的章节和条款原文，并关联到具体 Use Case ID，确保法规遵从性。", 
+                    originalExcerpt: "法规引用未明确指出具体适用的章节条款，以及这些条款与具体Use Case的关联性。" 
+                },
+                "P006": { 
+                    severity: "警告", title: "术语定义不一致", location: "1.3 术语解释", dimension: "一致性", 
+                    details: "术语“CSD”在文档中定义为“Centerstack Display”，与模板中的“中控屏”常用表达不完全一致。", 
+                    impact: "对于非技术背景的阅读者（如市场、销售），纯英文缩写可能造成理解障碍。", 
+                    solution: {
+                        idea: "统一术语定义，提高可读性。",
+                        specific: [
+                            "在术语表中，为“CSD”的定义增加中文解释，修改为 Centerstack Display (中控显示屏)。"
+                        ],
+                        verification: "术语表已更新，所有术语定义一致且清晰。"
+                    },
+                    expectedState: "在术语表中，应为“CSD”的定义增加中文解释，修改为 Centerstack Display (中控显示屏)，以确保术语一致性。", 
+                    originalExcerpt: "术语“CSD”在文档中定义为“Centerstack Display”，与模板中的“中控屏”常用表达不完全一致。" 
+                },
+                "P007": { 
+                    severity: "重要", title: "需求存在未关闭的开放点", location: "2.5 关键状态流转", dimension: "明确性", 
+                    details: "文档中存在多个“批注”，表明某些需求点尚未达成最终共识。例如：[批注[5]:需要跟行车确认挂车模式下是否能开启ICC/ACC等功能]。", 
+                    impact: "开发人员无法实现不确定的需求，如果强行实现，极有可能在后期因为需求变更而导致大量返工。", 
+                    solution: {
+                        idea: "关闭所有开放性需求点。",
+                        specific: [
+                            "产品负责人必须立即跟进所有批注中提到的待办事项。",
+                            "与行车功能团队开会确认，并将最终结论更新到正文中，然后删除该批注。"
+                        ],
+                        verification: "所有批注已关闭，需求已明确并写入文档正文。"
+                    },
+                    expectedState: "产品负责人应立即跟进所有批注中提到的待办事项，与行车功能团队开会确认，并将最终结论更新到正文中，然后删除该批注，确保需求明确性。", 
+                    originalExcerpt: "文档中存在多个“批注”，表明某些需求点尚未达成最终共识。例如：[批注[5]:需要跟行车确认挂车模式下是否能开启ICC/ACC等功能]。" 
+                },
+                "P008": { 
+                    severity: "警告", title: "功能列表与Use Case不完全对应", location: "2.7, 3.x", dimension: "一致性", 
+                    details: "功能列表中的某些条目在Use Case章节没有完全对应的详细设计。", 
+                    impact: "可能导致部分需求（如此处提到的标准模式下的故障退出逻辑）没有被详细设计，开发时可能会遗漏。", 
+                    solution: {
+                        idea: "确保功能列表与Use Case完全对应。",
+                        specific: [
+                            "梳理2.7章节的功能列表，确认标准模式下是否需要独立的故障退出场景。",
+                            "如果需要，则在第3章中补充对应的 Use Case。"
+                        ],
+                        verification: "功能列表与Use Case已完全匹配，无遗漏设计。"
+                    },
+                    expectedState: "应梳理2.7章节的功能列表，确认标准模式下是否需要独立的故障退出场景。如果需要，则在第3章中补充对应的 Use Case，确保功能列表与Use Case完全对应。", 
+                    originalExcerpt: "功能列表中的某些条目在Use Case章节没有完全对应的详细设计。" 
+                },
+                "P009": { 
+                    severity: "建议", title: "变更日志描述可优化", location: "编制/变更日志", dimension: "可追溯性", 
+                    details: "版本V1.0.2的修改内容描述笼统，未能体现增量修改的具体条目。", 
+                    impact: "轻微影响版本间变更的快速追溯能力。", 
+                    solution: {
+                        idea: "优化变更日志描述的粒度。",
+                        specific: [
+                            "将V1.0.2的变更描述修改得更具体，例如：",
+                            "1. 在Usecase 3.4.1, 3.5.1, 3.5.2中，增加关联系统故障的文言提示。",
+                            "2. 在Usecase 3.2.1, 3.3.1中，增加与行车功能的抑制逻辑。",
+                            "3. 新增Usecase 3.3.2：BSV与BSD联动报警。"
+                        ],
+                        verification: "变更日志已详细记录每次修改内容，便于追溯。"
+                    },
+                    expectedState: "应将V1.0.2的变更描述修改得更具体，例如：\n1. 在Usecase 3.4.1, 3.5.1, 3.5.2中，增加关联系统故障的文言提示。\n2. 在Usecase 3.2.1, 3.3.1中，增加与行车功能的抑制逻辑。\n3. 新增Usecase 3.3.2：BSV与BSD联动报警，以优化变更日志描述。", 
+                    originalExcerpt: "版本V1.0.2的修改内容笼统，未能体现增量修改的具体条目。" 
+                },
+                "P010": { 
+                    severity: "建议", title: "文言汇总内容及位置可优化", location: "4.3.1 文言提示汇总", dimension: "明确性", 
+                    details: "该章节的备注中，对文言的退出条件描述为“5s后文言和影像退出”，这里的“影像退出”可能存在歧义。", 
+                    impact: "可能导致HMI实现与预期有细微偏差。", 
+                    solution: {
+                        idea: "明确文言提示的逻辑和位置。",
+                        specific: [
+                            "将“5s后文言和影像退出”修改为更明确的描述，例如：“Toast文言显示5s后自动消失；视图上的常显文言随影像一同退出”。",
+                            "考虑将所有HMI相关的提示信息整合到一个独立的章节中。"
+                        ],
+                        verification: "文言提示逻辑已明确，HMI实现无歧义。"
+                    },
+                    expectedState: "1. 应将“5s后文言和影像退出”修改为更明确的描述，例如：“Toast文言显示5s后自动消失；视图上的常显文言随影像一同退出”。\n2. 考虑将所有HMI相关的提示信息整合到一个独立的章节中，以优化文言汇总内容及位置。", 
+                    originalExcerpt: "该章节的备注中，对文言的退出条件描述为“5s后文言和影像退出”，这里的“影像退出”可能存在歧义。" 
+                }
+            },
+            chapters: [
+                { name: "封面", problems: [] },
+                { name: "编制/变更日志", problems: ["P009"] },
+                { name: "1.1 文档背景", problems: [] },
+                { name: "1.2 文档范围", problems: [] },
+                { name: "1.3 术语解释", problems: ["P006"] },
+                { name: "1.4.1 当前功能相关文档", problems: ["P002"] },
+                { name: "1.4.2 政策法规文件", problems: ["P005"] },
+                { name: "1.4.3 行业规范文件", problems: [] },
+                { name: "2.1 产品场景及概要说明", problems: [] },
+                { name: "2.2 产品架构/系统架构", problems: ["P001"] },
+                { name: "2.3 产品梯度配置说明", problems: ["P004"] },
+                { name: "2.4 功能流程图", problems: [] },
+                { name: "2.5 关键状态流转", problems: ["P007"] },
+                { name: "2.6 配置", problems: [] },
+                { name: "2.7 功能列表", problems: ["P003", "P008"] },
+                { name: "3.1.1, 3.1.2 功能激活", problems: [] },
+                { name: "3.2.1 功能退出", problems: [] },
+                { name: "3.3.1, 3.3.2 联动逻辑", problems: [] },
+                { name: "3.4.1 挂车模式故障", problems: [] },
+                { name: "3.5.1, 3.5.2 DOW模式故障", problems: [] },
+                { name: "4.1 功能指标要求", problems: [] },
+                { name: "4.2 数据指标需求", problems: [] },
+                { name: "4.3.1 文言提示汇总", problems: ["P010"] },
+            ]
+        };
+
+        // Initialize adoption status for all problems to true (已确认)
+        const adoptionStatus = {};
+        for (const problemId in reportData.problems) {
+            adoptionStatus[problemId] = true; // Default to adopted (已确认)
+        }
+
+        // --- HELPER FUNCTIONS ---
+        function truncateText(text, maxLength = 50) {
+            if (!text) return '';
+            if (text.length > maxLength) {
+                return text.substring(0, maxLength) + '...';
+            }
+            return text;
+        }
+
+        function getSeverityClass(severity, type = 'tag') {
+            const map = {
+                '严重': { tag: 'severity-red-tag', border: 'border-red-500', text: 'text-red-600' },
+                '重要': { tag: 'severity-yellow-tag', border: 'border-yellow-500', text: 'text-yellow-600' },
+                '警告': { tag: 'severity-orange-tag', border: 'border-orange-500', text: 'text-orange-600' },
+                '建议': { tag: 'severity-blue-tag', border: 'border-blue-600', text: 'text-blue-600' }
+            };
+            return (map[severity] && map[severity][type]) || '';
+        }
+
+        function getSeverityTagHtml(severity) {
+            const iconMap = {'严重': '🔴', '重要': '🟡', '警告': '🟠', '建议': '🔵'};
+            return `<span class="px-2 py-1 text-xs font-medium rounded-full ${getSeverityClass(severity)}">${iconMap[severity] || ''}${severity}</span>`;
+        }
+
+        function getSeverityButtonColorClass(severity) {
+            const map = {
+                '严重': 'bg-red-500 hover:bg-red-600',
+                '重要': 'bg-yellow-500 hover:bg-yellow-600',
+                '警告': 'bg-orange-500 hover:bg-orange-600',
+                '建议': 'bg-blue-500 hover:bg-blue-600'
+            };
+            return map[severity] || 'bg-gray-500 hover:bg-gray-600'; // Default if not found
+        }
+
+        function createProblemDetailCard(problemId) {
+            const problem = reportData.problems[problemId];
+            if (!problem) return '';
+            const currentAdoptionStatus = adoptionStatus[problemId];
+            
+            // Button text and class based on current adoption status
+            const toggleButtonText = currentAdoptionStatus ? '暂不接受' : '确认建议';
+            const toggleButtonClass = currentAdoptionStatus ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600';
+            
+            // Solution status text and class
+            const solutionStatusText = currentAdoptionStatus ? '✅ 已确认' : '❌ 暂不接受';
+            const solutionStatusClass = currentAdoptionStatus ? 'status-pass' : 'status-fail';
+
+
+            return `
+                <div id="problem-${problemId}" class="detail-card p-6 ${getSeverityClass(problem.severity, 'border')}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">${problemId}: ${problem.title}</h3>
+                            <p class="text-sm text-gray-500">发现位置: ${problem.location}</p>
+                        </div>
+                        <button class="flex items-center space-x-1 px-3 py-1 text-sm font-semibold rounded-full text-white transition duration-200 ${getSeverityButtonColorClass(problem.severity)}"
+                                onclick="console.log('Attempting to navigate to PRD chapter: ${problem.location}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span>转到PRD对应章节</span>
+                        </button>
+                    </div>
+                    
+                    <div class="problem-analysis-section">
+                        <h4>详细问题分析</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h5 class="sub-section-title">问题详情</h5>
+                                <p class="sub-section-content">${problem.details}</p>
+                            </div>
+                            <div>
+                                <h5 class="sub-section-title">引用原文摘要</h5>
+                                <p class="sub-section-content text-gray-700 italic border-l-2 border-gray-300 pl-2">${truncateText(problem.originalExcerpt || '原文摘要缺失。')}</p>
+                            </div>
+                            <div>
+                                <h5 class="sub-section-title">期望状态</h5>
+                                <p class="sub-section-content">${problem.expectedState || '暂无期望状态描述。'}</p>
+                            </div>
+                            <div>
+                                <h5 class="sub-section-title">影响分析</h5>
+                                <p class="sub-section-content">${problem.impact}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="solution-section">
+                        <h4 class="flex items-center justify-between">
+                            <span>改进方案</span>
+                            <span class="${solutionStatusClass}">${solutionStatusText}</span>
+                        </h4>
+                        <h5 class="sub-section-title">修改思路</h5>
+                        <p class="sub-section-content">${problem.solution.idea || '暂无修改思路。'}</p>
+                        <h5 class="sub-section-title">具体修改</h5>
+                        <ul class="sub-section-content">
+                            ${problem.solution.specific.map(item => `<li>${item}</li>`).join('')}
+                            ${problem.solution.specific.length === 0 ? '<li>暂无具体修改内容。</li>' : ''}
+                        </ul>
+                        <h5 class="sub-section-title">验证方法</h5>
+                        <p class="sub-section-content">${problem.solution.verification || '暂无验证方法。'}</p>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t flex justify-end">
+                        <button class="toggle-adoption-btn px-4 py-2 rounded-lg text-white font-semibold ${toggleButtonClass}"
+                                data-problem-id="${problemId}">
+                            ${toggleButtonText}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderChapterTable() {
+            const tableBody = document.getElementById('chapters-table-body');
+            let content = '';
+            reportData.chapters.forEach(chapter => {
+                const hasProblems = chapter.problems.length > 0;
+                let mainProblem, problemInfo, problemDimensions, resultHtml, rowClass, detailContent = '';
+
+                if (hasProblems) {
+                    mainProblem = reportData.problems[chapter.problems[0]];
+                    problemInfo = mainProblem.title.substring(0, 15) + '...';
+                    problemDimensions = [...new Set(chapter.problems.map(pId => reportData.problems[pId].dimension))].join(', ');
+                    const isFail = chapter.problems.some(pId => ['严重', '重要'].includes(reportData.problems[pId].severity));
+                    resultHtml = isFail 
+                        ? `<span class="status-fail">❌不通过</span>` 
+                        : `<span class="status-pass">✅通过</span>`;
+                    rowClass = '';
+                    detailContent = chapter.problems.map(createProblemDetailCard).join('<div class="my-4"></div>');
+                } else {
+                    problemInfo = '无问题';
+                    problemDimensions = '-';
+                    resultHtml = `<span class="status-pass">✅通过</span>`;
+                    rowClass = 'bg-green-50';
+                }
+
+                content += `
+                    <tr class="chapter-row border-b ${rowClass}" ${hasProblems ? `data-chapter-id="${chapter.problems.join('-')}"` : ''}>
+                        <td class="px-6 py-4 font-semibold">${chapter.name}</td>
+                        <td class="px-6 py-4">${problemInfo}</td>
+                        <td class="px-6 py-4">${hasProblems ? getSeverityTagHtml(mainProblem.severity) : '-'}</td>
+                        <td class="px-6 py-4">${problemDimensions}</td>
+                        <td class="px-6 py-4">${resultHtml}</td>
+                        <td class="px-6 py-4 no-print">${hasProblems ? `<button class="toggle-button view-details-btn"><span>查看详情</span> <svg class="w-4 h-4 arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg></button>` : ''}</td>
+                    </tr>
+                `;
+                if(hasProblems) {
+                    content += `<tr id="details-${chapter.problems.join('-')}" class="detail-row hidden"><td colspan="6" class="p-4">${detailContent}</td></tr>`;
+                }
+            });
+            tableBody.innerHTML = content;
+        }
+
+        function renderSuggestionsTable() {
+            const suggestionsBody = document.getElementById('suggestions-table-body');
+            let content = '';
+            const problemOrder = ["P001", "P007", "P003", "P005", "P002", "P004", "P008", "P009", "P010"];
+            problemOrder.forEach(pId => {
+                 const problem = reportData.problems[pId];
+                 if(problem) {
+                    const isAdopted = adoptionStatus[pId];
+                    const statusText = isAdopted ? '已确认' : '暂不接受'; // Updated text
+                    const statusClass = isAdopted ? 'status-pass' : 'status-fail';
+                    const statusIcon = isAdopted ? '✅' : '❌';
+
+                    // Reintroduce ul/li for specific solutions with minimal styling
+                    const solutionHtml = problem.solution.specific.length > 0
+                        ? `<ul class="text-xs">${problem.solution.specific.map(item => `<li>${item}</li>`).join('')}</ul>`
+                        : '暂无具体修改内容。';
+
+                    content += `
+                        <tr class="border-b">
+                            <td class="px-4 py-2 align-top"><input type="checkbox" class="suggestion-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" data-suggestion-id="${pId}"></td>
+                            <td class="px-4 py-2">
+                                <p class="font-semibold">${getSeverityTagHtml(problem.severity)} ${problem.title} <a href="#problem-${pId}" class="text-blue-600 hover:underline problem-link">[${pId}]</a></p>
+                                <p class="text-xs text-gray-500 mt-0.5">${problem.details}</p>
+                            </td>
+                            <td class="px-4 py-2 solution-cell">
+                                ${solutionHtml}
+                            </td>
+                            <td class="px-4 py-2 status-col"><span class="${statusClass}">${statusIcon} ${statusText}</span></td>
+                        </tr>
+                    `;
+                 }
+            });
+            suggestionsBody.innerHTML = content;
+        }
+
+        // Function to render detailed score cards
+        function renderDetailedScores() {
+            const detailedScoreContainer = document.getElementById('detailed-scores-container');
+            let content = '';
+
+            const dimensionScores = {
+                '完整性': { score: 62, color: 'red' },
+                '一致性': { score: 76, color: 'amber' },
+                '可测试性': { score: 90, color: 'green' },
+                '可追溯性': { score: 70, color: 'amber' },
+                '明确性': { score: 73, color: 'amber' }
+            };
+
+            const dimensionProblems = {};
+            for (const problemId in reportData.problems) {
+                const problem = reportData.problems[problemId];
+                if (!dimensionProblems[problem.dimension]) {
+                    dimensionProblems[problem.dimension] = [];
+                }
+                dimensionProblems[problem.dimension].push({ id: problemId, title: problem.title, severity: problem.severity, details: problem.details, impact: problem.impact }); // Include details and impact
+            }
+
+            const dimensionsOrder = ['完整性', '一致性', '可测试性', '可追溯性', '明确性'];
+
+            dimensionsOrder.forEach(dimensionName => {
+                const scoreData = dimensionScores[dimensionName];
+                const problems = dimensionProblems[dimensionName] || [];
+                const problemCount = problems.length;
+
+                // Filter for key problems (severity: 严重, 重要, 警告)
+                const keyProblems = problems.filter(p => ['严重', '重要', '警告'].includes(p.severity));
+                let problemInsightsContent = '';
+
+                if (keyProblems.length === 0) {
+                    problemInsightsContent = `
+                        <div class="text-left space-y-1 text-xs px-2">
+                            <p class="text-gray-500">无关键问题。</p>
+                            <p class="text-gray-500 mt-1">此维度表现良好，得分${scoreData.score}。</p>
+                        </div>
+                    `;
+                } else if (keyProblems.length === 1) {
+                    const singleProblem = keyProblems[0];
+                    problemInsightsContent = `
+                        <div class="text-left space-y-1 text-xs px-2">
+                            <p class="font-semibold text-gray-800">问题详情:</p>
+                            <p>${singleProblem.details}</p>
+                            <!-- Fill blank space if needed -->
+                            <div class="h-4"></div> 
+                            <p class="mt-2 text-gray-500">问题编号: <a href="#problem-${singleProblem.id}" class="text-blue-600 hover:underline">${singleProblem.id}</a></p>
+                        </div>
+                    `;
+                } else { // keyProblems.length > 1
+                    problemInsightsContent = keyProblems.slice(0, 3).map(p => `
+                        <li>
+                            ${p.title.length > 15 ? p.title.substring(0, 15) + '...' : p.title} 
+                            <a href="#problem-${p.id}" class="text-blue-600 hover:underline">[${p.id}]</a>
+                        </li>
+                    `).join('');
+                    if (keyProblems.length > 3) {
+                        problemInsightsContent += `<li><span class="text-gray-500">...更多</span></li>`;
+                    }
+                    problemInsightsContent = `<ul class="list-disc list-inside text-left space-y-1 text-xs px-2">${problemInsightsContent}</ul>`;
+                }
+
+                content += `
+                    <div class="card p-6 flex flex-col items-center text-center detailed-score-card-item">
+                        <h3 class="font-semibold text-lg mb-2 text-gray-700">${dimensionName}</h3>
+                        <div class="relative w-24 h-24 mb-4">
+                            <svg class="w-full h-full" viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e6e6e6" stroke-width="3"></path>
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="${scoreData.color === 'red' ? '#dc2626' : scoreData.color === 'amber' ? '#f59e0b' : '#10b981'}" stroke-width="3" stroke-dasharray="${scoreData.score}, 100" stroke-linecap="round"></path>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-2xl font-bold ${scoreData.color === 'red' ? 'text-red-600' : scoreData.color === 'amber' ? 'text-amber-600' : 'text-green-600'}">${scoreData.score}</span>
+                                <span class="text-xs text-gray-500">/ 100</span>
+                            </div>
+                        </div>
+                        <p class="mb-2">问题数: <span class="font-bold">${problemCount}</span></p>
+                        <div class="problem-insights-section w-full">
+                            <h5 class="font-semibold mb-1">关键问题见解:</h5>
+                            ${problemInsightsContent}
+                        </div>
+                    </div>
+                `;
+            });
+            detailedScoreContainer.innerHTML = content;
+        }
+
+
+        // --- MAIN EXECUTION & EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', function() {
+            renderChapterTable();
+            renderSuggestionsTable();
+            renderDetailedScores(); // Call the new function to render the detailed score cards
+
+            // Tab switching logic
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            function showTab(tabId) {
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                });
+
+                document.getElementById(tabId).classList.add('active');
+                document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+            }
+
+            // Set initial active tab to 'tab-highlights-improvements' (now '评审总结')
+            showTab('tab-highlights-improvements'); 
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    showTab(button.dataset.tab);
+                });
+            });
+
+            document.body.addEventListener('click', function(event) {
+                // Global handler for all problem links
+                const problemLink = event.target.closest('a.problem-link, a[href^="#problem-"]');
+                if (problemLink) {
+                    event.preventDefault();
+                    const problemId = problemLink.getAttribute('href').substring(1);
+                    
+                    // Find the chapter row that contains this problem
+                    const chapterRow = Array.from(document.querySelectorAll('.chapter-row[data-chapter-id]')).find(row => row.dataset.chapterId.includes(problemId.replace('problem-','')));
+                    
+                    if (chapterRow) {
+                        // Ensure the correct tab is active before trying to scroll
+                        showTab('tab-chapter-results'); // Switch to the chapter results tab
+
+                        const detailRow = document.getElementById(`details-${chapterRow.dataset.chapterId}`);
+                        if (detailRow && detailRow.classList.contains('hidden')) {
+                            chapterRow.click(); // Use existing logic to expand
+                        }
+
+                        // Scroll to the problem card after a short delay
+                        setTimeout(() => {
+                            const problemCard = document.getElementById(problemId);
+                            if (problemCard) {
+                                problemCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                problemCard.classList.add('highlight');
+                                setTimeout(() => problemCard.classList.remove('highlight'), 2500);
+                            }
+                        }, 150);
+                    }
+                }
+
+                // Handler for expanding/collapsing rows
+                const chapterRow = event.target.closest('.chapter-row[data-chapter-id]');
+                if (chapterRow && !event.target.closest('a')) {
+                     const chapterId = chapterRow.dataset.chapterId;
+                    const detailRow = document.getElementById(`details-${chapterId}`);
+                    if (!detailRow) return;
+
+                    const button = chapterRow.querySelector('.view-details-btn');
+                    const isExpanded = !detailRow.classList.contains('hidden');
+
+                    detailRow.classList.toggle('hidden');
+                    if (button) {
+                        button.classList.toggle('expanded', !isExpanded);
+                        button.querySelector('span').textContent = isExpanded ? '查看详情' : '收起详情';
+                    }
+                }
+
+                // Handler for toggling adoption status
+                const toggleAdoptionBtn = event.target.closest('.toggle-adoption-btn');
+                if (toggleAdoptionBtn) {
+                    const problemId = toggleAdoptionBtn.dataset.problemId;
+                    adoptionStatus[problemId] = !adoptionStatus[problemId]; // Toggle status
+                    
+                    // Update the button's text and class immediately
+                    const isAdopted = adoptionStatus[problemId];
+                    toggleAdoptionBtn.textContent = isAdopted ? '暂不接受' : '确认建议'; // Updated text
+                    toggleAdoptionBtn.classList.remove('bg-red-500', 'hover:bg-red-600', 'bg-green-500', 'hover:bg-green-600');
+                    toggleAdoptionBtn.classList.add(isAdopted ? 'bg-red-500' : 'bg-green-500');
+                    toggleAdoptionBtn.classList.add(isAdopted ? 'hover:bg-red-600' : 'hover:bg-green-600');
+
+                    // Re-render the relevant parts to reflect the change
+                    renderSuggestionsTable(); // Re-render the suggestions table
+                    // Re-render the specific problem card to update its solution status
+                    const problemCardContainer = document.getElementById(`problem-${problemId}`).parentNode;
+                    problemCardContainer.innerHTML = createProblemDetailCard(problemId);
+                }
+            });
+
+            const selectAllCheckbox = document.getElementById('select-all-suggestions');
+            const suggestionCheckboxes = document.querySelectorAll('.suggestion-checkbox');
+            // const adoptButton = document.getElementById('adopt-button'); // Removed direct reference
+            // const copyButton = document.getElementById('copy-button'); // Removed direct reference
+            // const previewButton = document.getElementById('preview-button'); // Removed direct reference and its listener
+            const actionFeedback = document.getElementById('action-feedback');
+            
+            let originalStates = {};
+
+            function showFeedback(message, type = 'success') {
+                actionFeedback.textContent = message;
+                actionFeedback.classList.remove('hidden', 'text-green-600', 'text-red-600', 'text-indigo-600');
+                
+                if (type === 'error') actionFeedback.classList.add('text-red-600');
+                else if (type === 'info') actionFeedback.classList.add('text-indigo-600');
+                else actionFeedback.classList.add('text-green-600');
+
+                setTimeout(() => actionFeedback.classList.add('hidden'), 5000);
+            }
+
+            selectAllCheckbox.addEventListener('change', () => {
+                suggestionCheckboxes.forEach(cb => { cb.checked = selectAllCheckbox.checked; });
+            });
+            
+            // Event delegation for copy, adopt, export, manual confirm, ai optimize buttons
+            document.body.addEventListener('click', function(event) {
+                const clickedElement = event.target.closest('button');
+                const exportDropdown = document.getElementById('export-dropdown');
+                const aiOptimizeModalOverlay = document.getElementById('ai-optimize-modal-overlay');
+                const exportOptionsModalOverlay = document.getElementById('export-options-modal-overlay');
+                const shareLinkModalOverlay = document.getElementById('share-link-modal-overlay');
+
+
+                if (clickedElement) {
+                    if (clickedElement.id === 'copy-button') {
+                        const selected = Array.from(document.querySelectorAll('.suggestion-checkbox:checked'));
+                        if (selected.length === 0) {
+                            showFeedback('请至少选择一条建议进行拷贝。', 'error');
+                            return;
+                        }
+                        let text = "采纳以下PRD评审建议：\n\n";
+                        selected.forEach(cb => {
+                            const row = cb.closest('tr');
+                            text += `---\n问题: ${row.cells[1].querySelector('p.font-semibold').innerText}\n详情: ${row.cells[1].querySelector('p.text-xs').innerText}\n改进方案: ${row.cells[2].innerText}\n`;
+                        });
+                        const tempTextArea = document.createElement('textarea');
+                        tempTextArea.value = text;
+                        document.body.appendChild(tempTextArea);
+                        tempTextArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempTextArea);
+                        showFeedback('建议内容已成功拷贝到剪贴板!');
+                    } else if (clickedElement.id === 'adopt-button') {
+                        const selected = Array.from(document.querySelectorAll('.suggestion-checkbox:checked')).map(cb => cb.dataset.suggestionId);
+                        if (selected.length > 0) showFeedback(`已为 ${selected.join(', ')} 生成建议卡片!`);
+                        else showFeedback('请至少选择一条建议。', 'error');
+                    } else if (clickedElement.id === 'export-report-button') {
+                        event.stopPropagation(); // Prevent document click from closing immediately
+                        exportDropdown.classList.toggle('hidden');
+                    } else if (clickedElement.dataset.action === 'export-file') {
+                        exportDropdown.classList.add('hidden'); // Close dropdown
+                        exportOptionsModalOverlay.classList.remove('hidden'); // Show export options modal
+                    } else if (clickedElement.dataset.action === 'share-link') {
+                        exportDropdown.classList.add('hidden'); // Close dropdown
+                        shareLinkModalOverlay.classList.remove('hidden'); // Show share link modal
+                    } else if (clickedElement.id === 'manual-confirm-button') {
+                        showFeedback('回返人工确认操作已触发。', 'info');
+                    } else if (clickedElement.id === 'ai-optimize-button') {
+                        aiOptimizeModalOverlay.classList.remove('hidden');
+                    } else if (clickedElement.id === 'ai-optimize-modal-close') {
+                        aiOptimizeModalOverlay.classList.add('hidden');
+                    } else if (clickedElement.id === 'export-options-modal-close') {
+                        exportOptionsModalOverlay.classList.add('hidden');
+                    } else if (clickedElement.id === 'share-link-modal-close') {
+                        shareLinkModalOverlay.classList.add('hidden');
+                    } else if (clickedElement.dataset.action === 'print-report' || clickedElement.dataset.action === 'save-pdf') {
+                        window.print();
+                        exportOptionsModalOverlay.classList.add('hidden');
+                    } else if (clickedElement.dataset.action === 'save-word' || clickedElement.dataset.action === 'save-image') {
+                        showFeedback('功能待实现。', 'info');
+                        exportOptionsModalOverlay.classList.add('hidden');
+                    }
+                }
+
+                // Close dropdowns/modals if clicked outside
+                if (exportDropdown && !exportDropdown.contains(event.target) && !clickedElement?.closest('#export-report-button')) {
+                    exportDropdown.classList.add('hidden');
+                }
+                if (aiOptimizeModalOverlay && event.target === aiOptimizeModalOverlay) {
+                    aiOptimizeModalOverlay.classList.add('hidden');
+                }
+                if (exportOptionsModalOverlay && event.target === exportOptionsModalOverlay) {
+                    exportOptionsModalOverlay.classList.add('hidden');
+                }
+                if (shareLinkModalOverlay && event.target === shareLinkModalOverlay) {
+                    shareLinkModalOverlay.classList.add('hidden');
+                }
+            });
+
+
+            // Global toggle for dimension details
+            const toggleAllButton = document.getElementById('toggle-all-dimension-details');
+            const toggleAllText = document.getElementById('toggle-all-text');
+            const toggleAllArrow = document.getElementById('toggle-all-arrow');
+            const detailedScoresContainer = document.getElementById('detailed-scores-container');
+
+            // Initial state: collapsed
+            detailedScoresContainer.classList.remove('expanded'); // Ensure it's collapsed by default
+            toggleAllText.textContent = '展开';
+            toggleAllArrow.style.transform = 'rotate(0deg)'; // Pointing down
+
+            toggleAllButton.addEventListener('click', () => {
+                const isExpanded = detailedScoresContainer.classList.contains('expanded');
+                if (isExpanded) {
+                    detailedScoresContainer.classList.remove('expanded');
+                    toggleAllText.textContent = '展开';
+                    toggleAllArrow.style.transform = 'rotate(0deg)';
+                } else {
+                    detailedScoresContainer.classList.add('expanded');
+                    toggleAllText.textContent = '收起';
+                    toggleAllArrow.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
