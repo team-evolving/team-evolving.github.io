@@ -256,6 +256,18 @@
             gap: 1.5rem;
         }
 
+        /* Sticky header styles for overview container */
+        #overview-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: #f0f2f5; /* Match body background */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
         .problem-distribution-bar {
             height: 1.5rem; /* Height of the bar */
             display: flex;
@@ -575,16 +587,16 @@
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         <!-- Header -->
-        <header class="text-center mb-8">
+        <header class="text-center">
             <h1 class="text-4xl font-bold text-gray-900">PRD文档智能评审报告</h1>
             <p class="text-lg text-gray-600 mt-2">汽车行业标准</p>
         </header>
 
         <!-- Section 1: Top Summary/Dashboard -->
-        <section id="top-dashboard" class="mb-8 page-break">
+        <section id="top-dashboard" class="mb-5 page-break" style="margin-top: -25px;">
             <div id="sticky-sentinel" style="height: 1px;"></div>
             <div id="overview-container" class="sticky-header">
-                <h2 class="section-title">评审概览</h2>
+                <h2 class="section-title">BSV 特性需求文档评审概览</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: 评审结果 & 综合评分 -->
                     <div class="summary-card-item">
@@ -620,8 +632,7 @@
         </section>
 
         <!-- Section 2: Detailed Quality Score -->
-        <section id="detailed-score" class="mb-8 page-break">
-            <h2 class="section-title">各维度质量评分详情</h2>
+        <section id="detailed-score" class="mb-5 page-break">
             <div class="card p-6">
                 <div class="flex justify-end items-center mb-4">
                     <button id="toggle-all-dimension-details" class="flex items-center text-blue-600 hover:text-blue-800 transition duration-200">
@@ -636,7 +647,7 @@
         </section>
 
         <!-- Tabbed Sections Container -->
-        <section class="mb-8 page-break">
+        <section class="mb-5 page-break">
             <div class="card p-6">
                 <div class="tabs no-print">
                     <button class="tab-button active" data-tab="tab-highlights-improvements">评审总结</button>
@@ -810,7 +821,7 @@
         </section>
 
         <!-- Global Action Buttons Section -->
-        <section class="mb-8 no-print global-action-buttons-section">
+        <section class="mb-5 no-print global-action-buttons-section">
             <div class="card p-6 flex flex-wrap gap-4 justify-between items-center">
                 <button id="manual-confirm-button" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
